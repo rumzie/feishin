@@ -1400,7 +1400,7 @@ const initialState: SettingsState = {
         sidebarPlaylistFolderView: 'tree',
         sidebarPlaylistList: true,
         sidebarPlaylistListFilterRegex: '',
-        sidebarPlaylistMode: 'expanded',
+        sidebarPlaylistMode: 'compact',
         sidebarPlaylistSorting: false,
         sideQueueLayout: 'horizontal',
         sideQueueType: 'sideQueue',
