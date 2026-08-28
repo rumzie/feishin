@@ -24,8 +24,8 @@ export const AlbumListInfiniteDetail = ({
     enableHeader = true,
     itemsPerPage = 100,
     query = {
-        sortBy: AlbumListSort.NAME,
-        sortOrder: SortOrder.ASC,
+        sortBy: AlbumListSort.RELEASE_DATE,
+        sortOrder: SortOrder.DESC,
     },
     serverId,
 }: AlbumListInfiniteDetailProps) => {
