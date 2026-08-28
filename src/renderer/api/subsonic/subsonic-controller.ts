@@ -254,7 +254,7 @@ function buildGetTranscodeStreamUrl(
     },
 ): string {
     const params = new URLSearchParams({
-        c: 'Feishin',
+        c: 'rumTunes',
         mediaId: args.mediaId,
         mediaType: args.mediaType,
         offset: String(args.offset),

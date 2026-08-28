@@ -192,7 +192,7 @@ export default class MenuBuilder {
                                   this.mainWindow.show();
                                   this.mainWindow.focus();
                               },
-                              label: 'Feishin',
+                              label: 'rumTunes',
                           },
                       ]
                     : undefined,
