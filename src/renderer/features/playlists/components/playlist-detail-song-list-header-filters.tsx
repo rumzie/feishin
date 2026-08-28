@@ -185,14 +185,14 @@ export const PlaylistDetailSongListHeaderFilters = ({
                 </Button>
                 <Divider orientation="vertical" />
                 <ListSortByDropdown
-                    defaultSortByValue={SongListSort.ID}
+                    defaultSortByValue={SongListSort.RELEASE_YEAR}
                     disabled={isEditMode}
                     itemType={LibraryItem.PLAYLIST_SONG}
                     listKey={ItemListKey.PLAYLIST_SONG}
                 />
                 <Divider orientation="vertical" />
                 <ListSortOrderToggleButton
-                    defaultSortOrder={SortOrder.ASC}
+                    defaultSortOrder={SortOrder.DESC}
                     disabled={isEditMode}
                     listKey={ItemListKey.PLAYLIST_SONG}
                 />

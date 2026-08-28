@@ -25,9 +25,12 @@ export const usePlaylistSongListFilters = () => {
     const setAlbumArtistIdsModeStore = useAppStore((state) => state.actions.setAlbumArtistIdsMode);
     const setArtistIdsModeStore = useAppStore((state) => state.actions.setArtistIdsMode);
     const setGenreIdsModeStore = useAppStore((state) => state.actions.setGenreIdsMode);
-    const { sortBy } = useSortByFilter<SongListSort>(SongListSort.ID, ItemListKey.PLAYLIST_SONG);
+    const { sortBy } = useSortByFilter<SongListSort>(
+        SongListSort.RELEASE_YEAR,
+        ItemListKey.PLAYLIST_SONG,
+    );
 
-    const { sortOrder } = useSortOrderFilter(SortOrder.ASC, ItemListKey.PLAYLIST_SONG);
+    const { sortOrder } = useSortOrderFilter(SortOrder.DESC, ItemListKey.PLAYLIST_SONG);
 
     const { searchTerm, setSearchTerm } = useSearchTermFilter('');
 
