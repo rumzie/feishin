@@ -322,6 +322,19 @@ export const SubsonicController: InternalControllerEndpoint = {
             u: string;
         };
 
+        let ipAddressString = '';
+
+        const ipAddressReq = await fetch('https://api.ipify.org?format=json');
+        if (!ipAddressReq.ok) {
+            console.log(`Response status: ${ipAddressReq.status}`);
+        }
+
+        const result = await ipAddressReq.json();
+
+        if (result.ip) {
+            ipAddressString = `${result.ip}`;
+        }
+
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
 
         if (body.legacy) {
@@ -344,7 +357,7 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         const resp = await ssApiClient({ server: null, url: cleanServerUrl }).authenticate({
             query: {
-                c: 'rumTunes',
+                c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                 f: 'json',
                 username: body.username,
                 v: '1.13.0',

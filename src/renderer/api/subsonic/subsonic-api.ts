@@ -523,6 +523,19 @@ export const ssApiClient = (args: {
             const isGetTranscodeDecisionPost =
                 method === 'POST' && api === 'getTranscodeDecision.view';
 
+            let ipAddressString = '';
+
+            const ipAddressReq = await fetch('https://api.ipify.org?format=json');
+            if (!ipAddressReq.ok) {
+                console.log(`Response status: ${ipAddressReq.status}`);
+            }
+
+            const result = await ipAddressReq.json();
+
+            if (result.ip) {
+                ipAddressString = `${result.ip}`;
+            }
+
             if (isGetTranscodeDecisionPost && body != null) {
                 request.method = 'POST';
                 request.headers = {
@@ -531,7 +544,7 @@ export const ssApiClient = (args: {
                 };
                 request.data = body;
                 request.params = {
-                    c: 'rumTunes',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -543,7 +556,7 @@ export const ssApiClient = (args: {
                 headers['Content-Type'] = 'application/x-www-form-urlencoded';
                 request.method = 'POST';
                 const data = {
-                    c: 'rumTunes',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -552,7 +565,7 @@ export const ssApiClient = (args: {
                 request.data = qs.stringify(data, { arrayFormat: 'repeat' });
             } else {
                 const data = {
-                    c: 'rumTunes',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
