@@ -515,11 +515,11 @@ export const AlbumDetailContent = () => {
     return (
         <div className={styles.contentContainer}>
             <div className={styles.detailContainer}>
-                {comment && (
+                {/* {comment && (
                     <Spoiler maxHeight={75}>
                         <Text pb="md">{replaceURLWithHTMLLinks(comment)}</Text>
                     </Spoiler>
-                )}
+                )} */}
                 <div className={styles.contentLayout}>
                     <div className={styles.songsColumn}>
                         {detailQuery?.data?.songs && detailQuery.data.songs.length > 0 && (

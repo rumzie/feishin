@@ -344,7 +344,7 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         const resp = await ssApiClient({ server: null, url: cleanServerUrl }).authenticate({
             query: {
-                c: 'Feishin',
+                c: 'rumTunes',
                 f: 'json',
                 username: body.username,
                 v: '1.13.0',
@@ -1962,7 +1962,7 @@ export const SubsonicController: InternalControllerEndpoint = {
         const { server } = apiClientProps;
         const { bitrate, format, id, mediaType = 'song', skipAutoTranscode, transcode } = query;
 
-        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=Feishin&${server?.credential}`;
+        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=rumTunes&${server?.credential}`;
 
         // If transcoding is explicitly enabled, just return the direct transcoded stream URL
         if (transcode) {
@@ -1987,7 +1987,7 @@ export const SubsonicController: InternalControllerEndpoint = {
                     directPlayProfiles,
                     maxAudioBitrate: 0,
                     maxTranscodingAudioBitrate,
-                    name: 'Feishin',
+                    name: 'rumTunes',
                     platform: navigator.userAgent,
                     transcodingProfiles,
                 },

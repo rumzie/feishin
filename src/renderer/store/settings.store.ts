@@ -1040,6 +1040,7 @@ export type PlayerFilterOperator = z.infer<typeof PlayerFilterOperatorSchema>;
 export interface SettingsSlice extends z.infer<typeof SettingsStateSchema> {
     actions: {
         addCollection: (collection: SavedCollection) => void;
+        applyDefaultSettings: () => void;
         removeCollection: (id: string) => void;
         reset: () => void;
         resetSampleRate: () => void;
@@ -2266,6 +2267,27 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                             set((state) => {
                                 state.general.collections.push(collection);
                             });
+                        },
+                        applyDefaultSettings: () => {
+                            fetch('./rumTunes-settings.json')
+                                .then((res) => res.json())
+                                .then((data) => {
+                                    const { version, ...settings } = data;
+                                    const migratedSettings = migrateSettings(
+                                        settings as SettingsState,
+                                        version,
+                                    );
+
+                                    set((state) => {
+                                        Object.keys(state).forEach((key) => {
+                                            if (key !== 'actions') {
+                                                delete state[key as keyof SettingsState];
+                                            }
+                                        });
+                                        Object.assign(state, cloneDeep(migratedSettings));
+                                    });
+                                })
+                                .catch((err) => console.error('Failed to load config:', err));
                         },
                         removeCollection: (id: string) => {
                             set((state) => {

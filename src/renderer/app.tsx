@@ -32,11 +32,11 @@ import { PlayerProvider } from '/@/renderer/features/player/context/player-conte
 import { AudioPlayers } from '/@/renderer/features/player/components/audio-players';
 import { ReleaseNotesModal } from '/@/renderer/release-notes-modal';
 
-const UpdateAvailableDialog = lazy(() =>
-    import('./update-available-dialog').then((module) => ({
-        default: module.UpdateAvailableDialog,
-    })),
-);
+// const UpdateAvailableDialog = lazy(() =>
+//     import('./update-available-dialog').then((module) => ({
+//         default: module.UpdateAvailableDialog,
+//     })),
+// );
 
 const ipc = isElectron() ? window.api.ipc : null;
 const utils = isElectron() ? window.api.utils : null;
@@ -105,7 +105,7 @@ const AppShell = memo(function AppShell() {
             </WebAudioContext.Provider>
             <ReleaseNotesModal />
             <Suspense fallback={null}>
-                <UpdateAvailableDialog />
+                {/* <UpdateAvailableDialog /> */}
             </Suspense>
         </>
     );

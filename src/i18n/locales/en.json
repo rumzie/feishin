@@ -249,7 +249,7 @@
         "saveQueueFailed": "Failed to save queue",
         "serverLockSingleServer": "Only one server is allowed when server is locked",
         "serverNotSelectedError": "No server selected",
-        "serverRequired": "Server required",
+        "serverRequired": "Sign into rumTunes",
         "sessionExpiredError": "Your session has expired",
         "systemFontError": "An error occurred when trying to get system fonts",
         "settingsSyncError": "Discrepancies were found between the settings in the renderer and the main process. Restart the application to apply the changes"
@@ -357,7 +357,7 @@
             "input_savePassword": "Save Password",
             "input_url": "URL",
             "input_username": "Username",
-            "success": "Server added successfully",
+            "success": "Login Successful",
             "title": "Add Server"
         },
         "largeFetchConfirmation": {
