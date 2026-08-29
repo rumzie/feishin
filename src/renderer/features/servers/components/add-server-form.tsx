@@ -111,7 +111,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
             password: '',
             preferInstantMix: undefined,
             preferRemoteUrl: true,
-            remoteUrl: 'https://test.rumtunes.com',
+            remoteUrl: 'https://navidrome.rumtunes.com',
             savePassword: true,
             type:
                 (localSettings
@@ -130,7 +130,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
 
     const handleSubmit = form.onSubmit(async (values) => {
         console.log(values);
-        values.url = 'https://test.rumtunes.com';
+        values.url = 'https://navidrome.rumtunes.com';
         if (serverLock && Object.keys(serverList).length >= 1) {
             toast.error({
                 message: t('error.serverLockSingleServer'),
@@ -186,7 +186,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
             if (values.remoteUrl?.trim()) {
                 console.log('I was triggered during componentDidMount');
 
-                const remoteUrl = 'https://test.rumtunes.com';
+                const remoteUrl = 'https://navidrome.rumtunes.com';
                 serverItem.remoteUrl = remoteUrl.trim().replace(/\/$/, '');
             }
 
