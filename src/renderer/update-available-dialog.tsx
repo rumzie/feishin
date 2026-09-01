@@ -75,5 +75,6 @@ export const UpdateAvailableDialog = () => {
         //         </Group>
         //     </Stack>
         // </Dialog>
+        null
     );
 };

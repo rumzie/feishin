@@ -25,6 +25,7 @@ export const ServerListItem = ({ server }: ServerListItemProps) => {
     const [edit, editHandlers] = useDisclosure(false);
     const [savedPassword, setSavedPassword] = useState('');
     const { deleteServer } = useAuthStoreActions();
+    const canViewServerUrl = server.isAdmin !== false;
 
     const handleDeleteServer = () => {
         deleteServer(server.id);
@@ -68,10 +69,12 @@ export const ServerListItem = ({ server }: ServerListItemProps) => {
                     <Stack>
                         <Table layout="fixed" variant="vertical" withTableBorder>
                             <Table.Tbody>
-                                <Table.Tr>
-                                    <Table.Th>{t('page.manageServers.url')}</Table.Th>
-                                    <Table.Td>{server.url}</Table.Td>
-                                </Table.Tr>
+                                {canViewServerUrl && (
+                                    <Table.Tr>
+                                        <Table.Th>{t('page.manageServers.url')}</Table.Th>
+                                        <Table.Td>{server.url}</Table.Td>
+                                    </Table.Tr>
+                                )}
                                 <Table.Tr>
                                     <Table.Th>{t('page.manageServers.username')}</Table.Th>
                                     <Table.Td>{server.username}</Table.Td>

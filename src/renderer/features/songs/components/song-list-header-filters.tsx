@@ -80,13 +80,13 @@ export const SongListHeaderFilters = ({ toggleGenreTarget }: { toggleGenreTarget
                     </>
                 )}
                 <ListSortByDropdown
-                    defaultSortByValue={SongListSort.NAME}
+                    defaultSortByValue={SongListSort.RELEASE_YEAR}
                     itemType={LibraryItem.SONG}
                     listKey={pageKey as ItemListKey}
                 />
                 <Divider orientation="vertical" />
                 <ListSortOrderToggleButton
-                    defaultSortOrder={SortOrder.ASC}
+                    defaultSortOrder={SortOrder.DESC}
                     listKey={pageKey as ItemListKey}
                 />
                 <ListFiltersModal isActive={hasActiveFilters} itemType={LibraryItem.SONG} />
