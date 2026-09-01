@@ -82,7 +82,7 @@ export const AlbumListHeaderFilters = ({ toggleGenreTarget }: { toggleGenreTarge
                     </>
                 )}
                 <ListSortByDropdown
-                    defaultSortByValue={AlbumListSort.YEAR}
+                    defaultSortByValue={AlbumListSort.NAME}
                     itemType={LibraryItem.ALBUM}
                     listKey={pageKey as ItemListKey}
                 />
