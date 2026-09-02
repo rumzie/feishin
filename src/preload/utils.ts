@@ -108,10 +108,6 @@ const checkForUpdates = (): Promise<{ updateAvailable: boolean; version?: string
     return ipcRenderer.invoke('app-check-for-updates');
 };
 
-const getPublicIpAddress = async (): Promise<string> => {
-    return ipcRenderer.invoke('public-ip-get');
-};
-
 const startPowerSaveBlocker = (full: boolean) => {
     return ipcRenderer.invoke('power-save-blocker-start', { full });
 };
@@ -183,7 +179,6 @@ export const utils = {
     exportDiagnostics,
     forceGarbageCollection,
     getCustomCss,
-    getPublicIpAddress,
     isLinux,
     isMacOS,
     isWindows,

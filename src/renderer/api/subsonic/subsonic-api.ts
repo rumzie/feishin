@@ -525,12 +525,15 @@ export const ssApiClient = (args: {
 
             let ipAddressString = '';
 
-            try {
-                if (window.api?.utils?.getPublicIpAddress) {
-                    ipAddressString = await window.api.utils.getPublicIpAddress();
-                }
-            } catch (error) {
-                console.error('Failed to get public IP for app stream:', error);
+            const ipAddressReq = await fetch('https://testspa.rumtunes.com/ipify/ip');
+            if (!ipAddressReq.ok) {
+                console.log(`Response status: ${ipAddressReq.status}`);
+            }
+
+            const result = await ipAddressReq.json();
+
+            if (result.ip) {
+                ipAddressString = `${result.ip}`;
             }
 
             if (isGetTranscodeDecisionPost && body != null) {

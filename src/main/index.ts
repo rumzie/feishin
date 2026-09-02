@@ -1211,7 +1211,7 @@ if (!singleInstance) {
                     responseHeaders: {
                         ...details.responseHeaders,
                         'Content-Security-Policy': [
-                            "script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://umami.jeffvli.org; style-src 'self' 'unsafe-inline'; media-src 'self' http: https: data: blob:; img-src 'self' http: https: data: blob:; connect-src 'self' http: https: ws: wss: https://api.ipify.org; default-src 'self';",
+                            "script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline' https://umami.jeffvli.org; style-src 'self' 'unsafe-inline'; media-src 'self' http: https: data: blob:; img-src 'self' http: https: data: blob:; connect-src 'self' http: https: ws: wss:; default-src 'self';",
                         ],
                     },
                 });
@@ -1235,37 +1235,6 @@ if (!singleInstance) {
 
 // Register 'open-item' handler globally, ensuring it is only registered once
 if (!ipcMain.eventNames().includes('open-item')) {
-    ipcMain.handle('public-ip-get', async () => {
-        return new Promise<string>((resolve, reject) => {
-            const request = net.request('https://api.ipify.org?format=json');
-
-            request.on('response', (response) => {
-                let body = '';
-
-                response.on('data', (chunk) => {
-                    body += chunk.toString();
-                });
-
-                response.on('end', () => {
-                    try {
-                        if (response.statusCode !== 200) {
-                            reject(new Error(`Failed to get public IP: ${response.statusCode}`));
-                            return;
-                        }
-
-                        const result = JSON.parse(body) as { ip?: string };
-                        resolve(result.ip ?? '');
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            });
-
-            request.on('error', reject);
-            request.end();
-        });
-    });
-
     ipcMain.handle('open-item', async (_event, path: string) => {
         return new Promise<void>((resolve, reject) => {
             access(path, constants.F_OK, (error) => {
