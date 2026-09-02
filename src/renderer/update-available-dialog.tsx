@@ -44,36 +44,5 @@ export const UpdateAvailableDialog = () => {
         setOpened(false);
     };
 
-    return (
-        // <Dialog
-        //     onClose={handleDismiss}
-        //     opened={opened}
-        //     position={{ bottom: 100, right: 12 }}
-        //     radius="md"
-        //     size="lg"
-        //     withCloseButton
-        // >
-        //     <Stack gap="md">
-        //         <Text fw={700} size="md">
-        //             {t('common.newVersionAvailable')} - {version}
-        //         </Text>
-        //         <Group justify="flex-end">
-        //             <Button onClick={handleDismiss} size="xs" variant="default">
-        //                 {t('common.dismiss')}
-        //             </Button>
-        //             <Button
-        //                 component="a"
-        //                 href="https://github.com/jeffvli/feishin/releases/latest"
-        //                 onClick={handleDismiss}
-        //                 rightSection={<Icon icon="externalLink" size="sm" />}
-        //                 size="xs"
-        //                 target="_blank"
-        //                 variant="filled"
-        //             >
-        //                 {t('action.viewMore')}
-        //             </Button>
-        //         </Group>
-        //     </Stack>
-        // </Dialog>
-    );
+    return null;
 };

@@ -324,15 +324,12 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         let ipAddressString = '';
 
-        const ipAddressReq = await fetch('https://api.ipify.org?format=json');
-        if (!ipAddressReq.ok) {
-            console.log(`Response status: ${ipAddressReq.status}`);
-        }
-
-        const result = await ipAddressReq.json();
-
-        if (result.ip) {
-            ipAddressString = `${result.ip}`;
+        try {
+            if (window.api?.utils?.getPublicIpAddress) {
+                ipAddressString = await window.api.utils.getPublicIpAddress();
+            }
+        } catch (error) {
+            console.error('Failed to get public IP during authentication:', error);
         }
 
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
