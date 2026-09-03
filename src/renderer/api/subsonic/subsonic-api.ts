@@ -525,15 +525,25 @@ export const ssApiClient = (args: {
 
             let ipAddressString = '';
 
-            const ipAddressReq = await fetch('https://testspa.rumtunes.com/ipify/ip');
-            if (!ipAddressReq.ok) {
-                console.log(`Response status: ${ipAddressReq.status}`);
-            }
+            try {
+                const isDev = import.meta.env.DEV;
+                const ipAddressReq = await fetch(
+                    isDev
+                        ? 'https://api.ipify.org?format=json'
+                        : 'https://testspa.rumtunes.com/ipify',
+                );
+                if (!ipAddressReq.ok) {
+                    console.log(`Response status: ${ipAddressReq.status}`);
+                }
 
-            const result = await ipAddressReq.json();
+                const result = await ipAddressReq.json();
 
-            if (result.ip) {
-                ipAddressString = `${result.ip}`;
+                if (result) {
+                    console.log(`Response IP: ${result.ip}`);
+                    ipAddressString = `${result.ip}`;
+                }
+            } catch (error) {
+                console.log(`Error fetching IP address: ${error}`);
             }
 
             if (isGetTranscodeDecisionPost && body != null) {
