@@ -135,6 +135,11 @@ const HomeRoute = () => {
                                         containerQuery={containerQuery}
                                         enableRefresh={carousel.enableRefresh}
                                         key={`carousel-${carousel.uniqueId}`}
+                                        // query={
+                                        //     carousel.uniqueId === HomeItem.RECENTLY_PLAYED
+                                        //         ? { isRecentlyPlayed: true }
+                                        //         : undefined
+                                        // }
                                         queryKey={['home', 'album', carousel.uniqueId] as const}
                                         rowCount={1}
                                         sortBy={carousel.sortBy as AlbumListSort}

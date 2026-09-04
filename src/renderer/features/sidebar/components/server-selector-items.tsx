@@ -12,7 +12,12 @@ import { EditServerForm } from '/@/renderer/features/servers/components/edit-ser
 import { ServerList } from '/@/renderer/features/servers/components/server-list';
 import { sharedQueries } from '/@/renderer/features/shared/api/shared-api';
 import { AppRoute } from '/@/renderer/router/routes';
-import { useAuthStoreActions, useCurrentServer, useServerList } from '/@/renderer/store';
+import {
+    useAuthStoreActions,
+    useCurrentServer,
+    useIsAdmin,
+    useServerList,
+} from '/@/renderer/store';
 import { hasFeature } from '/@/shared/api/utils';
 import { DropdownMenu } from '/@/shared/components/dropdown-menu/dropdown-menu';
 import { Icon } from '/@/shared/components/icon/icon';
@@ -29,6 +34,7 @@ export const ServerSelectorItems = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const currentServer = useCurrentServer();
+    const { isAdmin } = useIsAdmin();
     const serverList = useServerList();
     const { logout, setCurrentServer, setMusicFolderId } = useAuthStoreActions();
     const { data: musicFolders } = useQuery(
@@ -122,12 +128,12 @@ export const ServerSelectorItems = () => {
     };
 
     const handleLogout = async () => {
-        const serverId = currentServer.id;
-
         // Cancel in-flight requests before clearing credentials so they don't
         // retry/refetch with an empty token and surface auth error toasts.
         await queryClient.cancelQueries();
-        localSettings?.passwordRemove(serverId);
+        Object.values(serverList).forEach((server) => {
+            localSettings?.passwordRemove(server.id);
+        });
         logout();
 
         // Defer cache clear until after authenticated routes unmount.
@@ -177,12 +183,14 @@ export const ServerSelectorItems = () => {
             {!isServerLock() && (
                 <>
                     <DropdownMenu.Divider />
-                    <DropdownMenu.Item
-                        leftSection={<Icon icon="edit" />}
-                        onClick={handleManageServersModal}
-                    >
-                        {t('page.appMenu.manageServers')}
-                    </DropdownMenu.Item>
+                    {isAdmin && (
+                        <DropdownMenu.Item
+                            leftSection={<Icon icon="edit" />}
+                            onClick={handleManageServersModal}
+                        >
+                            {t('page.appMenu.manageServers')}
+                        </DropdownMenu.Item>
+                    )}
                     <DropdownMenu.Item
                         leftSection={<Icon color="error" icon="signOut" />}
                         onClick={handleLogout}
@@ -192,7 +200,7 @@ export const ServerSelectorItems = () => {
                 </>
             )}
             {!isServerLock() && <></>}
-            {musicFolders && musicFolders.items.length > 0 && (
+            {musicFolders && musicFolders.items.length > 0 && isAdmin && (
                 <>
                     <DropdownMenu.Divider />
                     <DropdownMenu.Label>{t('page.appMenu.selectMusicFolder')}</DropdownMenu.Label>
