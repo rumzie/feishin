@@ -87,6 +87,9 @@ interface GroupedQueue {
 
 interface State {
     hydrated: boolean;
+    // Runtime-only: true once the mpv engine has finished initializing.
+    // Top-level keys are not persisted (see partialize), same as `hydrated`.
+    mpvInitialized: boolean;
     player: {
         crossfadeDuration: number;
         crossfadeStyle: CrossfadeStyle;
@@ -340,6 +343,7 @@ function regenerateShuffledIndexesIfNeeded(state: {
 
 const initialState: State = {
     hydrated: false,
+    mpvInitialized: false,
     player: {
         crossfadeDuration: 5,
         crossfadeStyle: CrossfadeStyle.EQUAL_POWER,
@@ -1844,6 +1848,7 @@ export type AddToQueueByUniqueId = {
 
 export type AddToQueueOptions = {
     filter?: (song: Song) => boolean;
+    skipConfirmation?: boolean;
 };
 
 export type AddToQueueType = AddToQueueByPlayType | AddToQueueByUniqueId;
@@ -2225,6 +2230,14 @@ export const usePlayerStatus = () => {
 
 export const usePlayerHydrated = () => {
     return usePlayerStoreBase((state) => state.hydrated);
+};
+
+export const useMpvInitialized = () => {
+    return usePlayerStoreBase((state) => state.mpvInitialized);
+};
+
+export const setMpvInitialized = (mpvInitialized: boolean) => {
+    usePlayerStoreBase.setState({ mpvInitialized });
 };
 
 export const usePlayerVolume = () => {

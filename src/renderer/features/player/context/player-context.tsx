@@ -49,6 +49,11 @@ export interface PlayerContext {
         type: AddToQueueType,
         playSongId?: string,
         contextPlaylistId?: null | string,
+        // Bypasses confirmQueueChange entirely — for callers (the remote
+        // control bridge) that already obtained confirmation themselves
+        // before calling this, where the confirm modal this would otherwise
+        // open has no way to reach whoever actually needs to answer it.
+        skipConfirmation?: boolean,
     ) => void;
     addToQueueByFetch: (
         serverId: string,
@@ -63,7 +68,7 @@ export interface PlayerContext {
         itemType: LibraryItem,
         type: AddToQueueType,
     ) => Promise<void>;
-    clearQueue: () => void;
+    clearQueue: (skipConfirmation?: boolean) => void;
     clearSelected: (items: QueueSong[]) => void;
     decreaseVolume: (amount: number) => void;
     getQueue: () => QueueSong[];
@@ -97,7 +102,7 @@ export interface PlayerContext {
 
 export const PlayerContext = createContext<PlayerContext>({
     addToQueueByData: () => {},
-    addToQueueByFetch: () => {},
+    addToQueueByFetch: async () => {},
     addToQueueByListQuery: async () => {},
     clearQueue: () => {},
     clearSelected: () => {},
@@ -265,6 +270,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
             type: AddToQueueType,
             playSongId?: string,
             contextPlaylistId?: null | string,
+            skipConfirmation?: boolean,
         ) => {
             const filters = useSettingsStore.getState().playback.filters;
             let filteredData = filterSongsByPlayerFilters(data, filters);
@@ -304,7 +310,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
                 }
             };
 
-            if (isReplaceQueueType(type)) {
+            if (!skipConfirmation && isReplaceQueueType(type)) {
                 confirmQueueChange(addToQueue);
             } else {
                 addToQueue();
@@ -406,7 +412,7 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
                     }
                 };
 
-                if (isReplaceQueueType(type)) {
+                if (!options?.skipConfirmation && isReplaceQueueType(type)) {
                     confirmQueueChange(addToQueue);
                 } else {
                     addToQueue();
@@ -606,13 +612,27 @@ export const PlayerProvider = ({ children }: { children: React.ReactNode }) => {
         [queryClient, confirmLargeFetch, t, addToQueueByData, addToQueueByFetch],
     );
 
-    const clearQueue = useCallback(() => {
-        confirmQueueChange(() => {
-            logger.debug('Cleared queue');
+    const clearQueue = useCallback(
+        (skipConfirmation?: boolean) => {
+            const run = () => {
+                logger.debug('Cleared queue');
 
-            storeActions.clearQueue();
-        });
-    }, [confirmQueueChange, storeActions]);
+                storeActions.clearQueue();
+            };
+
+            // Same bypass as addToQueueByData's skipConfirmation — the
+            // remote control bridge already obtained confirmation on the
+            // phone itself before calling this, and the modal
+            // confirmQueueChange would otherwise open has no way to reach
+            // whoever actually needs to answer it.
+            if (skipConfirmation) {
+                run();
+            } else {
+                confirmQueueChange(run);
+            }
+        },
+        [confirmQueueChange, storeActions],
+    );
 
     const clearSelected = useCallback(
         (items: QueueSong[]) => {
