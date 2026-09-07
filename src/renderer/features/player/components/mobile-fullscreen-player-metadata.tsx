@@ -10,6 +10,7 @@ import { QueueSong } from '/@/shared/types/domain-types';
 
 interface MobileFullscreenPlayerMetadataProps {
     currentSong?: QueueSong;
+    onMetadataLinkClick: () => void;
     onToggleFavorite: (e: MouseEvent<HTMLButtonElement>) => void;
     onUpdateRating: (rating: number) => void;
     radioStationName?: string;
@@ -21,6 +22,7 @@ interface MobileFullscreenPlayerMetadataProps {
 export const MobileFullscreenPlayerMetadata = memo(
     ({
         currentSong,
+        onMetadataLinkClick,
         onToggleFavorite,
         onUpdateRating,
         radioStationName,
@@ -35,7 +37,7 @@ export const MobileFullscreenPlayerMetadata = memo(
 
         return (
             <div className={styles.metadataContainer}>
-                <SharedFullscreenPlayerMetadata />
+                <SharedFullscreenPlayerMetadata onMetadataLinkClick={onMetadataLinkClick} />
 
                 {!isRadio && (
                     <Group align="center" className={styles.actionsRow} gap="xs">

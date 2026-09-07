@@ -514,6 +514,7 @@ export const MobileFullscreenPlayer = () => {
                 <MobileFullscreenPlayerAlbumArt />
                 <MobileFullscreenPlayerMetadata
                     currentSong={currentSong}
+                    onMetadataLinkClick={handleToggleFullScreenPlayer}
                     onToggleFavorite={handleToggleFavorite}
                     onUpdateRating={handleUpdateRating}
                     radioStationName={isPlayingRadio ? (stationName ?? undefined) : undefined}
