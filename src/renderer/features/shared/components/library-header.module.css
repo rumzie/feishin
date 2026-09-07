@@ -149,6 +149,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    min-width: 0;
     height: 100%;
     text-align: center;
 
@@ -166,12 +167,13 @@
 
 .title {
     display: flex;
+    max-width: 100%;
     margin: 0;
     font-size: clamp(1.75rem, 3dvw, 2.75rem);
     font-weight: 800;
     line-height: 1.2;
-    word-break: keep-all;
     text-wrap: pretty;
+    overflow-wrap: anywhere;
 }
 
 .library-header-menu {
@@ -182,9 +184,19 @@
     justify-content: center;
     width: 100%;
 
+    .primary-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 100%;
+    }
+
     @container (min-width: $mantine-breakpoint-sm) {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+
+        .primary-actions {
+            flex-wrap: nowrap;
+        }
     }
 }
