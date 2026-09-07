@@ -21,6 +21,17 @@
     transition: outline 0.2s ease;
 }
 
+.column-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.column-controls {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 100%;
+}
+
 .item.matched {
     outline: 2px solid var(--theme-colors-primary);
     outline-offset: 2px;
