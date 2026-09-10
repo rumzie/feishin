@@ -9,7 +9,7 @@ import {
     ArtistMultiSelectRow,
     GenreMultiSelectRow,
 } from '/@/renderer/features/shared/components/multi-select-rows';
-import { TagFilters } from '/@/renderer/features/shared/components/tag-filter';
+// import { TagFilters } from '/@/renderer/features/shared/components/tag-filter';
 import { useSongListFilters } from '/@/renderer/features/songs/hooks/use-song-list-filters';
 import { useCurrentServer } from '/@/renderer/store';
 import { useAppStore, useAppStoreActions } from '/@/renderer/store/app.store';
@@ -345,7 +345,7 @@ export const NavidromeSongFilters = ({
                 onChange={(e) => debouncedHandleYearFilter(e)}
                 value={query.minYear ?? undefined}
             />
-            <TagFilters query={query} setCustom={setCustom} type={LibraryItem.SONG} />
+            {/* <TagFilters query={query} setCustom={setCustom} type={LibraryItem.SONG} /> */}
         </Stack>
     );
 };

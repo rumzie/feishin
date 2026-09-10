@@ -10,7 +10,7 @@ import {
     ArtistMultiSelectRow,
     GenreMultiSelectRow,
 } from '/@/renderer/features/shared/components/multi-select-rows';
-import { TagFilters } from '/@/renderer/features/shared/components/tag-filter';
+// import { TagFilters } from '/@/renderer/features/shared/components/tag-filter';
 import { useCurrentServer } from '/@/renderer/store';
 import { useAppStore, useAppStoreActions } from '/@/renderer/store/app.store';
 import { Divider } from '/@/shared/components/divider/divider';
@@ -376,7 +376,7 @@ export const NavidromeAlbumFilters = ({
                 onChange={(e) => debouncedHandleYearFilter(e)}
                 value={query.minYear ?? undefined}
             />
-            <TagFilters query={query} setCustom={setCustom} type={LibraryItem.ALBUM} />
+            {/* <TagFilters query={query} setCustom={setCustom} type={LibraryItem.ALBUM} /> */}
         </Stack>
     );
 };
