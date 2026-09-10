@@ -25,12 +25,10 @@ import { useMediaQuery } from '/@/shared/hooks/use-media-query';
 
 type SharedFullscreenPlayerMetadataProps = {
     imageContainerWidth?: null | number;
-    onMetadataLinkClick?: () => void;
 };
 
 export const SharedFullscreenPlayerMetadata = ({
     imageContainerWidth,
-    onMetadataLinkClick,
 }: SharedFullscreenPlayerMetadataProps) => {
     const currentSong = usePlayerSong();
     const isRadioActive = useIsRadioActive();
@@ -175,7 +173,6 @@ export const SharedFullscreenPlayerMetadata = ({
                                           <Text
                                               component={Link}
                                               isLink
-                                              onClick={onMetadataLinkClick}
                                               to={generatePath(
                                                   AppRoute.LIBRARY_ALBUM_ARTISTS_DETAIL,
                                                   {
@@ -198,7 +195,6 @@ export const SharedFullscreenPlayerMetadata = ({
                             <Text
                                 component={Link}
                                 isLink
-                                onClick={onMetadataLinkClick}
                                 overflow="hidden"
                                 size="xl"
                                 to={generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, {
