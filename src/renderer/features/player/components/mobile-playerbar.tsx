@@ -150,7 +150,6 @@ export const MobilePlayerbar = () => {
                                         component={artist.id ? Link : undefined}
                                         fw={500}
                                         isLink={artist.id !== ''}
-                                        onClick={handleToggleFullScreenPlayer}
                                         overflow="hidden"
                                         size="xs"
                                         to={
@@ -181,7 +180,6 @@ export const MobilePlayerbar = () => {
                                 component={Link}
                                 fw={500}
                                 isLink
-                                onClick={handleToggleFullScreenPlayer}
                                 overflow="hidden"
                                 size="xs"
                                 to={
