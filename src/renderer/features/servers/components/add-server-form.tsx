@@ -206,9 +206,10 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
             toast.success({
                 message: t('form.addServer.success'),
             });
-            toast.success({
-                message: 'Successfully set default settings.',
-            });
+            // toast.success({
+            //     message: 'Successfully set default settings.',
+            // });
+            console.log('Successfully set default settings.');
             if (localSettings && values.savePassword) {
                 const saved = await localSettings.passwordSet(values.password, serverItem.id);
                 if (!saved) {
