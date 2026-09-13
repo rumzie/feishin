@@ -653,7 +653,7 @@
             "title": "Commands"
         },
         "home": {
-            "explore": "Explore from your library",
+            "explore": "Explore the library",
             "genres": "$t(entity.genre, {\"count\": 2})",
             "mostPlayed": "Most Played",
             "newlyAdded": "Newly added releases",
