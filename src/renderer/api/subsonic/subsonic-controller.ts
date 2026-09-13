@@ -1497,6 +1497,10 @@ export const SubsonicController: InternalControllerEndpoint = {
         if (subsonicFeatures[SubsonicExtensions.PLAYBACK_REPORT]) {
             features.reportPlayback = [1];
         }
+
+        if (subsonicFeatures[SubsonicExtensions.TOP_SONGS_BY_ARTIST_ID]) {
+            features.topSongsByArtistId = [1];
+        }
         try {
             const jukeboxStatus = await ssApiClient(apiClientProps).jukeboxControl({
                 query: { action: 'status' },
@@ -2109,7 +2113,9 @@ export const SubsonicController: InternalControllerEndpoint = {
         if (type === 'community') {
             const res = await ssApiClient(apiClientProps).getTopSongsList({
                 query: {
-                    artist: query.artist,
+                    ...(hasFeature(apiClientProps.server, ServerFeature.TOP_SONGS_BY_ARTIST_ID)
+                        ? { id: query.artistId }
+                        : { artist: query.artist }),
                     count: query.limit,
                 },
             });
