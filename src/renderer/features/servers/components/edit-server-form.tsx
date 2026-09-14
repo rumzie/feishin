@@ -214,7 +214,7 @@ export const EditServerForm = ({ isUpdate, onCancel, password, server }: EditSer
     return (
         <form onSubmit={handleSubmit}>
             <Stack ref={focusTrapRef}>
-                <TextInput
+                {/* <TextInput
                     label={t('form.addServer.input', {
                         context: 'name',
                     })}
@@ -252,7 +252,7 @@ export const EditServerForm = ({ isUpdate, onCancel, password, server }: EditSer
                         />
                         {form.isDirty('preferRemoteUrl') && <ModifiedFieldIndicator />}
                     </Group>
-                )}
+                )} */}
                 <TextInput
                     label={t('form.addServer.input', {
                         context: 'username',
@@ -268,7 +268,7 @@ export const EditServerForm = ({ isUpdate, onCancel, password, server }: EditSer
                     })}
                     {...form.getInputProps('password')}
                 />
-                {localSettings && isNavidrome && (
+                {/* {localSettings && isNavidrome && (
                     <Checkbox
                         label={t('form.addServer.input', {
                             context: 'savePassword',
@@ -277,7 +277,7 @@ export const EditServerForm = ({ isUpdate, onCancel, password, server }: EditSer
                             type: 'checkbox',
                         })}
                     />
-                )}
+                )} */}
                 {isSubsonic && (
                     <Checkbox
                         label={t('form.addServer.input', {

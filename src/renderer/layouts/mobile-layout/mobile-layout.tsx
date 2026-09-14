@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { AnimatePresence } from 'motion/react';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { Outlet } from 'react-router';
 
 import styles from './mobile-layout.module.css';
@@ -11,7 +11,12 @@ import { MobileFullscreenPlayer } from '/@/renderer/features/player/components/m
 import { MobileSidebar } from '/@/renderer/features/sidebar/components/mobile-sidebar';
 import { PlayerBar } from '/@/renderer/layouts/default-layout/player-bar';
 import { WindowBar } from '/@/renderer/layouts/window-bar';
-import { useFullScreenPlayerOverlayState, useWindowBarStyle } from '/@/renderer/store';
+import {
+    useCommandPalette,
+    useFullScreenPlayerOverlayState,
+    useSetFullScreenPlayerStore,
+    useWindowBarStyle,
+} from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Drawer } from '/@/shared/components/drawer/drawer';
 import { Spinner } from '/@/shared/components/spinner/spinner';
@@ -24,11 +29,47 @@ interface MobileLayoutProps {
 
 export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const [sidebarOpened, { close: closeSidebar, open: openSidebar }] = useDisclosure(false);
+    const fullScreenPlayerHistoryRef = useRef(false);
+    const { opened: commandPaletteOpened } = useCommandPalette();
     const {
         expanded: isFullScreenPlayerExpanded,
         visualizerExpanded: isFullScreenVisualizerExpanded,
     } = useFullScreenPlayerOverlayState();
+    const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const windowBarStyle = useWindowBarStyle();
+
+    useEffect(() => {
+        if (commandPaletteOpened) closeSidebar();
+    }, [closeSidebar, commandPaletteOpened]);
+
+    useEffect(() => {
+        if (!isFullScreenPlayerExpanded) {
+            if (fullScreenPlayerHistoryRef.current) {
+                fullScreenPlayerHistoryRef.current = false;
+                window.history.back();
+            }
+
+            return undefined;
+        }
+
+        if (!fullScreenPlayerHistoryRef.current) {
+            window.history.pushState(
+                { ...window.history.state, mobileFullscreenPlayer: true },
+                '',
+                window.location.href,
+            );
+            fullScreenPlayerHistoryRef.current = true;
+        }
+
+        const handlePopState = () => {
+            fullScreenPlayerHistoryRef.current = false;
+            setFullScreenPlayerStore({ expanded: false });
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [isFullScreenPlayerExpanded, setFullScreenPlayerStore]);
 
     return (
         <>

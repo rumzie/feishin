@@ -4,7 +4,6 @@ import isElectron from 'is-electron';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
-import { controller } from '/@/renderer/api/controller';
 import { isServerLock } from '/@/renderer/features/action-required/utils/window-properties';
 import JellyfinLogo from '/@/renderer/features/servers/assets/jellyfin.png';
 import NavidromeLogo from '/@/renderer/features/servers/assets/navidrome.png';
@@ -12,13 +11,16 @@ import OpenSubsonicLogo from '/@/renderer/features/servers/assets/opensubsonic.p
 import { EditServerForm } from '/@/renderer/features/servers/components/edit-server-form';
 import { ServerList } from '/@/renderer/features/servers/components/server-list';
 import { sharedQueries } from '/@/renderer/features/shared/api/shared-api';
-import { startScanWatch, useScanStatus } from '/@/renderer/features/shared/hooks/use-scan-status';
 import { AppRoute } from '/@/renderer/router/routes';
-import { useAuthStoreActions, useCurrentServer, useServerList } from '/@/renderer/store';
+import {
+    useAuthStoreActions,
+    useCurrentServer,
+    useIsAdmin,
+    useServerList,
+} from '/@/renderer/store';
 import { hasFeature } from '/@/shared/api/utils';
 import { DropdownMenu } from '/@/shared/components/dropdown-menu/dropdown-menu';
 import { Icon } from '/@/shared/components/icon/icon';
-import { toast } from '/@/shared/components/toast/toast';
 import {
     ServerListItem,
     ServerListItemWithCredential,
@@ -32,10 +34,9 @@ export const ServerSelectorItems = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const currentServer = useCurrentServer();
+    const { isAdmin } = useIsAdmin();
     const serverList = useServerList();
     const { logout, setCurrentServer, setMusicFolderId } = useAuthStoreActions();
-    const { isScanning, isWatching } = useScanStatus();
-
     const { data: musicFolders } = useQuery(
         currentServer
             ? sharedQueries.musicFolders({ query: null, serverId: currentServer.id })
@@ -127,35 +128,18 @@ export const ServerSelectorItems = () => {
     };
 
     const handleLogout = async () => {
-        const serverId = currentServer.id;
-
         // Cancel in-flight requests before clearing credentials so they don't
         // retry/refetch with an empty token and surface auth error toasts.
         await queryClient.cancelQueries();
-        localSettings?.passwordRemove(serverId);
+        Object.values(serverList).forEach((server) => {
+            localSettings?.passwordRemove(server.id);
+        });
         logout();
 
         // Defer cache clear until after authenticated routes unmount.
         setTimeout(() => {
             queryClient.clear();
         }, 0);
-    };
-
-    const handleRescanLibrary = async () => {
-        if (!currentServer || isWatching || isScanning) {
-            return;
-        }
-
-        try {
-            await controller.startLibraryScan({
-                apiClientProps: { serverId: currentServer.id },
-            });
-            startScanWatch();
-        } catch (err) {
-            toast.error({
-                message: err instanceof Error ? err.message : String(err),
-            });
-        }
     };
 
     return (
@@ -199,18 +183,12 @@ export const ServerSelectorItems = () => {
             {!isServerLock() && (
                 <>
                     <DropdownMenu.Divider />
-                    <DropdownMenu.Item
-                        leftSection={<Icon icon="edit" />}
-                        onClick={handleManageServersModal}
-                    >
-                        {t('page.appMenu.manageServers')}
-                    </DropdownMenu.Item>
-                    {currentServer.isAdmin && (
+                    {isAdmin && (
                         <DropdownMenu.Item
-                            leftSection={<Icon icon="refresh" />}
-                            onClick={handleRescanLibrary}
+                            leftSection={<Icon icon="edit" />}
+                            onClick={handleManageServersModal}
                         >
-                            {t('page.appMenu.rescanLibrary')}
+                            {t('page.appMenu.manageServers')}
                         </DropdownMenu.Item>
                     )}
                     <DropdownMenu.Item
@@ -222,7 +200,7 @@ export const ServerSelectorItems = () => {
                 </>
             )}
             {!isServerLock() && <></>}
-            {musicFolders && musicFolders.items.length > 0 && (
+            {musicFolders && musicFolders.items.length > 0 && isAdmin && (
                 <>
                     <DropdownMenu.Divider />
                     <DropdownMenu.Label>{t('page.appMenu.selectMusicFolder')}</DropdownMenu.Label>

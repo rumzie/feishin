@@ -7,7 +7,7 @@ import { HotkeysTab } from '/@/renderer/features/settings/components/hotkeys/hot
 import { PlaybackTab } from '/@/renderer/features/settings/components/playback/playback-tab';
 import { WindowTab } from '/@/renderer/features/settings/components/window/window-tab';
 import { LibraryContainer } from '/@/renderer/features/shared/components/library-container';
-import { useSettingsStore, useSettingsStoreActions } from '/@/renderer/store/settings.store';
+import { useIsAdmin, useSettingsStore, useSettingsStoreActions } from '/@/renderer/store';
 import { ScrollArea } from '/@/shared/components/scroll-area/scroll-area';
 import { Tabs } from '/@/shared/components/tabs/tabs';
 
@@ -15,6 +15,7 @@ export const SettingsContent = () => {
     const { t } = useTranslation();
     const currentTab = useSettingsStore((state) => state.tab);
     const { setSettings } = useSettingsStoreActions();
+    const { isAdmin } = useIsAdmin();
 
     return (
         <LibraryContainer>
@@ -33,7 +34,9 @@ export const SettingsContent = () => {
                         {isElectron() && (
                             <Tabs.Tab value="window">{t('page.setting.windowTab')}</Tabs.Tab>
                         )}
-                        <Tabs.Tab value="advanced">{t('page.setting.advanced')}</Tabs.Tab>
+                        {isAdmin && (
+                            <Tabs.Tab value="advanced">{t('page.setting.advanced')}</Tabs.Tab>
+                        )}
                     </Tabs.List>
                     <Tabs.Panel value="general">
                         <GeneralTab />
@@ -49,9 +52,11 @@ export const SettingsContent = () => {
                             <WindowTab />
                         </Tabs.Panel>
                     )}
-                    <Tabs.Panel value="advanced">
-                        <AdvancedTab />
-                    </Tabs.Panel>
+                    {isAdmin && (
+                        <Tabs.Panel value="advanced">
+                            <AdvancedTab />
+                        </Tabs.Panel>
+                    )}
                 </Tabs>
             </ScrollArea>
         </LibraryContainer>

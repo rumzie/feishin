@@ -780,7 +780,7 @@ const TableColumnItem = memo(
                 })}
                 ref={ref}
             >
-                <Group wrap="nowrap">
+                <Group className={styles.columnLabel} wrap="nowrap">
                     <DragHandle dragHandleRef={dragHandleRef} />
                     <Checkbox
                         checked={item.isEnabled}
@@ -790,7 +790,7 @@ const TableColumnItem = memo(
                         size="sm"
                     />
                 </Group>
-                <Group wrap="nowrap">
+                <Group className={styles.columnControls} wrap="nowrap">
                     <ActionIconGroup className={styles.group}>
                         <ActionIcon
                             icon="arrowUp"

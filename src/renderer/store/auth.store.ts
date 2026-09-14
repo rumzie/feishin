@@ -51,18 +51,7 @@ export const useAuthStore = createWithEqualityFn<AuthSlice>()(
                     },
                     logout: () => {
                         set((state) => {
-                            const currentServer = state.currentServer;
-                            if (!currentServer) {
-                                return;
-                            }
-
-                            const server = state.serverList[currentServer.id];
-                            if (server) {
-                                server.credential = '';
-                                server.ndCredential = undefined;
-                                server.savePassword = false;
-                            }
-
+                            state.serverList = {};
                             state.currentServer = null;
                         });
                     },
