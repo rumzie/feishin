@@ -2946,12 +2946,12 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                     }
                 }
 
-                if (version < 34) {
-                    state.general.homeItems.push({
-                        disabled: false,
-                        id: HomeItem.PLAYLISTS,
-                    });
-                }
+                // if (version < 34) {
+                //     state.general.homeItems.push({
+                //         disabled: false,
+                //         id: HomeItem.PLAYLISTS,
+                //     });
+                // }
 
                 return persistedState;
             },
