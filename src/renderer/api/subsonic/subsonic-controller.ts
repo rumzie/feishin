@@ -254,7 +254,7 @@ function buildGetTranscodeStreamUrl(
     },
 ): string {
     const params = new URLSearchParams({
-        c: 'Feishin',
+        c: 'rumTunes',
         mediaId: args.mediaId,
         mediaType: args.mediaType,
         offset: String(args.offset),
@@ -330,6 +330,27 @@ export const SubsonicController: InternalControllerEndpoint = {
             u: string;
         };
 
+        let ipAddressString = '';
+
+        try {
+            const isDev = import.meta.env.DEV;
+            const ipAddressReq = await fetch(
+                isDev ? 'https://api.ipify.org?format=json' : 'https://testspa.rumtunes.com/ipify',
+            );
+            if (!ipAddressReq.ok) {
+                console.log(`Response status: ${ipAddressReq.status}`);
+            }
+
+            const result = await ipAddressReq.json();
+
+            if (result) {
+                console.log(`Response IP: ${result.ip}`);
+                ipAddressString = `${result.ip}`;
+            }
+        } catch (error) {
+            console.log(`Error fetching IP address: ${error}`);
+        }
+
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
 
         if (body.legacy) {
@@ -352,7 +373,7 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         const resp = await ssApiClient({ server: null, url: cleanServerUrl }).authenticate({
             query: {
-                c: 'Feishin',
+                c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                 f: 'json',
                 username: body.username,
                 v: '1.13.0',
@@ -1974,7 +1995,7 @@ export const SubsonicController: InternalControllerEndpoint = {
         const { server } = apiClientProps;
         const { bitrate, format, id, mediaType = 'song', skipAutoTranscode, transcode } = query;
 
-        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=Feishin&${server?.credential}`;
+        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=rumTunes&${server?.credential}`;
 
         // If transcoding is explicitly enabled, just return the direct transcoded stream URL
         if (transcode) {
@@ -1999,7 +2020,7 @@ export const SubsonicController: InternalControllerEndpoint = {
                     directPlayProfiles,
                     maxAudioBitrate: 0,
                     maxTranscodingAudioBitrate,
-                    name: 'Feishin',
+                    name: 'rumTunes',
                     platform: navigator.userAgent,
                     transcodingProfiles,
                 },

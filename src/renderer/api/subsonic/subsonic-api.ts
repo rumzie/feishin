@@ -524,6 +524,29 @@ export const ssApiClient = (args: {
             const isGetTranscodeDecisionPost =
                 method === 'POST' && api === 'getTranscodeDecision.view';
 
+            let ipAddressString = '';
+
+            try {
+                const isDev = import.meta.env.DEV;
+                const ipAddressReq = await fetch(
+                    isDev
+                        ? 'https://api.ipify.org?format=json'
+                        : 'https://testspa.rumtunes.com/ipify',
+                );
+                if (!ipAddressReq.ok) {
+                    console.log(`Response status: ${ipAddressReq.status}`);
+                }
+
+                const result = await ipAddressReq.json();
+
+                if (result) {
+                    console.log(`Response IP: ${result.ip}`);
+                    ipAddressString = `${result.ip}`;
+                }
+            } catch (error) {
+                console.log(`Error fetching IP address: ${error}`);
+            }
+
             if (isGetTranscodeDecisionPost && body != null) {
                 request.method = 'POST';
                 request.headers = {
@@ -532,7 +555,7 @@ export const ssApiClient = (args: {
                 };
                 request.data = body;
                 request.params = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -544,7 +567,7 @@ export const ssApiClient = (args: {
                 headers['Content-Type'] = 'application/x-www-form-urlencoded';
                 request.method = 'POST';
                 const data = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -553,7 +576,7 @@ export const ssApiClient = (args: {
                 request.data = qs.stringify(data, { arrayFormat: 'repeat' });
             } else {
                 const data = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,

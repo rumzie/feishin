@@ -1058,6 +1058,7 @@ export type PlayerFilterOperator = z.infer<typeof PlayerFilterOperatorSchema>;
 export interface SettingsSlice extends z.infer<typeof SettingsStateSchema> {
     actions: {
         addCollection: (collection: SavedCollection) => void;
+        applyDefaultSettings: () => void;
         removeCollection: (id: string) => void;
         reset: () => void;
         resetSampleRate: () => void;
@@ -1393,7 +1394,7 @@ const initialState: SettingsState = {
             type: PlayerbarSliderType.SLIDER,
         },
         playerItems,
-        playlistTarget: PlaylistTarget.TRACK,
+        playlistTarget: PlaylistTarget.ALBUM,
         primaryShade: 6,
         qobuz: true,
         resume: true,
@@ -1417,9 +1418,9 @@ const initialState: SettingsState = {
         sidebarPlaylistFolderTreeIndent: 16,
         sidebarPlaylistFolderTreeLineColor: '',
         sidebarPlaylistFolderView: 'tree',
-        sidebarPlaylistList: true,
+        sidebarPlaylistList: false,
         sidebarPlaylistListFilterRegex: '',
-        sidebarPlaylistMode: 'expanded',
+        sidebarPlaylistMode: 'compact',
         sidebarPlaylistSorting: false,
         sideQueueLayout: 'horizontal',
         sideQueueType: 'sideQueue',
@@ -2290,6 +2291,27 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                                 state.general.collections.push(collection);
                             });
                         },
+                        applyDefaultSettings: () => {
+                            fetch('./rumTunes-settings.json')
+                                .then((res) => res.json())
+                                .then((data) => {
+                                    const { version, ...settings } = data;
+                                    const migratedSettings = migrateSettings(
+                                        settings as SettingsState,
+                                        version,
+                                    );
+
+                                    set((state) => {
+                                        Object.keys(state).forEach((key) => {
+                                            if (key !== 'actions') {
+                                                delete state[key as keyof SettingsState];
+                                            }
+                                        });
+                                        Object.assign(state, cloneDeep(migratedSettings));
+                                    });
+                                })
+                                .catch((err) => console.error('Failed to load config:', err));
+                        },
                         removeCollection: (id: string) => {
                             set((state) => {
                                 state.general.collections = state.general.collections.filter(
@@ -2924,12 +2946,12 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                     }
                 }
 
-                if (version < 34) {
-                    state.general.homeItems.push({
-                        disabled: false,
-                        id: HomeItem.PLAYLISTS,
-                    });
-                }
+                // if (version < 34) {
+                //     state.general.homeItems.push({
+                //         disabled: false,
+                //         id: HomeItem.PLAYLISTS,
+                //     });
+                // }
 
                 return persistedState;
             },

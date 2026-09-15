@@ -66,6 +66,7 @@ const LoginRoute = () => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const { addServer, deleteServer, setCurrentServer, updateServer } = useAuthStoreActions();
+    const { applyDefaultSettings } = useSettingsStoreActions();
     const currentServer = useCurrentServer();
     const serverList = useServerList();
 
@@ -262,6 +263,8 @@ const LoginRoute = () => {
                 addServer(serverItem);
                 setCurrentServer(serverItem);
             }
+
+            applyDefaultSettings();
 
             if (serverLock) {
                 Object.values(useAuthStore.getState().serverList).forEach((server) => {

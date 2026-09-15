@@ -23,7 +23,8 @@ export const AnalyticsSettings = memo(() => {
             control: (
                 <Switch
                     aria-label={t('setting.analyticsEnable')}
-                    defaultChecked={localStorage.getItem('umami.disabled') !== '1'}
+                    defaultChecked={false}
+                    disabled
                     onChange={(e) => handleSetSendAnalytics(e.currentTarget.checked)}
                 />
             ),
