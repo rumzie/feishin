@@ -1314,6 +1314,7 @@ const getItemsPerRow = (cq: ReturnType<typeof useContainerQuery>) => {
     if (cq.isLg) return 5;
     if (cq.isMd) return 4;
     if (cq.isSm) return 3;
+    if (cq.isXs) return 3;
     return 2;
 };
 
