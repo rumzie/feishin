@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy';
 import md5 from 'md5';
 import { z } from 'zod';
 
-import { contract, ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
+import { contract, fetchPublicIp, ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
 import { mapStructuredLyric } from '/@/renderer/api/subsonic/subsonic-structured-lyrics';
 import {
     getDefaultTranscodingProfiles,
@@ -330,26 +330,7 @@ export const SubsonicController: InternalControllerEndpoint = {
             u: string;
         };
 
-        let ipAddressString = '';
-
-        try {
-            const isDev = import.meta.env.DEV;
-            const ipAddressReq = await fetch(
-                isDev ? 'https://api.ipify.org?format=json' : 'https://testspa.rumtunes.com/ipify',
-            );
-            if (!ipAddressReq.ok) {
-                console.log(`Response status: ${ipAddressReq.status}`);
-            }
-
-            const result = await ipAddressReq.json();
-
-            if (result) {
-                console.log(`Response IP: ${result.ip}`);
-                ipAddressString = `${result.ip}`;
-            }
-        } catch (error) {
-            console.log(`Error fetching IP address: ${error}`);
-        }
+        const ipAddressString = await fetchPublicIp();
 
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
 

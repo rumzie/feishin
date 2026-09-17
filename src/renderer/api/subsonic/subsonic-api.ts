@@ -7,6 +7,7 @@ import i18n from '/@/i18n/i18n';
 import { validateResponse } from '/@/renderer/api/response-validation';
 import { authenticationFailure } from '/@/renderer/api/utils';
 import { useAuthStore } from '/@/renderer/store';
+import { logger } from '/@/renderer/utils/logger';
 import { getServerUrl } from '/@/renderer/utils/normalize-server-url';
 import { ssType } from '/@/shared/api/subsonic/subsonic-types';
 import { hasFeature } from '/@/shared/api/utils';
@@ -476,6 +477,37 @@ const silentlyTransformResponse = (data: any) => {
     return jsonBody;
 };
 
+let cachedPublicIp: string | undefined;
+
+export const fetchPublicIp = async () => {
+    if (!cachedPublicIp) {
+        try {
+            const res = await fetch(
+                import.meta.env.DEV
+                    ? 'https://api.ipify.org?format=json'
+                    : 'https://testspa.rumtunes.com/ipify',
+                { signal: AbortSignal.timeout(5000) },
+            );
+
+            if (!res.ok) {
+                throw new Error(`IP lookup failed with status ${res.status}`);
+            }
+
+            const { ip } = (await res.json()) as { ip?: unknown };
+
+            if (typeof ip !== 'string') {
+                throw new Error('IP lookup returned no IP');
+            }
+
+            cachedPublicIp = ip;
+        } catch (error) {
+            logger.warn('Error fetching public IP', { error });
+        }
+    }
+
+    return cachedPublicIp;
+};
+
 export const ssApiClient = (args: {
     forceRemoteUrl?: boolean;
     server: null | ServerListItemWithCredential;
@@ -524,28 +556,7 @@ export const ssApiClient = (args: {
             const isGetTranscodeDecisionPost =
                 method === 'POST' && api === 'getTranscodeDecision.view';
 
-            let ipAddressString = '';
-
-            try {
-                const isDev = import.meta.env.DEV;
-                const ipAddressReq = await fetch(
-                    isDev
-                        ? 'https://api.ipify.org?format=json'
-                        : 'https://testspa.rumtunes.com/ipify',
-                );
-                if (!ipAddressReq.ok) {
-                    console.log(`Response status: ${ipAddressReq.status}`);
-                }
-
-                const result = await ipAddressReq.json();
-
-                if (result) {
-                    console.log(`Response IP: ${result.ip}`);
-                    ipAddressString = `${result.ip}`;
-                }
-            } catch (error) {
-                console.log(`Error fetching IP address: ${error}`);
-            }
+            const ipAddressString = await fetchPublicIp();
 
             if (isGetTranscodeDecisionPost && body != null) {
                 request.method = 'POST';
