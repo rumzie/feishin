@@ -86,6 +86,7 @@ export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
                         content: styles.accordionContent,
                         control: styles.accordionControl,
                         item: styles.accordionItem,
+                        label: styles.accordionLabel,
                         root: styles.accordionRoot,
                     }}
                     defaultValue={['library', 'playlists']}
@@ -99,8 +100,7 @@ export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
                         </Accordion.Control>
                         <Accordion.Panel>
                             {sidebarItemsWithRoute.map((item) => {
-                                const keepMenuOpen =
-                                    item.id === 'Search' || item.id === 'Settings';
+                                const keepMenuOpen = item.id === 'Search' || item.id === 'Settings';
 
                                 return (
                                     <SidebarItem

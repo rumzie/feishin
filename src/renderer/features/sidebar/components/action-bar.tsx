@@ -30,9 +30,11 @@ export const ActionBar = ({ stacked }: ActionBarProps) => {
                 gap="sm"
                 styles={{
                     inner: {
+                        minWidth: 0,
                         width: '100%',
                     },
                     root: {
+                        minWidth: 0,
                         padding: '0 var(--theme-spacing-md',
                         width: '100%',
                     },
@@ -49,6 +51,11 @@ export const ActionBar = ({ stacked }: ActionBarProps) => {
                         }}
                         placeholder={t('common.search')}
                         readOnly
+                        styles={{
+                            input: { minWidth: 0 },
+                            root: { minWidth: 0 },
+                            wrapper: { minWidth: 0 },
+                        }}
                     />
                 </Grid.Col>
                 <Grid.Col span={stacked ? 12 : 5}>

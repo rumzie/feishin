@@ -116,8 +116,11 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                             padding: 0,
                         },
                         content: {
+                            flex: '0 0 auto',
                             height: '100%',
-                            width: '100%',
+                            maxWidth: '100%',
+                            minWidth: 0,
+                            width: 'min-content',
                         },
                     }}
                     withCloseButton={false}
