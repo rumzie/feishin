@@ -33,7 +33,11 @@ const MobileSidebarPlaylistSection = () => {
     );
 };
 
-export const MobileSidebar = () => {
+interface MobileSidebarProps {
+    onNavigate: () => void;
+}
+
+export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
     const { t } = useTranslation();
     const sidebarPlaylistList = useSidebarPlaylistList();
 
@@ -74,7 +78,7 @@ export const MobileSidebar = () => {
     return (
         <div className={styles.container} id="mobile-sidebar">
             <Group grow id="global-search-container" style={{ flexShrink: 0 }}>
-                <ActionBar />
+                <ActionBar stacked />
             </Group>
             <ScrollArea allowDragScroll className={styles.scrollArea}>
                 <Accordion
@@ -95,8 +99,17 @@ export const MobileSidebar = () => {
                         </Accordion.Control>
                         <Accordion.Panel>
                             {sidebarItemsWithRoute.map((item) => {
+                                const keepMenuOpen =
+                                    item.id === 'Search' || item.id === 'Settings';
+
                                 return (
-                                    <SidebarItem key={`sidebar-${item.route}`} to={item.route}>
+                                    <SidebarItem
+                                        key={`sidebar-${item.route}`}
+                                        onClick={() => {
+                                            if (!keepMenuOpen) onNavigate();
+                                        }}
+                                        to={item.route}
+                                    >
                                         <Group gap="sm">
                                             <SidebarIcon route={item.route} />
                                             {item.label}

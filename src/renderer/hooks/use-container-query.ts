@@ -27,7 +27,7 @@ export const useContainerQuery = (props?: UseContainerQueryProps) => {
     const { height, ref, width } = useElementSize();
 
     const isXs = width >= (xs || 360);
-    const isSm = width >= (sm || 480);
+    const isSm = width >= (sm || 400);
     const isMd = width >= (md || 600);
     const isLg = width >= (lg || 768);
     const isXl = width >= (xl || 960);

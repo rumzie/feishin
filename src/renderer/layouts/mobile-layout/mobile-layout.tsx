@@ -122,7 +122,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                     }}
                     withCloseButton={false}
                 >
-                    <MobileSidebar />
+                    <MobileSidebar onNavigate={closeSidebar} />
                 </Drawer>
             )}
             <AnimatePresence initial={false}>

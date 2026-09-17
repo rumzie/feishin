@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 
@@ -13,13 +14,17 @@ import { Group } from '/@/shared/components/group/group';
 import { Icon } from '/@/shared/components/icon/icon';
 import { TextInput } from '/@/shared/components/text-input/text-input';
 
-export const ActionBar = () => {
+interface ActionBarProps {
+    stacked?: boolean;
+}
+
+export const ActionBar = ({ stacked }: ActionBarProps) => {
     const { t } = useTranslation();
     const { open } = useCommandPalette();
     const { isScanning } = useScanStatus();
 
     return (
-        <div className={styles.container}>
+        <div className={clsx(styles.container, { [styles.containerStacked]: stacked })}>
             <Grid
                 display="flex"
                 gap="sm"
@@ -33,7 +38,7 @@ export const ActionBar = () => {
                     },
                 }}
             >
-                <Grid.Col span={7}>
+                <Grid.Col span={stacked ? 12 : 7}>
                     <TextInput
                         leftSection={<Icon icon="search" />}
                         onClick={open}
@@ -46,7 +51,7 @@ export const ActionBar = () => {
                         readOnly
                     />
                 </Grid.Col>
-                <Grid.Col span={5}>
+                <Grid.Col span={stacked ? 12 : 5}>
                     <Group gap="sm" grow wrap="nowrap">
                         <DropdownMenu position="bottom-start">
                             <DropdownMenu.Target>

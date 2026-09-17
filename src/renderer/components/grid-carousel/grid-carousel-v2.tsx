@@ -19,7 +19,7 @@ export const useGridCarouselContainerQuery = () => {
         '3xl': 1440,
         lg: 960,
         md: 720,
-        sm: 520,
+        sm: 400,
         xl: 1152,
         xs: 360,
     });
@@ -110,7 +110,6 @@ function BaseGridCarousel(props: GridCarouselProps) {
         isLargerThanMd: cq.isMd,
         isLargerThanSm: cq.isSm,
         isLargerThanXl: cq.isXl,
-        isLargerThanXs: cq.isXs,
     });
 
     const visibleCards = useMemo(() => {
@@ -395,7 +394,6 @@ const GridCarouselSkeleton = (props: GridCarouselSkeletonProps) => {
               isLargerThanMd: cq.isMd,
               isLargerThanSm: cq.isSm,
               isLargerThanXl: cq.isXl,
-              isLargerThanXs: cq.isXs,
           })
         : 6;
 
@@ -443,7 +441,6 @@ function getCardsToShow(breakpoints: {
     isLargerThanMd: boolean;
     isLargerThanSm: boolean;
     isLargerThanXl: boolean;
-    isLargerThanXs: boolean;
 }) {
     if (breakpoints.isLargerThan3xl) {
         return 8;
@@ -466,10 +463,6 @@ function getCardsToShow(breakpoints: {
     }
 
     if (breakpoints.isLargerThanSm) {
-        return 3;
-    }
-
-    if (breakpoints.isLargerThanXs) {
         return 3;
     }
 
