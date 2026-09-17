@@ -110,6 +110,7 @@ function BaseGridCarousel(props: GridCarouselProps) {
         isLargerThanMd: cq.isMd,
         isLargerThanSm: cq.isSm,
         isLargerThanXl: cq.isXl,
+        isLargerThanXs: cq.isXs,
     });
 
     const visibleCards = useMemo(() => {
@@ -394,6 +395,7 @@ const GridCarouselSkeleton = (props: GridCarouselSkeletonProps) => {
               isLargerThanMd: cq.isMd,
               isLargerThanSm: cq.isSm,
               isLargerThanXl: cq.isXl,
+              isLargerThanXs: cq.isXs,
           })
         : 6;
 
@@ -441,6 +443,7 @@ function getCardsToShow(breakpoints: {
     isLargerThanMd: boolean;
     isLargerThanSm: boolean;
     isLargerThanXl: boolean;
+    isLargerThanXs: boolean;
 }) {
     if (breakpoints.isLargerThan3xl) {
         return 8;
@@ -463,6 +466,10 @@ function getCardsToShow(breakpoints: {
     }
 
     if (breakpoints.isLargerThanSm) {
+        return 3;
+    }
+
+    if (breakpoints.isLargerThanXs) {
         return 3;
     }
 
