@@ -1313,7 +1313,8 @@ const getItemsPerRow = (cq: ReturnType<typeof useContainerQuery>) => {
     if (cq.isXl) return 6;
     if (cq.isLg) return 5;
     if (cq.isMd) return 4;
-    return 3;
+    if (cq.isSm) return 3;
+    return 2;
 };
 
 const AlbumSection = memo(function AlbumSection({
@@ -1504,7 +1505,7 @@ const ArtistAlbums = ({ albumsQuery, order }: ArtistAlbumsProps) => {
         '3xl': 1440,
         lg: 960,
         md: 720,
-        sm: 520,
+        sm: 400,
         xl: 1152,
         xs: 360,
     });
