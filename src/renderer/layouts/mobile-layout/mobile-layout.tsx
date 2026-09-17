@@ -46,7 +46,13 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
         if (!isFullScreenPlayerExpanded) {
             if (fullScreenPlayerHistoryRef.current) {
                 fullScreenPlayerHistoryRef.current = false;
-                window.history.back();
+
+                // Only pop the pushed overlay entry if we haven't navigated away
+                // from it (e.g. an album/artist link), otherwise we'd undo that
+                // navigation.
+                if (window.history.state?.mobileFullscreenPlayer) {
+                    window.history.back();
+                }
             }
 
             return undefined;
