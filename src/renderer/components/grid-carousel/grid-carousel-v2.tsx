@@ -102,7 +102,6 @@ function BaseGridCarousel(props: GridCarouselProps) {
         }));
         onNextPage(currentPage.page);
     }, [currentPage, onNextPage]);
-    console.log(cq);
     const cardsToShow = getCardsToShow({
         isLargerThan2xl: cq.is2xl,
         isLargerThan3xl: cq.is3xl,

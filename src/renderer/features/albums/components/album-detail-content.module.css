@@ -17,11 +17,12 @@
         'metadata'
         'songs';
     grid-template-rows: auto auto;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--theme-spacing-lg);
     align-items: start;
     width: 100%;
     min-width: 0;
+    max-width: 100%;
 }
 
 .metadata-column {
@@ -31,7 +32,15 @@
     grid-area: metadata;
     gap: var(--theme-spacing-xl);
     align-items: center;
+    min-width: 0;
+    max-width: 100%;
     text-align: center;
+
+    & > * {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
 }
 
 .songs-column {
@@ -67,7 +76,9 @@
 
 .pill-group-wrapper {
     display: flex;
+    justify-content: center;
     width: 100%;
+    min-width: 0;
 
     & > div {
         justify-content: center;
@@ -79,6 +90,10 @@
         flex-direction: row;
         justify-content: flex-start;
         text-align: left;
+    }
+
+    .metadata-column > * {
+        width: auto;
     }
 
     .external-links-group {
