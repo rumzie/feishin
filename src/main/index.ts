@@ -599,7 +599,7 @@ const createTray = () => {
         });
     }
 
-    tray.setToolTip('Feishin');
+    tray.setToolTip('rumTunes');
     tray.setContextMenu(contextMenu);
 };
 
