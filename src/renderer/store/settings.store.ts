@@ -1860,7 +1860,7 @@ const initialState: SettingsState = {
             },
         },
         [LibraryItem.PLAYLIST]: {
-            display: ListDisplayType.TABLE,
+            display: ListDisplayType.GRID,
             grid: {
                 itemGap: 'sm',
                 itemsPerRow: 6,
@@ -1896,7 +1896,7 @@ const initialState: SettingsState = {
             },
         },
         [LibraryItem.PLAYLIST_SONG]: {
-            display: ListDisplayType.TABLE,
+            display: ListDisplayType.GRID,
             grid: {
                 itemGap: 'sm',
                 itemsPerRow: 6,
