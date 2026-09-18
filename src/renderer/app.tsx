@@ -9,7 +9,7 @@ import '@mantine/notifications/styles.css';
 import isElectron from 'is-electron';
 import { lazy, memo, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
-import i18n from '/@/i18n/i18n';
+import { loadLanguage } from '/@/i18n/i18n';
 import { WebAudioContext } from '/@/renderer/features/player/context/webaudio-context';
 import { useCheckForUpdates } from '/@/renderer/hooks/use-check-for-updates';
 import { useFullscreenAutoOpen } from '/@/renderer/hooks/use-fullscreen-auto-open';
@@ -253,7 +253,7 @@ const LanguageEffect = () => {
 
     useEffect(() => {
         if (language) {
-            i18n.changeLanguage(language);
+            loadLanguage(language);
         }
     }, [language]);
 

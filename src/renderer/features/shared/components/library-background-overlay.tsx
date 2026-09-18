@@ -1,6 +1,6 @@
 import { generateColors } from '@mantine/colors-generator';
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import styles from './library-background-overlay.module.css';
 
@@ -46,7 +46,8 @@ export const BackgroundOverlay = ({
 }: BackgroundOverlayProps) => {
     const theme = useAppThemeColors();
 
-    const colors = generateColors(backgroundColor || theme.color['--theme-colors-background']);
+    const backgroundSource = backgroundColor || theme.color['--theme-colors-background'];
+    const colors = useMemo(() => generateColors(backgroundSource), [backgroundSource]);
 
     return (
         <div

@@ -1,5 +1,5 @@
 import isElectron from 'is-electron';
-import { debounce } from 'lodash';
+import debounce from 'lodash/debounce';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { getItemImageUrl } from '/@/renderer/components/item-image/item-image';

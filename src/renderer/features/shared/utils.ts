@@ -220,6 +220,10 @@ export const createFuseForLibraryItem = <T extends FuseSearchableItem>(
     });
 };
 
+// ponytail: index cache reused per items array + itemType; stale only if a searched
+// array is mutated in place, which this codebase never does (arrays are replaced immutably).
+const fuseCache = new WeakMap<object, Map<LibraryItem, Fuse<FuseSearchableItem>>>();
+
 export const searchLibraryItems = <T extends FuseSearchableItem>(
     items: T[],
     searchTerm: string | undefined,
@@ -230,6 +234,17 @@ export const searchLibraryItems = <T extends FuseSearchableItem>(
         return items;
     }
 
-    const fuse = createFuseForLibraryItem(items, itemType, options);
+    let perType = fuseCache.get(items);
+    let fuse = perType?.get(itemType) as Fuse<T> | undefined;
+
+    if (!fuse) {
+        fuse = createFuseForLibraryItem(items, itemType, options);
+        if (!perType) {
+            perType = new Map();
+            fuseCache.set(items, perType);
+        }
+        perType.set(itemType, fuse as unknown as Fuse<FuseSearchableItem>);
+    }
+
     return fuse.search(searchTerm).map((result) => result.item);
 };

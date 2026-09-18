@@ -8,7 +8,7 @@ import {
     useIsRadioActive,
     useRadioPlayer,
 } from '/@/renderer/features/radio/hooks/use-radio-player';
-import { usePlayerSong, usePlayerStore } from '/@/renderer/store';
+import { usePlayerActions, usePlayerSong } from '/@/renderer/store';
 import { LibraryItem, QueueSong } from '/@/shared/types/domain-types';
 import { PlayerShuffle, ServerType } from '/@/shared/types/types';
 
@@ -17,7 +17,7 @@ const utils = isElectron() ? window.api.utils : null;
 const mpris = isElectron() && (utils?.isLinux() || utils?.isMacOS()) ? window.api.mpris : null;
 
 export const useMPRIS = () => {
-    const player = usePlayerStore();
+    const player = usePlayerActions();
     const currentSong = usePlayerSong();
     const isRadioActive = useIsRadioActive();
     const { metadata: radioMetadata, stationName } = useRadioPlayer();

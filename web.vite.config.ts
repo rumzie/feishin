@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { kuromojiDictionaryPlugin } from './vite.kuromoji-plugin';
 import { createReactPlugin } from './vite.react-plugin';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     base: './',
     build: {
         emptyOutDir: true,
@@ -47,7 +47,7 @@ export default defineConfig({
                 sourcemapExcludeSources: false,
             },
         },
-        sourcemap: true,
+        sourcemap: command === 'serve',
     },
     css: {
         modules: {
@@ -156,4 +156,4 @@ export default defineConfig({
         },
     },
     root: path.resolve(__dirname, './src/renderer'),
-});
+}));

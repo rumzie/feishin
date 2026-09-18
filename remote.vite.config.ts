@@ -5,7 +5,7 @@ import { ViteEjsPlugin } from 'vite-plugin-ejs';
 import { version } from './package.json';
 import { createReactPlugin } from './vite.react-plugin';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     build: {
         cssMinify: 'esbuild',
         emptyOutDir: true,
@@ -26,7 +26,7 @@ export default defineConfig({
                 sourcemapExcludeSources: false,
             },
         },
-        sourcemap: true,
+        sourcemap: command === 'serve',
     },
     css: {
         modules: {
@@ -51,4 +51,4 @@ export default defineConfig({
         },
     },
     root: path.resolve(__dirname, './src/remote'),
-});
+}));
