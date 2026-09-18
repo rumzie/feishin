@@ -108,7 +108,8 @@
 }
 
 .image-native-aspect-ratio {
-    width: min(400px, 100cqw);
+    width: fit-content;
+    max-width: min(400px, 100cqw);
     height: auto;
     max-height: 100%;
     aspect-ratio: auto;
@@ -116,8 +117,10 @@
 
 .image-native-aspect-ratio .album-image {
     position: relative;
+    width: auto;
+    max-width: 100%;
     height: auto;
-    max-height: 50dvh;
+    max-height: 100cqh;
     margin: 0 auto;
 }
 
