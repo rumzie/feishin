@@ -1300,6 +1300,17 @@ const getPlatformDefaultWindowBarStyle = (): Platform => {
 
 const platformDefaultWindowBarStyle: Platform = getPlatformDefaultWindowBarStyle();
 
+// The waveform downloads and decodes a second copy of the track, which is
+// fine on desktop but stalls playback on a phone, so default to the slider
+// on mobile and auto-enable the waveform everywhere else.
+const getDefaultPlayerbarSliderType = (): PlayerbarSliderType => {
+    const isMobile =
+        typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    return isMobile ? PlayerbarSliderType.SLIDER : PlayerbarSliderType.WAVEFORM;
+};
+
+const playerbarSliderDefaultType: PlayerbarSliderType = getDefaultPlayerbarSliderType();
+
 const initialState: SettingsState = {
     autoDJ: {
         albumStrategy: AUTO_DJ_STRATEGY.SIMILAR,
@@ -1391,7 +1402,7 @@ const initialState: SettingsState = {
             barWidth: 2,
             loadingDelay: 2,
             stretched: false,
-            type: PlayerbarSliderType.SLIDER,
+            type: playerbarSliderDefaultType,
         },
         playerItems,
         playlistTarget: PlaylistTarget.ALBUM,
