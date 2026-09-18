@@ -50,7 +50,7 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                 playerItemAlignment: 'center',
                 titleDisplayType: 'scroll',
                 titleLineCount: 1,
-                useImageAspectRatio: false,
+                useImageAspectRatio: true,
                 visualizerExpanded: false,
                 visualizerReturnToPlayer: false,
             })),
