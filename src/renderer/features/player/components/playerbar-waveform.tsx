@@ -25,9 +25,30 @@ const getFiniteDuration = (wavesurfer: { getDuration: () => number }) => {
     return Number.isFinite(duration) ? duration : 0;
 };
 
+// Decoding a second copy of the track (a fresh AudioContext + full decode)
+// while the main player is running is what stalls weak/mobile devices, so
+// cache the exported peaks per track and replay them without any network or
+// decode on repeat views. 4096 points per channel comfortably beats the
+// playerbar's pixel width at any DPR; the renderer downsamples to its grid.
+// ponytail: in-memory only, LRU of 100 tracks - add persistence when repeat
+// visits to a growing library across restarts measurably matter.
+const WAVEFORM_PEAK_LENGTH = 4096;
+const WAVEFORM_CACHE_LIMIT = 100;
+const waveformPeaksCache = new Map<string, { duration: number; peaks: Array<number[]> }>();
+
+const cacheWaveform = (key: string, entry: { duration: number; peaks: Array<number[]> }) => {
+    waveformPeaksCache.delete(key);
+    if (waveformPeaksCache.size >= WAVEFORM_CACHE_LIMIT) {
+        const oldest = waveformPeaksCache.keys().next().value as string | undefined;
+        if (oldest) waveformPeaksCache.delete(oldest);
+    }
+    waveformPeaksCache.set(key, entry);
+};
+
 export const PlayerbarWaveform = () => {
     const currentSong = usePlayerSong();
     const playerbarSlider = usePlayerbarSlider();
+    const cacheKey = currentSong?._uniqueId;
     const currentTime = usePlayerTimestamp();
     const containerRef = useRef<HTMLDivElement>(null);
     const audioElementRef = useRef<HTMLAudioElement>(document.createElement('audio'));
@@ -81,15 +102,27 @@ export const PlayerbarWaveform = () => {
         waveColor,
     });
 
-    // Reset loading state when stream URL changes and ensure media is muted
-    useEffect(() => {
-        setIsLoading(true);
-        setHasError(false);
-    }, [streamUrl]);
-
     // Handle waveform ready state
     useEffect(() => {
-        if (!wavesurfer || !streamUrl) return;
+        if (!wavesurfer) return;
+
+        // Previously-decoded track: render from cached peaks instantly - no
+        // second download, no second AudioContext decode while playing.
+        const cached = cacheKey ? waveformPeaksCache.get(cacheKey) : undefined;
+        if (cached && cached.duration > 0) {
+            setIsLoading(false);
+            setHasError(false);
+            wavesurfer.load('', cached.peaks, cached.duration).catch(() => {
+                setIsLoading(false);
+                setHasError(true);
+            });
+            return;
+        }
+
+        if (!streamUrl) return;
+
+        setIsLoading(true);
+        setHasError(false);
 
         // The wavesurfer instance is shared across stream URLs, and this
         // effect subscribes before its (delayed) load actually starts. Guard
@@ -109,6 +142,23 @@ export const PlayerbarWaveform = () => {
             if (mediaElement) {
                 mediaElement.muted = true;
                 mediaElement.volume = 0;
+            }
+            if (cacheKey && !waveformPeaksCache.has(cacheKey)) {
+                try {
+                    const duration = getFiniteDuration(wavesurfer);
+                    if (duration > 0) {
+                        cacheWaveform(cacheKey, {
+                            duration,
+                            peaks: wavesurfer.exportPeaks({
+                                channels: 2,
+                                maxLength: WAVEFORM_PEAK_LENGTH,
+                                precision: 10000,
+                            }),
+                        });
+                    }
+                } catch {
+                    // peaks not exportable (no decoded data) - just don't cache
+                }
             }
         };
 
@@ -148,7 +198,7 @@ export const PlayerbarWaveform = () => {
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
-    }, [wavesurfer, streamUrl, playerbarSlider.loadingDelay]);
+    }, [wavesurfer, streamUrl, cacheKey, playerbarSlider.loadingDelay]);
 
     useEffect(() => {
         if (!wavesurfer) return;
@@ -232,7 +282,10 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            // The media element has no source for cached (peak-only) waveforms,
+            // so read the intended position from the last pointer move instead
+            // of wavesurfer.getCurrentTime() (always 0 without a source).
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
@@ -301,7 +354,10 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            // The media element has no source for cached (peak-only) waveforms,
+            // so read the intended position from the last pointer move instead
+            // of wavesurfer.getCurrentTime() (always 0 without a source).
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
