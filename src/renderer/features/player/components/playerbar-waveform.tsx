@@ -1,5 +1,6 @@
 import { useWavesurfer } from '@wavesurfer/react';
 import formatDuration from 'format-duration';
+import { del, get, set } from 'idb-keyval';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -25,18 +26,24 @@ const getFiniteDuration = (wavesurfer: { getDuration: () => number }) => {
     return Number.isFinite(duration) ? duration : 0;
 };
 
+type CachedWaveform = { duration: number; peaks: Array<number[]> };
+
 // Decoding a second copy of the track (a fresh AudioContext + full decode)
 // while the main player is running is what stalls weak/mobile devices, so
 // cache the exported peaks per track and replay them without any network or
 // decode on repeat views. 4096 points per channel comfortably beats the
 // playerbar's pixel width at any DPR; the renderer downsamples to its grid.
-// ponytail: in-memory only, LRU of 100 tracks - add persistence when repeat
-// visits to a growing library across restarts measurably matter.
+// LRU of 100 tracks in memory, mirrored to IndexedDB (idb-keyval, like the
+// player timestamp) so previously-waved tracks are instant across restarts.
+// Keyed by `<serverId>:<id>` - the queue rebuilds tracks with a fresh nanoid
+// `_uniqueId` every time, so that identity would never survive a restart.
 const WAVEFORM_PEAK_LENGTH = 4096;
 const WAVEFORM_CACHE_LIMIT = 100;
-const waveformPeaksCache = new Map<string, { duration: number; peaks: Array<number[]> }>();
+const WAVEFORM_DB_KEY_PREFIX = 'waveform-peaks:';
+const WAVEFORM_DB_KEY_LIST = 'waveform-peaks-keys';
+const waveformPeaksCache = new Map<string, CachedWaveform>();
 
-const cacheWaveform = (key: string, entry: { duration: number; peaks: Array<number[]> }) => {
+const cacheWaveform = (key: string, entry: CachedWaveform) => {
     waveformPeaksCache.delete(key);
     if (waveformPeaksCache.size >= WAVEFORM_CACHE_LIMIT) {
         const oldest = waveformPeaksCache.keys().next().value as string | undefined;
@@ -45,16 +52,34 @@ const cacheWaveform = (key: string, entry: { duration: number; peaks: Array<numb
     waveformPeaksCache.set(key, entry);
 };
 
+const loadWaveform = async (key: string) =>
+    (await get<CachedWaveform | undefined>(WAVEFORM_DB_KEY_PREFIX + key)) ?? null;
+
+const persistWaveform = async (key: string, entry: CachedWaveform) => {
+    const keys = (await get<string[]>(WAVEFORM_DB_KEY_LIST)) ?? [];
+    if (!keys.includes(key)) {
+        keys.unshift(key);
+        while (keys.length > WAVEFORM_CACHE_LIMIT) {
+            const evicted = keys.pop();
+            if (evicted) await del(WAVEFORM_DB_KEY_PREFIX + evicted);
+        }
+        await set(WAVEFORM_DB_KEY_LIST, keys);
+    }
+    await set(WAVEFORM_DB_KEY_PREFIX + key, entry);
+};
+
 export const PlayerbarWaveform = () => {
     const currentSong = usePlayerSong();
     const playerbarSlider = usePlayerbarSlider();
-    const cacheKey = currentSong?._uniqueId;
+    const cacheKey = currentSong ? `${currentSong._serverId}:${currentSong.id}` : undefined;
     const currentTime = usePlayerTimestamp();
     const containerRef = useRef<HTMLDivElement>(null);
     const audioElementRef = useRef<HTMLAudioElement>(document.createElement('audio'));
     const { mediaSeekToTimestamp } = usePlayer();
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    // undefined: IndexedDB lookup not resolved yet; null: no persisted entry
+    const [persisted, setPersisted] = useState<CachedWaveform | null | undefined>(undefined);
     const [isDragging, setIsDragging] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState<null | { x: number; y: number }>(null);
     const [tooltipValue, setTooltipValue] = useState(0);
@@ -102,6 +127,33 @@ export const PlayerbarWaveform = () => {
         waveColor,
     });
 
+    // Hydrate this track's peaks from IndexedDB. Keep the loading UI until the
+    // read resolves (a few ms) so the network load never races it. Loaded
+    // entries are promoted into the in-memory LRU for the rest of the session.
+    useEffect(() => {
+        let cancelled = false;
+        setIsLoading(true);
+        setHasError(false);
+        setPersisted(undefined);
+        if (!cacheKey) {
+            return;
+        }
+
+        loadWaveform(cacheKey).then((entry) => {
+            if (cancelled) return;
+            if (entry) {
+                cacheWaveform(cacheKey as string, entry);
+                setPersisted(entry);
+            } else {
+                setPersisted(null);
+            }
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [cacheKey]);
+
     // Handle waveform ready state
     useEffect(() => {
         if (!wavesurfer) return;
@@ -119,7 +171,10 @@ export const PlayerbarWaveform = () => {
             return;
         }
 
-        if (!streamUrl) return;
+        // Wait for the IndexedDB lookup before deciding there is nothing to
+        // replay, otherwise a few seconds of network+decode is wasted and then
+        // cancelled when the persisted entry lands.
+        if (persisted === undefined || !streamUrl) return;
 
         setIsLoading(true);
         setHasError(false);
@@ -147,14 +202,16 @@ export const PlayerbarWaveform = () => {
                 try {
                     const duration = getFiniteDuration(wavesurfer);
                     if (duration > 0) {
-                        cacheWaveform(cacheKey, {
+                        const entry: CachedWaveform = {
                             duration,
                             peaks: wavesurfer.exportPeaks({
                                 channels: 2,
                                 maxLength: WAVEFORM_PEAK_LENGTH,
                                 precision: 10000,
                             }),
-                        });
+                        };
+                        cacheWaveform(cacheKey, entry);
+                        persistWaveform(cacheKey, entry).catch(() => undefined);
                     }
                 } catch {
                     // peaks not exportable (no decoded data) - just don't cache
@@ -198,7 +255,7 @@ export const PlayerbarWaveform = () => {
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
-    }, [wavesurfer, streamUrl, cacheKey, playerbarSlider.loadingDelay]);
+    }, [wavesurfer, streamUrl, cacheKey, persisted, playerbarSlider.loadingDelay]);
 
     useEffect(() => {
         if (!wavesurfer) return;
