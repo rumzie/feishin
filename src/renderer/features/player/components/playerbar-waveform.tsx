@@ -77,6 +77,9 @@ export const PlayerbarWaveform = () => {
     const audioElementRef = useRef<HTMLAudioElement>(document.createElement('audio'));
     const { mediaSeekToTimestamp } = usePlayer();
     const [isLoading, setIsLoading] = useState(true);
+    // 0-100 download progress from the wavesurfer `loading` event, rendered as a
+    // fill bar while the track's peaks are being fetched/decoded for the first time
+    const [loadingProgress, setLoadingProgress] = useState(0);
     const [hasError, setHasError] = useState(false);
     // undefined: IndexedDB lookup not resolved yet; null: no persisted entry
     const [persisted, setPersisted] = useState<CachedWaveform | null | undefined>(undefined);
@@ -133,6 +136,7 @@ export const PlayerbarWaveform = () => {
     useEffect(() => {
         let cancelled = false;
         setIsLoading(true);
+        setLoadingProgress(0);
         setHasError(false);
         setPersisted(undefined);
         if (!cacheKey) {
@@ -231,9 +235,18 @@ export const PlayerbarWaveform = () => {
             setHasError(true);
         };
 
+        const handleLoading = (percent: number) => {
+            setLoadingProgress(percent);
+        };
+
         wavesurfer.on('ready', handleReady);
         wavesurfer.on('error', handleError);
+        wavesurfer.on('loading', handleLoading);
 
+        // `loadingDelay: 0` (the shipped default) means start immediately - only
+        // a truthy value defers the fetch so quick track-skips never waste a
+        // download. Loading is still wasted-work-safe: wavesurfer aborts the
+        // previous fetch and this effect's `cancelled` flag drops the stale load.
         const waveformTimeout = setTimeout(
             () => {
                 if (cancelled) return;
@@ -246,13 +259,14 @@ export const PlayerbarWaveform = () => {
                     setHasError(true);
                 });
             },
-            playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
+            (playerbarSlider?.loadingDelay ?? 2) * 1000,
         );
 
         return () => {
             cancelled = true;
             wavesurfer.un('ready', handleReady);
             wavesurfer.un('error', handleError);
+            wavesurfer.un('loading', handleLoading);
             clearTimeout(waveformTimeout);
         };
     }, [wavesurfer, streamUrl, cacheKey, persisted, playerbarSlider.loadingDelay]);
@@ -527,6 +541,12 @@ export const PlayerbarWaveform = () => {
                         transition={{ duration: 0.2 }}
                     >
                         <PlayerbarSeekSlider max={songDuration} min={0} />
+                        {isLoading && !hasError && (
+                            <div
+                                className={styles.loadProgress}
+                                style={{ width: `${loadingProgress}%` }}
+                            />
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
