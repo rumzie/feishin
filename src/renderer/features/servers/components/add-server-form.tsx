@@ -401,7 +401,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
                                 type="submit"
                                 variant="filled"
                             >
-                                {t('common.add')}
+                                {t('common.signIn')}
                             </ModalButton>
                         )}
                     </Group>
