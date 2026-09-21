@@ -1400,7 +1400,7 @@ const initialState: SettingsState = {
             barGap: 1,
             barRadius: 4,
             barWidth: 2,
-            loadingDelay: 0,
+            loadingDelay: 2,
             stretched: false,
             type: playerbarSliderDefaultType,
         },

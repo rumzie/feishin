@@ -494,7 +494,7 @@ export const ControlSettings = memo(() => {
                   {
                       control: (
                           <NumberInput
-                              defaultValue={playerbarSlider?.loadingDelay ?? 0}
+                              defaultValue={playerbarSlider?.loadingDelay ?? 2}
                               max={30}
                               min={0}
                               onBlur={(e) => {
@@ -505,7 +505,7 @@ export const ControlSettings = memo(() => {
                                               ...playerbarSlider,
                                               loadingDelay: e.currentTarget.value
                                                   ? Number(e.currentTarget.value)
-                                                  : 0,
+                                                  : 2,
                                           },
                                       },
                                   });
