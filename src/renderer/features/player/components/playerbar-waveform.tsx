@@ -51,10 +51,10 @@ export const PlayerbarWaveform = () => {
 
     const songDuration = currentSong?.duration ? currentSong.duration / 1000 : 0;
 
-    const { transcode } = usePlaybackSettings();
+    // const { transcode } = usePlaybackSettings();
     const streamUrl = useSongUrl(currentSong, true, {
-        bitrate: 64,
-        enabled: transcode.enabled,
+        bitrate: 32,
+        enabled: true,
         format: 'mp3',
     });
 
