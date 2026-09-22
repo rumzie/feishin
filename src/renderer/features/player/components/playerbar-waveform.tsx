@@ -10,6 +10,13 @@ import { useSongUrl } from '/@/renderer/features/player/audio-player/hooks/use-s
 import { PlayerbarSeekSlider } from '/@/renderer/features/player/components/playerbar-seek-slider';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
 import {
+    fetchWaveformAudio,
+    getWaveformCache,
+    setPlayerbarWaveformLoading,
+    setPlayerbarWaveformProgress,
+    setWaveformCache,
+} from '/@/renderer/features/player/store/playerbar-waveform.store';
+import {
     BarAlign,
     usePlaybackSettings,
     usePlayerbarSlider,
@@ -35,6 +42,7 @@ export const PlayerbarWaveform = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [loadProgress, setLoadProgress] = useState(0);
     const [tooltipPosition, setTooltipPosition] = useState<null | { x: number; y: number }>(null);
     const [tooltipValue, setTooltipValue] = useState(0);
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,7 +93,15 @@ export const PlayerbarWaveform = () => {
     useEffect(() => {
         setIsLoading(true);
         setHasError(false);
+        setLoadProgress(0);
     }, [streamUrl]);
+
+    // Share the loading state and progress so the playerbar can render a loading indicator
+    useEffect(() => {
+        setPlayerbarWaveformLoading(isLoading);
+        setPlayerbarWaveformProgress(loadProgress);
+        return () => setPlayerbarWaveformLoading(false);
+    }, [isLoading, loadProgress]);
 
     // Handle waveform ready state
     useEffect(() => {
@@ -105,11 +121,18 @@ export const PlayerbarWaveform = () => {
             if (cancelled || !loadStarted) return;
             setIsLoading(false);
             setHasError(false);
+            setLoadProgress(100);
             const mediaElement = wavesurfer.getMediaElement();
             if (mediaElement) {
                 mediaElement.muted = true;
                 mediaElement.volume = 0;
             }
+        };
+
+        // Surface decode progress so the waveform fades in as it loads
+        const handleLoading = (percent: number) => {
+            if (cancelled || !loadStarted) return;
+            setLoadProgress(Math.min(100, Math.max(0, percent)));
         };
 
         // A load failure previously left the waveform canvas empty with no
@@ -126,27 +149,73 @@ export const PlayerbarWaveform = () => {
 
         wavesurfer.on('ready', handleReady);
         wavesurfer.on('error', handleError);
+        wavesurfer.on('loading', handleLoading);
 
-        const waveformTimeout = setTimeout(
-            () => {
-                if (cancelled) return;
-                loadStarted = true;
-                wavesurfer.load(streamUrl).catch((error: unknown) => {
+        const loadWaveform = async () => {
+            if (cancelled) return;
+            loadStarted = true;
+
+            const cachedBlob = getWaveformCache(streamUrl);
+            if (cachedBlob) {
+                setLoadProgress(100);
+                wavesurfer.loadBlob(cachedBlob).catch((error: unknown) => {
                     if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
                         return;
                     }
                     setIsLoading(false);
                     setHasError(true);
                 });
-            },
-            playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
-        );
+                return;
+            }
+
+            let blob: Blob;
+            try {
+                blob = await fetchWaveformAudio(streamUrl, (percent) => {
+                    if (cancelled) return;
+                    setLoadProgress(percent);
+                });
+            } catch {
+                // Fall back to the normal load path when the audio can't be
+                // fetched directly (e.g. the server blocks CORS for the blob).
+                if (cancelled) return;
+                wavesurfer.load(streamUrl).catch(() => {
+                    // Error state is surfaced by the `error` event handler
+                });
+                return;
+            }
+
+            if (cancelled) return;
+            setWaveformCache(streamUrl, blob);
+            setLoadProgress(100);
+            wavesurfer.loadBlob(blob).catch((error: unknown) => {
+                if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
+                    return;
+                }
+                setIsLoading(false);
+                setHasError(true);
+            });
+        };
+
+        // Serve cached audio immediately; otherwise wait out the loading
+        // delay (protects web-player playback from stutter) before fetching.
+        let waveformTimeout: NodeJS.Timeout | null = null;
+        if (getWaveformCache(streamUrl)) {
+            loadWaveform();
+        } else {
+            waveformTimeout = setTimeout(
+                () => {
+                    loadWaveform();
+                },
+                playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
+            );
+        }
 
         return () => {
             cancelled = true;
             wavesurfer.un('ready', handleReady);
             wavesurfer.un('error', handleError);
-            clearTimeout(waveformTimeout);
+            wavesurfer.un('loading', handleLoading);
+            if (waveformTimeout) clearTimeout(waveformTimeout);
         };
     }, [wavesurfer, streamUrl, playerbarSlider.loadingDelay]);
 
@@ -392,7 +461,9 @@ export const PlayerbarWaveform = () => {
             style={{ position: 'relative' }}
         >
             <motion.div
-                animate={{ opacity: isLoading || hasError ? 0 : 1 }}
+                animate={{
+                    opacity: hasError ? 0 : isLoading ? Math.min(loadProgress, 60) / 100 : 1,
+                }}
                 className={styles.waveform}
                 initial={{ opacity: 0 }}
                 ref={containerRef}

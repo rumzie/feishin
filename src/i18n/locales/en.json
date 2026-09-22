@@ -793,6 +793,7 @@
         "unfavorite": "Unfavorite",
         "pause": "Pause",
         "viewQueue": "View queue",
+        "waveformLoading": "Loading waveform… {{pct}}%",
         "sleepTimer": "Sleep timer",
         "sleepTimer_endOfSong": "End of current song",
         "sleepTimer_endOfAlbum": "End of current album",

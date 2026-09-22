@@ -88,3 +88,27 @@
     min-width: 0;
     height: 100%;
 }
+
+.waveform-loading-dot {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: rgb(59 130 246);
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgb(59 130 246 / 60%);
+    animation: waveform-loading-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes waveform-loading-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 6px 2px rgb(59 130 246 / 60%);
+        opacity: 1;
+    }
+
+    50% {
+        box-shadow: 0 0 2px 1px rgb(59 130 246 / 25%);
+        opacity: 0.4;
+    }
+}

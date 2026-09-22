@@ -1,10 +1,15 @@
 import formatDuration from 'format-duration';
 import { lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { PlayerbarSeekSlider } from './playerbar-seek-slider';
 import styles from './playerbar-slider.module.css';
 
 import { ScrobbleStatus } from '/@/renderer/features/player/components/scrobble-status';
+import {
+    useIsPlayerbarWaveformLoading,
+    usePlayerbarWaveformProgress,
+} from '/@/renderer/features/player/store/playerbar-waveform.store';
 import {
     useAppStore,
     useAppStoreActions,
@@ -12,9 +17,11 @@ import {
     usePlayerTimestamp,
 } from '/@/renderer/store';
 import { PlayerbarSliderType, usePlayerbarSlider } from '/@/renderer/store/settings.store';
+import { Group } from '/@/shared/components/group/group';
 import { Slider, SliderProps } from '/@/shared/components/slider/slider';
 import { Spinner } from '/@/shared/components/spinner/spinner';
 import { Text } from '/@/shared/components/text/text';
+import { Tooltip } from '/@/shared/components/tooltip/tooltip';
 import { PlaybackSelectors } from '/@/shared/constants/playback-selectors';
 
 const PlayerbarWaveform = lazy(() =>
@@ -24,8 +31,11 @@ const PlayerbarWaveform = lazy(() =>
 );
 
 export const PlayerbarSlider = () => {
+    const { t } = useTranslation();
     const currentSong = usePlayerSong();
     const playerbarSlider = usePlayerbarSlider();
+    const isWaveformLoading = useIsPlayerbarWaveformLoading();
+    const waveformProgress = usePlayerbarWaveformProgress();
 
     const songDuration = currentSong?.duration ? currentSong.duration / 1000 : 0;
     const currentTime = usePlayerTimestamp();
@@ -37,6 +47,7 @@ export const PlayerbarSlider = () => {
     const { setShowTimeRemaining } = useAppStoreActions();
 
     const isWaveform = playerbarSlider?.type === PlayerbarSliderType.WAVEFORM;
+    const showWaveformLoading = isWaveform && isWaveformLoading;
 
     return (
         <>
@@ -54,18 +65,29 @@ export const PlayerbarSlider = () => {
                     )}
                 </div>
                 <div className={styles.sliderValueWrapper}>
-                    <Text
-                        className={PlaybackSelectors.totalDuration}
-                        fw={600}
-                        isMuted
-                        isNoSelect
-                        onClick={() => setShowTimeRemaining(!showTimeRemaining)}
-                        role="button"
-                        size="xs"
-                        style={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
-                        {showTimeRemaining ? formattedTimeRemaining : formattedDuration}
-                    </Text>
+                    <Group gap="xs">
+                        {showWaveformLoading && (
+                            <Tooltip
+                                color="primary"
+                                label={t('player.waveformLoading', { pct: waveformProgress })}
+                                position="top"
+                            >
+                                <span aria-hidden className={styles.waveformLoadingDot} />
+                            </Tooltip>
+                        )}
+                        <Text
+                            className={PlaybackSelectors.totalDuration}
+                            fw={600}
+                            isMuted
+                            isNoSelect
+                            onClick={() => setShowTimeRemaining(!showTimeRemaining)}
+                            role="button"
+                            size="xs"
+                            style={{ cursor: 'pointer', userSelect: 'none' }}
+                        >
+                            {showTimeRemaining ? formattedTimeRemaining : formattedDuration}
+                        </Text>
+                    </Group>
                 </div>
             </div>
         </>
