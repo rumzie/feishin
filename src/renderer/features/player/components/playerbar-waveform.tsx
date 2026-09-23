@@ -1,5 +1,8 @@
+import type { QueueSong } from '/@/shared/types/domain-types';
+
 import { useWavesurfer } from '@wavesurfer/react';
 import formatDuration from 'format-duration';
+import { get, set } from 'idb-keyval';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -19,6 +22,13 @@ import {
 import { useAppThemeColors, useColorScheme } from '/@/renderer/themes/use-app-theme';
 import { Text } from '/@/shared/components/text/text';
 
+type CachedWaveform = {
+    duration: number;
+    peaks: number[][];
+};
+
+const waveformCacheKey = (song: QueueSong): string => `waveform-peaks-${song._serverId}-${song.id}`;
+
 // streams without Content-Length report "Infinity" until decoded; seeking then sets a NaN currentTime
 const getFiniteDuration = (wavesurfer: { getDuration: () => number }) => {
     const duration = wavesurfer.getDuration();
@@ -35,6 +45,7 @@ export const PlayerbarWaveform = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [loadingProgress, setLoadingProgress] = useState(0);
+    const [cachedWaveform, setCachedWaveform] = useState<CachedWaveform | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState<null | { x: number; y: number }>(null);
     const [tooltipValue, setTooltipValue] = useState(0);
@@ -89,6 +100,23 @@ export const PlayerbarWaveform = () => {
         setLoadingProgress(0);
     }, [streamUrl]);
 
+    // Load the cached peaks for this song so the waveform renders without re-downloading the stream
+    useEffect(() => {
+        if (!currentSong) return;
+        let cancelled = false;
+        setCachedWaveform(null);
+        get<CachedWaveform | undefined>(waveformCacheKey(currentSong))
+            .then((entry) => {
+                if (!cancelled && entry?.peaks?.length) {
+                    setCachedWaveform(entry);
+                }
+            })
+            .catch(() => undefined);
+        return () => {
+            cancelled = true;
+        };
+    }, [currentSong]);
+
     // Handle waveform ready state
     useEffect(() => {
         if (!wavesurfer || !streamUrl) return;
@@ -112,6 +140,17 @@ export const PlayerbarWaveform = () => {
             if (mediaElement) {
                 mediaElement.muted = true;
                 mediaElement.volume = 0;
+            }
+
+            // Persist decoded peaks so the next listen can render instantly from cache
+            if (!cachedWaveform && currentSong && songDuration > 0) {
+                const duration = getFiniteDuration(wavesurfer);
+                if (duration > 0) {
+                    set(waveformCacheKey(currentSong), {
+                        duration,
+                        peaks: wavesurfer.exportPeaks(),
+                    }).catch(() => undefined);
+                }
             }
         };
 
@@ -140,7 +179,10 @@ export const PlayerbarWaveform = () => {
             () => {
                 if (cancelled) return;
                 loadStarted = true;
-                wavesurfer.load(streamUrl).catch((error: unknown) => {
+                const load = cachedWaveform
+                    ? wavesurfer.load(streamUrl, cachedWaveform.peaks, cachedWaveform.duration)
+                    : wavesurfer.load(streamUrl);
+                load.catch((error: unknown) => {
                     if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
                         return;
                     }
@@ -148,7 +190,11 @@ export const PlayerbarWaveform = () => {
                     setHasError(true);
                 });
             },
-            playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
+            cachedWaveform
+                ? 0
+                : playerbarSlider?.loadingDelay
+                  ? playerbarSlider.loadingDelay * 1000
+                  : 2000,
         );
 
         return () => {
@@ -158,7 +204,14 @@ export const PlayerbarWaveform = () => {
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
-    }, [wavesurfer, streamUrl, playerbarSlider.loadingDelay]);
+    }, [
+        cachedWaveform,
+        currentSong,
+        playerbarSlider.loadingDelay,
+        songDuration,
+        streamUrl,
+        wavesurfer,
+    ]);
 
     useEffect(() => {
         if (!wavesurfer) return;
