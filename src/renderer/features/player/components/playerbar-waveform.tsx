@@ -1,6 +1,5 @@
 import { useWavesurfer } from '@wavesurfer/react';
 import formatDuration from 'format-duration';
-import { get, set } from 'idb-keyval';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -25,17 +24,6 @@ const getFiniteDuration = (wavesurfer: { getDuration: () => number }) => {
     const duration = wavesurfer.getDuration();
     return Number.isFinite(duration) ? duration : 0;
 };
-
-interface CachedWaveform {
-    duration: number;
-    peaks: number[][];
-}
-
-// Cache decoded waveform peaks per song (memory + IndexedDB) so revisiting a
-// track reuses the data instead of downloading and decoding the stream again.
-const waveformPeaksCache = new Map<string, CachedWaveform>();
-const waveformPeaksCachePrefix = 'waveform-peaks:';
-const getWaveformPeaksCacheKey = (uniqueId: string) => `${waveformPeaksCachePrefix}${uniqueId}`;
 
 export const PlayerbarWaveform = () => {
     const currentSong = usePlayerSong();
@@ -105,8 +93,6 @@ export const PlayerbarWaveform = () => {
     useEffect(() => {
         if (!wavesurfer || !streamUrl) return;
 
-        const cacheKey = currentSong?._uniqueId;
-
         // The wavesurfer instance is shared across stream URLs, and this
         // effect subscribes before its (delayed) load actually starts. Guard
         // against events that do not belong to this effect's own load:
@@ -126,15 +112,6 @@ export const PlayerbarWaveform = () => {
             if (mediaElement) {
                 mediaElement.muted = true;
                 mediaElement.volume = 0;
-            }
-            if (cacheKey && !waveformPeaksCache.has(cacheKey)) {
-                const peaks = wavesurfer.exportPeaks();
-                const duration = wavesurfer.getDuration();
-                if (peaks.length && duration > 0) {
-                    const record = { duration, peaks };
-                    waveformPeaksCache.set(cacheKey, record);
-                    void set(getWaveformPeaksCacheKey(cacheKey), record);
-                }
             }
         };
 
@@ -160,28 +137,16 @@ export const PlayerbarWaveform = () => {
         wavesurfer.on('error', handleError);
 
         const waveformTimeout = setTimeout(
-            async () => {
+            () => {
                 if (cancelled) return;
                 loadStarted = true;
-                if (cacheKey && !waveformPeaksCache.has(cacheKey)) {
-                    const persisted = await get<CachedWaveform>(
-                        getWaveformPeaksCacheKey(cacheKey),
-                    ).catch(() => undefined);
-                    if (persisted) {
-                        waveformPeaksCache.set(cacheKey, persisted);
+                wavesurfer.load(streamUrl).catch((error: unknown) => {
+                    if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
+                        return;
                     }
-                }
-                if (cancelled) return;
-                const cached = cacheKey ? waveformPeaksCache.get(cacheKey) : undefined;
-                wavesurfer
-                    .load(streamUrl, cached?.peaks, cached?.duration)
-                    .catch((error: unknown) => {
-                        if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
-                            return;
-                        }
-                        setIsLoading(false);
-                        setHasError(true);
-                    });
+                    setIsLoading(false);
+                    setHasError(true);
+                });
             },
             playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
         );
@@ -193,7 +158,7 @@ export const PlayerbarWaveform = () => {
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
-    }, [wavesurfer, streamUrl, currentSong?._uniqueId, playerbarSlider.loadingDelay]);
+    }, [wavesurfer, streamUrl, playerbarSlider.loadingDelay]);
 
     useEffect(() => {
         if (!wavesurfer) return;
