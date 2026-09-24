@@ -12,13 +12,7 @@ import styles from './playerbar-waveform.module.css';
 import { useSongUrl } from '/@/renderer/features/player/audio-player/hooks/use-stream-url';
 import { PlayerbarSeekSlider } from '/@/renderer/features/player/components/playerbar-seek-slider';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
-import {
-    BarAlign,
-    usePlaybackSettings,
-    usePlayerbarSlider,
-    usePlayerSong,
-    usePlayerTimestamp,
-} from '/@/renderer/store';
+import { BarAlign, usePlayerbarSlider, usePlayerSong, usePlayerTimestamp } from '/@/renderer/store';
 import { useAppThemeColors, useColorScheme } from '/@/renderer/themes/use-app-theme';
 import { Text } from '/@/shared/components/text/text';
 
@@ -179,8 +173,12 @@ export const PlayerbarWaveform = () => {
             () => {
                 if (cancelled) return;
                 loadStarted = true;
+                // With cached peaks there is no need for the media element, so load
+                // without a URL. Pointing it at the live stream keeps a second audio
+                // session/decoder active on mobile (and seeking it on every tick),
+                // which crackles the currently playing track.
                 const load = cachedWaveform
-                    ? wavesurfer.load(streamUrl, cachedWaveform.peaks, cachedWaveform.duration)
+                    ? wavesurfer.load('', cachedWaveform.peaks, cachedWaveform.duration)
                     : wavesurfer.load(streamUrl);
                 load.catch((error: unknown) => {
                     if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
@@ -295,7 +293,9 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            // Waveform has no audio for cached peaks (and live streams report NaN
+            // currentTime), so the drop position is the tracked seek value.
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
@@ -364,7 +364,7 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
