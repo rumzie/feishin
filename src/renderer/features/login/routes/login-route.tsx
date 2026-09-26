@@ -166,7 +166,6 @@ const LoginRoute = () => {
             }
 
             toast.success({ message: t('form.addServer.success') });
-            window.location.reload();
         },
     });
 
@@ -289,8 +288,6 @@ const LoginRoute = () => {
                     });
                 }
             }
-
-            window.location.reload();
         } catch (err: any) {
             setIsLoading(false);
             return toast.error({ message: err?.message });
