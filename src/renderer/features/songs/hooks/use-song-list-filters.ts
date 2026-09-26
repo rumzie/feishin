@@ -21,9 +21,9 @@ import { ItemListKey } from '/@/shared/types/types';
 export const useSongListFilters = (listKey?: ItemListKey) => {
     const resolvedListKey = listKey ?? ItemListKey.SONG;
 
-    const { sortBy } = useSortByFilter<SongListSort>(SongListSort.RELEASE_YEAR, resolvedListKey);
+    const { sortBy } = useSortByFilter<SongListSort>(SongListSort.NAME, resolvedListKey);
 
-    const { sortOrder } = useSortOrderFilter(SortOrder.DESC, resolvedListKey);
+    const { sortOrder } = useSortOrderFilter(SortOrder.ASC, resolvedListKey);
 
     const { searchTerm, setSearchTerm } = useSearchTermFilter('');
 

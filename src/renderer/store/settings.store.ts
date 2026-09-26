@@ -2004,7 +2004,7 @@ const initialState: SettingsState = {
                 size: 'default',
             },
             itemsPerPage: 100,
-            pagination: ListPaginationType.PAGINATED,
+            pagination: ListPaginationType.INFINITE,
             table: {
                 autoFitColumns: true,
                 columns: SONG_TABLE_COLUMNS.map((column) => ({
