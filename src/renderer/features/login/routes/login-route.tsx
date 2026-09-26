@@ -264,7 +264,7 @@ const LoginRoute = () => {
                 setCurrentServer(serverItem);
             }
 
-            applyDefaultSettings();
+            await applyDefaultSettings();
 
             if (serverLock) {
                 Object.values(useAuthStore.getState().serverList).forEach((server) => {

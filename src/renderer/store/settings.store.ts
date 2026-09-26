@@ -27,6 +27,7 @@ import { getEnvSettingsOverrides } from '/@/renderer/store/env-settings-override
 import { mergeOverridingColumns } from '/@/renderer/store/utils';
 import { FontValueSchema } from '/@/renderer/types/fonts';
 import { randomString } from '/@/renderer/utils';
+import { logger } from '/@/renderer/utils/logger';
 import { sanitizeCss } from '/@/renderer/utils/sanitize';
 import { AppTheme } from '/@/shared/themes/app-theme-types';
 import { LibraryItem, LyricSource, SavedCollection } from '/@/shared/types/domain-types';
@@ -1058,7 +1059,7 @@ export type PlayerFilterOperator = z.infer<typeof PlayerFilterOperatorSchema>;
 export interface SettingsSlice extends z.infer<typeof SettingsStateSchema> {
     actions: {
         addCollection: (collection: SavedCollection) => void;
-        applyDefaultSettings: () => void;
+        applyDefaultSettings: () => Promise<void>;
         removeCollection: (id: string) => void;
         reset: () => void;
         resetSampleRate: () => void;
@@ -2291,6 +2292,27 @@ const initialStateWithEnv = mergeWith(
     getEnvSettingsOverrides(),
 ) as SettingsState;
 
+const DEFAULT_SETTINGS_FILE = './rumTunes-settings.json';
+
+const loadDefaultSettingsOverrides = async (): Promise<DeepPartial<SettingsState>> => {
+    try {
+        const response = await fetch(DEFAULT_SETTINGS_FILE);
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+        }
+
+        const overrides = (await response.json()) as DeepPartial<VersionedSettings>;
+        delete overrides.version;
+
+        return overrides;
+    } catch (error) {
+        logger.warn('Unable to load default settings overrides, using built-in defaults', {
+            error,
+        });
+        return {};
+    }
+};
+
 export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
     persist(
         devtools(
@@ -2302,26 +2324,18 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                                 state.general.collections.push(collection);
                             });
                         },
-                        applyDefaultSettings: () => {
-                            fetch('./rumTunes-settings.json')
-                                .then((res) => res.json())
-                                .then((data) => {
-                                    const { version, ...settings } = data;
-                                    const migratedSettings = migrateSettings(
-                                        settings as SettingsState,
-                                        version,
-                                    );
+                        applyDefaultSettings: async () => {
+                            const overrides = await loadDefaultSettingsOverrides();
 
-                                    set((state) => {
-                                        Object.keys(state).forEach((key) => {
-                                            if (key !== 'actions') {
-                                                delete state[key as keyof SettingsState];
-                                            }
-                                        });
-                                        Object.assign(state, cloneDeep(migratedSettings));
-                                    });
-                                })
-                                .catch((err) => console.error('Failed to load config:', err));
+                            set((state) => {
+                                Object.keys(state).forEach((key) => {
+                                    if (key !== 'actions') {
+                                        delete state[key as keyof SettingsState];
+                                    }
+                                });
+                                Object.assign(state, cloneDeep(initialStateWithEnv));
+                                deepMergeIntoState(state, overrides);
+                            });
                         },
                         removeCollection: (id: string) => {
                             set((state) => {
