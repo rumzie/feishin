@@ -254,7 +254,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
 
             addServer(serverItem);
             setCurrentServer(serverItem);
-            applyDefaultSettings();
+            await applyDefaultSettings();
             closeAllModals();
 
             toast.success({

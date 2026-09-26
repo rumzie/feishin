@@ -241,9 +241,9 @@ export const useAppStore = createWithEqualityFn<AppSlice>()(
                 sidebar: {
                     collapsed: false,
                     expanded: [],
-                    image: false,
+                    image: true,
                     leftWidth: '260px',
-                    rightExpanded: false,
+                    rightExpanded: true,
                     rightHeight: '320px',
                     rightWidth: '600px',
                 },
