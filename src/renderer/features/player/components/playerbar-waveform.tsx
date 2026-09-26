@@ -38,6 +38,7 @@ export const PlayerbarWaveform = () => {
     const { mediaSeekToTimestamp } = usePlayer();
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
     const [cachedWaveform, setCachedWaveform] = useState<CachedWaveform | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState<null | { x: number; y: number }>(null);
@@ -90,6 +91,7 @@ export const PlayerbarWaveform = () => {
     useEffect(() => {
         setIsLoading(true);
         setHasError(false);
+        setLoadingProgress(0);
     }, [streamUrl]);
 
     // Load the cached peaks for this song so the waveform renders without re-downloading the stream
@@ -127,6 +129,7 @@ export const PlayerbarWaveform = () => {
             if (cancelled || !loadStarted) return;
             setIsLoading(false);
             setHasError(false);
+            setLoadingProgress(100);
             const mediaElement = wavesurfer.getMediaElement();
             if (mediaElement) {
                 mediaElement.muted = true;
@@ -150,6 +153,11 @@ export const PlayerbarWaveform = () => {
         // the progress bar disappeared until the app was restarted. Surface
         // real failures so the fallback slider is rendered again. AbortError
         // is the expected outcome of a superseded load and is ignored.
+        const handleLoading = (percent: number) => {
+            if (cancelled || !loadStarted) return;
+            setLoadingProgress(percent);
+        };
+
         const handleError = (error?: unknown) => {
             if (cancelled || !loadStarted) return;
             if (error instanceof Error && error.name === 'AbortError') return;
@@ -158,6 +166,7 @@ export const PlayerbarWaveform = () => {
         };
 
         wavesurfer.on('ready', handleReady);
+        wavesurfer.on('loading', handleLoading);
         wavesurfer.on('error', handleError);
 
         const waveformTimeout = setTimeout(
@@ -189,6 +198,7 @@ export const PlayerbarWaveform = () => {
         return () => {
             cancelled = true;
             wavesurfer.un('ready', handleReady);
+            wavesurfer.un('loading', handleLoading);
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
@@ -462,7 +472,7 @@ export const PlayerbarWaveform = () => {
                             left: 0,
                             position: 'absolute',
                             top: 3,
-                            width: '100%',
+                            width: isLoading ? 'calc(100% - 16px)' : '100%',
                         }}
                         transition={{ duration: 0.2 }}
                     >
@@ -470,6 +480,14 @@ export const PlayerbarWaveform = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            {isLoading && (
+                <div
+                    className={styles.loadingStateLightWrapper}
+                    data-tooltip={`Loading ${Math.round(loadingProgress)}%`}
+                >
+                    <div className={styles.loadingStateLight} />
+                </div>
+            )}
             {tooltipPosition && isDragging && (
                 <motion.div
                     animate={{ opacity: 1, scale: 1, x: '-50%' }}
