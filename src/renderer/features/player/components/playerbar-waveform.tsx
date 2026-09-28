@@ -51,9 +51,9 @@ export const PlayerbarWaveform = () => {
 
     // const { transcode } = usePlaybackSettings();
     const streamUrl = useSongUrl(currentSong, true, {
-        bitrate: 32,
+        bitrate: 8,
         enabled: true,
-        format: 'mp3',
+        format: 'opus',
     });
 
     const { color } = useAppThemeColors();
