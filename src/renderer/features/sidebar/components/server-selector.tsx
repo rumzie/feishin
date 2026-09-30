@@ -87,9 +87,9 @@ export const ServerSelector = () => {
                                 <Text fw={600} size="sm" truncate>
                                     {currentServer.name}
                                 </Text>
-                                <Text isMuted size="xs" truncate>
+                                {/* <Text isMuted size="xs" truncate>
                                     {musicFolderDisplayText}
-                                </Text>
+                                </Text> */}
                                 {scanStatusText && (
                                     <Text isMuted size="xs" truncate>
                                         {scanStatusText}

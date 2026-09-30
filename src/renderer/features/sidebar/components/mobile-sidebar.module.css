@@ -24,11 +24,17 @@
 .accordion-control {
     height: auto;
     min-height: 2.5rem;
+    white-space: nowrap;
     border-radius: var(--theme-radius-md);
 
     &:hover {
         background: var(--theme-colors-background);
     }
+}
+
+.accordion-label {
+    min-width: max-content;
+    white-space: nowrap;
 }
 
 .accordion-content {

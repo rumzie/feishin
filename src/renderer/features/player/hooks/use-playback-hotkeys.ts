@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
 import { HotkeyItem, useHotkeys } from '/@/renderer/hooks/use-hotkeys';
-import { useHotkeySettings, usePlayerStore } from '/@/renderer/store';
+import { useHotkeySettings, usePlayerActions } from '/@/renderer/store';
 
 export const usePlaybackHotkeys = () => {
     const { bindings } = useHotkeySettings();
-    const player = usePlayerStore();
+    const player = usePlayerActions();
 
     const playbackHotkeysItems = useMemo(() => {
         const hotkeyItems: HotkeyItem[] = [];

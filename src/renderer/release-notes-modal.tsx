@@ -414,36 +414,36 @@ export const openReleaseNotesModal = (title: string) => {
 };
 
 export const ReleaseNotesModal = () => {
-    const { version } = packageJson;
-    const { t } = useTranslation();
-    const dismissRef = useRef<(() => void) | null>(null);
+    // const { version } = packageJson;
+    // const { t } = useTranslation();
+    // const dismissRef = useRef<(() => void) | null>(null);
 
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            const valueFromLocalStorage = localStorage.getItem('version');
-            const versionString = `"${version}"`;
+    // useEffect(() => {
+    //     const timeoutId = setTimeout(() => {
+    //         const valueFromLocalStorage = localStorage.getItem('version');
+    //         const versionString = `"${version}"`;
 
-            // Only show modal if the stored version is different from current version
-            if (valueFromLocalStorage !== versionString) {
-                openModal({
-                    children: (
-                        <ReleaseNotesModalContentWrapper
-                            setDismissRef={(fn) => {
-                                dismissRef.current = fn ?? null;
-                            }}
-                        />
-                    ),
-                    onClose: () => dismissRef.current?.(),
-                    size: 'xl',
-                    title: t('common.newVersion', { version }) as string,
-                });
-            }
-        }, WAIT_FOR_LOCAL_STORAGE);
+    //         // Only show modal if the stored version is different from current version
+    //         if (valueFromLocalStorage !== versionString) {
+    //             openModal({
+    //                 children: (
+    //                     <ReleaseNotesModalContentWrapper
+    //                         setDismissRef={(fn) => {
+    //                             dismissRef.current = fn ?? null;
+    //                         }}
+    //                     />
+    //                 ),
+    //                 onClose: () => dismissRef.current?.(),
+    //                 size: 'xl',
+    //                 title: t('common.newVersion', { version }) as string,
+    //             });
+    //         }
+    //     }, WAIT_FOR_LOCAL_STORAGE);
 
-        return () => {
-            clearTimeout(timeoutId);
-        };
-    }, [t, version]);
+    //     return () => {
+    //         clearTimeout(timeoutId);
+    //     };
+    // }, [t, version]);
 
     return null;
 };

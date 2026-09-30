@@ -27,6 +27,7 @@ import { getEnvSettingsOverrides } from '/@/renderer/store/env-settings-override
 import { mergeOverridingColumns } from '/@/renderer/store/utils';
 import { FontValueSchema } from '/@/renderer/types/fonts';
 import { randomString } from '/@/renderer/utils';
+import { logger } from '/@/renderer/utils/logger';
 import { sanitizeCss } from '/@/renderer/utils/sanitize';
 import { AppTheme } from '/@/shared/themes/app-theme-types';
 import { LibraryItem, LyricSource, SavedCollection } from '/@/shared/types/domain-types';
@@ -1058,6 +1059,7 @@ export type PlayerFilterOperator = z.infer<typeof PlayerFilterOperatorSchema>;
 export interface SettingsSlice extends z.infer<typeof SettingsStateSchema> {
     actions: {
         addCollection: (collection: SavedCollection) => void;
+        applyDefaultSettings: () => Promise<void>;
         removeCollection: (id: string) => void;
         reset: () => void;
         resetSampleRate: () => void;
@@ -1299,6 +1301,17 @@ const getPlatformDefaultWindowBarStyle = (): Platform => {
 
 const platformDefaultWindowBarStyle: Platform = getPlatformDefaultWindowBarStyle();
 
+// The waveform downloads and decodes a second copy of the track, which is
+// fine on desktop but stalls playback on a phone, so default to the slider
+// on mobile and auto-enable the waveform everywhere else.
+const getDefaultPlayerbarSliderType = (): PlayerbarSliderType => {
+    const isMobile =
+        typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    return isMobile ? PlayerbarSliderType.SLIDER : PlayerbarSliderType.WAVEFORM;
+};
+
+const playerbarSliderDefaultType: PlayerbarSliderType = getDefaultPlayerbarSliderType();
+
 const initialState: SettingsState = {
     autoDJ: {
         albumStrategy: AUTO_DJ_STRATEGY.SIMILAR,
@@ -1388,12 +1401,12 @@ const initialState: SettingsState = {
             barGap: 1,
             barRadius: 4,
             barWidth: 2,
-            loadingDelay: 2,
+            loadingDelay: 0,
             stretched: false,
-            type: PlayerbarSliderType.SLIDER,
+            type: playerbarSliderDefaultType,
         },
         playerItems,
-        playlistTarget: PlaylistTarget.TRACK,
+        playlistTarget: PlaylistTarget.ALBUM,
         primaryShade: 6,
         qobuz: true,
         resume: true,
@@ -1417,9 +1430,9 @@ const initialState: SettingsState = {
         sidebarPlaylistFolderTreeIndent: 16,
         sidebarPlaylistFolderTreeLineColor: '',
         sidebarPlaylistFolderView: 'tree',
-        sidebarPlaylistList: true,
+        sidebarPlaylistList: false,
         sidebarPlaylistListFilterRegex: '',
-        sidebarPlaylistMode: 'expanded',
+        sidebarPlaylistMode: 'compact',
         sidebarPlaylistSorting: false,
         sideQueueLayout: 'horizontal',
         sideQueueType: 'sideQueue',
@@ -1848,7 +1861,7 @@ const initialState: SettingsState = {
             },
         },
         [LibraryItem.PLAYLIST]: {
-            display: ListDisplayType.TABLE,
+            display: ListDisplayType.GRID,
             grid: {
                 itemGap: 'sm',
                 itemsPerRow: 6,
@@ -1884,7 +1897,7 @@ const initialState: SettingsState = {
             },
         },
         [LibraryItem.PLAYLIST_SONG]: {
-            display: ListDisplayType.TABLE,
+            display: ListDisplayType.GRID,
             grid: {
                 itemGap: 'sm',
                 itemsPerRow: 6,
@@ -1991,7 +2004,7 @@ const initialState: SettingsState = {
                 size: 'default',
             },
             itemsPerPage: 100,
-            pagination: ListPaginationType.PAGINATED,
+            pagination: ListPaginationType.INFINITE,
             table: {
                 autoFitColumns: true,
                 columns: SONG_TABLE_COLUMNS.map((column) => ({
@@ -2279,6 +2292,27 @@ const initialStateWithEnv = mergeWith(
     getEnvSettingsOverrides(),
 ) as SettingsState;
 
+const DEFAULT_SETTINGS_FILE = './rumTunes-settings.json';
+
+const loadDefaultSettingsOverrides = async (): Promise<DeepPartial<SettingsState>> => {
+    try {
+        const response = await fetch(DEFAULT_SETTINGS_FILE);
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+        }
+
+        const overrides = (await response.json()) as DeepPartial<VersionedSettings>;
+        delete overrides.version;
+
+        return overrides;
+    } catch (error) {
+        logger.warn('Unable to load default settings overrides, using built-in defaults', {
+            error,
+        });
+        return {};
+    }
+};
+
 export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
     persist(
         devtools(
@@ -2288,6 +2322,19 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                         addCollection: (collection: SavedCollection) => {
                             set((state) => {
                                 state.general.collections.push(collection);
+                            });
+                        },
+                        applyDefaultSettings: async () => {
+                            const overrides = await loadDefaultSettingsOverrides();
+
+                            set((state) => {
+                                Object.keys(state).forEach((key) => {
+                                    if (key !== 'actions') {
+                                        delete state[key as keyof SettingsState];
+                                    }
+                                });
+                                Object.assign(state, cloneDeep(initialStateWithEnv));
+                                deepMergeIntoState(state, overrides);
                             });
                         },
                         removeCollection: (id: string) => {
@@ -2924,12 +2971,12 @@ export const useSettingsStore = createWithEqualityFn<SettingsSlice>()(
                     }
                 }
 
-                if (version < 34) {
-                    state.general.homeItems.push({
-                        disabled: false,
-                        id: HomeItem.PLAYLISTS,
-                    });
-                }
+                // if (version < 34) {
+                //     state.general.homeItems.push({
+                //         disabled: false,
+                //         id: HomeItem.PLAYLISTS,
+                //     });
+                // }
 
                 return persistedState;
             },

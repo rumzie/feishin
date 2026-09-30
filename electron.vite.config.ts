@@ -16,7 +16,7 @@ const createConfig = (isDevelopment: boolean): UserConfig => ({
             rollupOptions: {
                 external: ['source-map-support'],
             },
-            sourcemap: true,
+            sourcemap: isDevelopment,
         },
         define: {
             'import.meta.env.IS_LINUX': JSON.stringify(currentOSEnv === 'linux'),
@@ -39,7 +39,7 @@ const createConfig = (isDevelopment: boolean): UserConfig => ({
     },
     preload: {
         build: {
-            sourcemap: true,
+            sourcemap: isDevelopment,
         },
         resolve: {
             alias: {
@@ -55,7 +55,7 @@ const createConfig = (isDevelopment: boolean): UserConfig => ({
             modulePreload: {
                 polyfill: false,
             },
-            sourcemap: true,
+            sourcemap: isDevelopment,
             target: electronRendererTarget,
         },
         css: {

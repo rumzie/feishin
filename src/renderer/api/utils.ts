@@ -27,15 +27,12 @@ export const authenticationFailure = (currentServer: null | ServerListItem, mess
     );
     localSettings?.passwordRemove(serverId);
 
-    // logout() clears credentials on the server list entry and sets currentServer to null.
-    // If there is no current server, still clear the matching server list entry.
+    store.actions.updateServer(serverId, {
+        credential: '',
+        ndCredential: undefined,
+        savePassword: false,
+    });
     if (store.currentServer) {
-        store.actions.logout();
-    } else {
-        store.actions.updateServer(serverId, {
-            credential: '',
-            ndCredential: undefined,
-            savePassword: false,
-        });
+        store.actions.setCurrentServer(null);
     }
 };

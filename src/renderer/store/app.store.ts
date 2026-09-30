@@ -232,8 +232,8 @@ export const useAppStore = createWithEqualityFn<AppSlice>()(
                 isReorderingQueue: false,
                 latestVersion: null,
                 pageSidebar: {
-                    album: true,
-                    song: true,
+                    album: false,
+                    song: false,
                 },
                 platform: Platform.WINDOWS,
                 privateMode: false,
@@ -241,9 +241,9 @@ export const useAppStore = createWithEqualityFn<AppSlice>()(
                 sidebar: {
                     collapsed: false,
                     expanded: [],
-                    image: false,
-                    leftWidth: '400px',
-                    rightExpanded: false,
+                    image: true,
+                    leftWidth: '260px',
+                    rightExpanded: true,
                     rightHeight: '320px',
                     rightWidth: '600px',
                 },

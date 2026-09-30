@@ -283,19 +283,21 @@ const AlbumMetadataGenres = ({ genres }: AlbumMetadataGenresProps) => {
                     count: genres.length,
                 })}
             </Text>
-            <Pill.Group>
-                {genres.map((genre) => (
-                    <PillLink
-                        key={`genre-${genre.id}`}
-                        size="md"
-                        to={generatePath(AppRoute.LIBRARY_GENRES_DETAIL, {
-                            genreId: genre.id,
-                        })}
-                    >
-                        {genre.name}
-                    </PillLink>
-                ))}
-            </Pill.Group>
+            <div className={styles['pill-group-wrapper']}>
+                <Pill.Group>
+                    {genres.map((genre) => (
+                        <PillLink
+                            key={`genre-${genre.id}`}
+                            size="md"
+                            to={generatePath(AppRoute.LIBRARY_GENRES_DETAIL, {
+                                genreId: genre.id,
+                            })}
+                        >
+                            {genre.name}
+                        </PillLink>
+                    ))}
+                </Pill.Group>
+            </div>
         </Stack>
     );
 };
@@ -515,11 +517,11 @@ export const AlbumDetailContent = () => {
     return (
         <div className={styles.contentContainer}>
             <div className={styles.detailContainer}>
-                {comment && (
+                {/* {comment && (
                     <Spoiler maxHeight={75}>
                         <Text pb="md">{replaceURLWithHTMLLinks(comment)}</Text>
                     </Spoiler>
-                )}
+                )} */}
                 <div className={styles.contentLayout}>
                     <div className={styles.songsColumn}>
                         {detailQuery?.data?.songs && detailQuery.data.songs.length > 0 && (
@@ -688,7 +690,7 @@ function AlbumDetailCarousels({ data }: { data: Album }) {
             },
             ...genreCarousels,
         ];
-    }, [data.albumArtists, data.id, genreCarousels, t]);
+    }, [data.albumArtists, data.id, t]);
 
     const cq = useGridCarouselContainerQuery();
 

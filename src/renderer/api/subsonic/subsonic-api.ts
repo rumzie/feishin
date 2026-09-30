@@ -7,6 +7,7 @@ import i18n from '/@/i18n/i18n';
 import { validateResponse } from '/@/renderer/api/response-validation';
 import { authenticationFailure } from '/@/renderer/api/utils';
 import { useAuthStore } from '/@/renderer/store';
+import { logger } from '/@/renderer/utils/logger';
 import { getServerUrl } from '/@/renderer/utils/normalize-server-url';
 import { ssType } from '/@/shared/api/subsonic/subsonic-types';
 import { hasFeature } from '/@/shared/api/utils';
@@ -476,6 +477,37 @@ const silentlyTransformResponse = (data: any) => {
     return jsonBody;
 };
 
+let cachedPublicIp: string | undefined;
+
+export const fetchPublicIp = async () => {
+    if (!cachedPublicIp) {
+        try {
+            const res = await fetch(
+                import.meta.env.DEV
+                    ? 'https://api.ipify.org?format=json'
+                    : 'https://testspa.rumtunes.com/ipify',
+                { signal: AbortSignal.timeout(5000) },
+            );
+
+            if (!res.ok) {
+                throw new Error(`IP lookup failed with status ${res.status}`);
+            }
+
+            const { ip } = (await res.json()) as { ip?: unknown };
+
+            if (typeof ip !== 'string') {
+                throw new Error('IP lookup returned no IP');
+            }
+
+            cachedPublicIp = ip;
+        } catch (error) {
+            logger.warn('Error fetching public IP', { error });
+        }
+    }
+
+    return cachedPublicIp;
+};
+
 export const ssApiClient = (args: {
     forceRemoteUrl?: boolean;
     server: null | ServerListItemWithCredential;
@@ -524,6 +556,8 @@ export const ssApiClient = (args: {
             const isGetTranscodeDecisionPost =
                 method === 'POST' && api === 'getTranscodeDecision.view';
 
+            const ipAddressString = await fetchPublicIp();
+
             if (isGetTranscodeDecisionPost && body != null) {
                 request.method = 'POST';
                 request.headers = {
@@ -532,7 +566,7 @@ export const ssApiClient = (args: {
                 };
                 request.data = body;
                 request.params = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -544,7 +578,7 @@ export const ssApiClient = (args: {
                 headers['Content-Type'] = 'application/x-www-form-urlencoded';
                 request.method = 'POST';
                 const data = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -553,7 +587,7 @@ export const ssApiClient = (args: {
                 request.data = qs.stringify(data, { arrayFormat: 'repeat' });
             } else {
                 const data = {
-                    c: 'Feishin',
+                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,

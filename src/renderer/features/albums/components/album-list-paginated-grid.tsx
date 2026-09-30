@@ -26,8 +26,8 @@ export const AlbumListPaginatedGrid = ({
     itemsPerPage = 100,
     itemsPerRow,
     query = {
-        sortBy: AlbumListSort.NAME,
-        sortOrder: SortOrder.ASC,
+        sortBy: AlbumListSort.RELEASE_DATE,
+        sortOrder: SortOrder.DESC,
     },
     saveScrollOffset = true,
     serverId,

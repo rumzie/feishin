@@ -15,6 +15,7 @@ import {
     useCommandPalette,
     useCurrentServer,
     useGeneralSettings,
+    useIsAdmin,
     useLatestVersion,
     useSettingsStoreActions,
 } from '/@/renderer/store';
@@ -88,7 +89,7 @@ export const AppMenu = () => {
     const settings = useGeneralSettings();
     const currentServer = useCurrentServer();
     const { open: openCommandPalette } = useCommandPalette();
-
+    const isAdmin = useIsAdmin();
     const handleBrowserDevTools = () => {
         browser?.devtools();
     };
@@ -246,16 +247,16 @@ export const AppMenu = () => {
             id: 'divider-4',
             type: 'divider',
         },
-        {
-            icon: 'brandGitHub',
-            id: 'version',
-            label: t('page.appMenu.version', { version: currentVersion }),
-            onClick: () =>
-                openReleaseNotesModal(
-                    t('common.newVersion', { version: currentVersion }) as string,
-                ),
-            type: 'item',
-        },
+        // {
+        //     icon: 'brandGitHub',
+        //     id: 'version',
+        //     label: t('page.appMenu.version', { version: currentVersion }),
+        //     onClick: () =>
+        //         openReleaseNotesModal(
+        //             t('common.newVersion', { version: currentVersion }) as string,
+        //         ),
+        //     type: 'item',
+        // },
         {
             condition: isElectron(),
             id: 'devtools',

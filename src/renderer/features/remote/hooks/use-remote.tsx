@@ -1,5 +1,6 @@
 import isElectron from 'is-electron';
 import { useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import { getItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { useRemotePush } from '/@/renderer/features/remote/hooks/use-remote-push';
@@ -16,7 +17,12 @@ const ipc = isElectron() ? window.api.ipc : null;
 
 export const useRemote = () => {
     const { mediaSkipForward, setVolume } = usePlayerActions();
-    const player = usePlayerStore();
+    const player = usePlayerStore(
+        useShallow((state) => ({
+            getCurrentSong: state.getCurrentSong,
+            mediaSeekToTimestamp: state.mediaSeekToTimestamp,
+        })),
+    );
 
     const remoteSettings = useRemoteSettings();
     const setRating = useSetRating();
