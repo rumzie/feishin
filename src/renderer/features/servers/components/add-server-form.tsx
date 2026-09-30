@@ -436,6 +436,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
                             onStop={stopQuickConnect}
                             url={form.values.url}
                         />
+                    )}
                     {isElectron() && (
                         <>
                             <Divider />
