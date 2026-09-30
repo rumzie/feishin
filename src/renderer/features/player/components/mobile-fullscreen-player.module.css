@@ -88,26 +88,28 @@
 
 .image-container {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
     justify-content: center;
     width: 100%;
     min-height: 0;
     padding: 1rem;
     padding-top: 0.5rem;
+    container-type: size;
 }
 
 .image {
     position: relative;
-    width: 100%;
-    max-width: 400px;
-    max-height: 100%;
-    aspect-ratio: 1;
+    width: min(400px, 100cqw, 100cqh);
+    height: min(400px, 100cqw, 100cqh);
     overflow: hidden;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
 }
 
 .image-native-aspect-ratio {
+    width: fit-content;
+    max-width: min(400px, 100cqw);
     height: auto;
     max-height: 100%;
     aspect-ratio: auto;
@@ -115,8 +117,10 @@
 
 .image-native-aspect-ratio .album-image {
     position: relative;
+    width: auto;
+    max-width: 100%;
     height: auto;
-    max-height: 50dvh;
+    max-height: 100cqh;
     margin: 0 auto;
 }
 

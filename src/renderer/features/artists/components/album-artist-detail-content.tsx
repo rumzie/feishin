@@ -1380,14 +1380,14 @@ interface AlbumSectionProps {
 const MAX_SECTION_CARDS = 100;
 
 const getItemsPerRow = (cq: ReturnType<typeof useContainerQuery>) => {
-    // Match grid carousel breakpoints: is3xl: 8, is2xl: 7, isXl: 6, isLg: 5, isMd: 4, isSm: 3, default: 2
+    // Match grid carousel breakpoints: is3xl: 8, is2xl: 7, isXl: 6, isLg: 5, isMd: 4, default: 3
     if (cq.is3xl) return 8;
     if (cq.is2xl) return 7;
     if (cq.isXl) return 6;
     if (cq.isLg) return 5;
     if (cq.isMd) return 4;
     if (cq.isSm) return 3;
-    if (cq.isXs) return 2;
+    if (cq.isXs) return 3;
     return 2;
 };
 
@@ -1579,7 +1579,7 @@ const ArtistAlbums = ({ albumsQuery, order }: ArtistAlbumsProps) => {
         '3xl': 1440,
         lg: 960,
         md: 720,
-        sm: 520,
+        sm: 400,
         xl: 1152,
         xs: 360,
     });

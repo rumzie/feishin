@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { kuromojiDictionaryPlugin } from './vite.kuromoji-plugin';
 import { createReactPlugin } from './vite.react-plugin';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     base: './',
     build: {
         emptyOutDir: true,
@@ -47,7 +47,7 @@ export default defineConfig({
                 sourcemapExcludeSources: false,
             },
         },
-        sourcemap: true,
+        sourcemap: command === 'serve',
     },
     css: {
         modules: {
@@ -114,18 +114,18 @@ export default defineConfig({
                         type: 'image/png',
                     },
                 ],
-                name: 'Feishin',
+                name: 'rumTunes',
                 orientation: 'portrait',
                 screenshots: [
                     {
                         form_factor: 'wide',
-                        label: 'Full screen player showing music player and lyrics',
+                        label: 'rumTunes HD Music',
                         sizes: '720x450',
                         src: 'preview_full_screen_player.webp',
                         type: 'image/webp',
                     },
                 ],
-                short_name: 'Feishin',
+                short_name: 'rumTunes',
                 start_url: '/',
                 theme_color: '#1E003D',
             },
@@ -156,4 +156,4 @@ export default defineConfig({
         },
     },
     root: path.resolve(__dirname, './src/renderer'),
-});
+}));

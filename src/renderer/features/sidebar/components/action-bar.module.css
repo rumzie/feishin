@@ -9,3 +9,9 @@
         -webkit-app-region: no-drag;
     }
 }
+
+.container-stacked {
+    align-items: stretch;
+    height: auto;
+    padding: var(--theme-spacing-xs) 0;
+}

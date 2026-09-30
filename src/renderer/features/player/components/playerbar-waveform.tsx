@@ -1,5 +1,8 @@
+import type { QueueSong } from '/@/shared/types/domain-types';
+
 import { useWavesurfer } from '@wavesurfer/react';
 import formatDuration from 'format-duration';
+import { get, set } from 'idb-keyval';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -9,15 +12,16 @@ import styles from './playerbar-waveform.module.css';
 import { useSongUrl } from '/@/renderer/features/player/audio-player/hooks/use-stream-url';
 import { PlayerbarSeekSlider } from '/@/renderer/features/player/components/playerbar-seek-slider';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
-import {
-    BarAlign,
-    usePlaybackSettings,
-    usePlayerbarSlider,
-    usePlayerSong,
-    usePlayerTimestamp,
-} from '/@/renderer/store';
+import { BarAlign, usePlayerbarSlider, usePlayerSong, usePlayerTimestamp } from '/@/renderer/store';
 import { useAppThemeColors, useColorScheme } from '/@/renderer/themes/use-app-theme';
 import { Text } from '/@/shared/components/text/text';
+
+type CachedWaveform = {
+    duration: number;
+    peaks: number[][];
+};
+
+const waveformCacheKey = (song: QueueSong): string => `waveform-peaks-${song._serverId}-${song.id}`;
 
 // streams without Content-Length report "Infinity" until decoded; seeking then sets a NaN currentTime
 const getFiniteDuration = (wavesurfer: { getDuration: () => number }) => {
@@ -34,6 +38,8 @@ export const PlayerbarWaveform = () => {
     const { mediaSeekToTimestamp } = usePlayer();
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [cachedWaveform, setCachedWaveform] = useState<CachedWaveform | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState<null | { x: number; y: number }>(null);
     const [tooltipValue, setTooltipValue] = useState(0);
@@ -43,11 +49,11 @@ export const PlayerbarWaveform = () => {
 
     const songDuration = currentSong?.duration ? currentSong.duration / 1000 : 0;
 
-    const { transcode } = usePlaybackSettings();
+    // const { transcode } = usePlaybackSettings();
     const streamUrl = useSongUrl(currentSong, true, {
-        bitrate: 64,
-        enabled: transcode.enabled,
-        format: 'mp3',
+        bitrate: 8,
+        enabled: true,
+        format: 'opus',
     });
 
     const { color } = useAppThemeColors();
@@ -85,7 +91,25 @@ export const PlayerbarWaveform = () => {
     useEffect(() => {
         setIsLoading(true);
         setHasError(false);
+        setLoadingProgress(0);
     }, [streamUrl]);
+
+    // Load the cached peaks for this song so the waveform renders without re-downloading the stream
+    useEffect(() => {
+        if (!currentSong) return;
+        let cancelled = false;
+        setCachedWaveform(null);
+        get<CachedWaveform | undefined>(waveformCacheKey(currentSong))
+            .then((entry) => {
+                if (!cancelled && entry?.peaks?.length) {
+                    setCachedWaveform(entry);
+                }
+            })
+            .catch(() => undefined);
+        return () => {
+            cancelled = true;
+        };
+    }, [currentSong]);
 
     // Handle waveform ready state
     useEffect(() => {
@@ -105,10 +129,22 @@ export const PlayerbarWaveform = () => {
             if (cancelled || !loadStarted) return;
             setIsLoading(false);
             setHasError(false);
+            setLoadingProgress(100);
             const mediaElement = wavesurfer.getMediaElement();
             if (mediaElement) {
                 mediaElement.muted = true;
                 mediaElement.volume = 0;
+            }
+
+            // Persist decoded peaks so the next listen can render instantly from cache
+            if (!cachedWaveform && currentSong && songDuration > 0) {
+                const duration = getFiniteDuration(wavesurfer);
+                if (duration > 0) {
+                    set(waveformCacheKey(currentSong), {
+                        duration,
+                        peaks: wavesurfer.exportPeaks(),
+                    }).catch(() => undefined);
+                }
             }
         };
 
@@ -117,6 +153,11 @@ export const PlayerbarWaveform = () => {
         // the progress bar disappeared until the app was restarted. Surface
         // real failures so the fallback slider is rendered again. AbortError
         // is the expected outcome of a superseded load and is ignored.
+        const handleLoading = (percent: number) => {
+            if (cancelled || !loadStarted) return;
+            setLoadingProgress(percent);
+        };
+
         const handleError = (error?: unknown) => {
             if (cancelled || !loadStarted) return;
             if (error instanceof Error && error.name === 'AbortError') return;
@@ -125,13 +166,21 @@ export const PlayerbarWaveform = () => {
         };
 
         wavesurfer.on('ready', handleReady);
+        wavesurfer.on('loading', handleLoading);
         wavesurfer.on('error', handleError);
 
         const waveformTimeout = setTimeout(
             () => {
                 if (cancelled) return;
                 loadStarted = true;
-                wavesurfer.load(streamUrl).catch((error: unknown) => {
+                // With cached peaks there is no need for the media element, so load
+                // without a URL. Pointing it at the live stream keeps a second audio
+                // session/decoder active on mobile (and seeking it on every tick),
+                // which crackles the currently playing track.
+                const load = cachedWaveform
+                    ? wavesurfer.load('', cachedWaveform.peaks, cachedWaveform.duration)
+                    : wavesurfer.load(streamUrl);
+                load.catch((error: unknown) => {
                     if (cancelled || (error instanceof Error && error.name === 'AbortError')) {
                         return;
                     }
@@ -139,16 +188,28 @@ export const PlayerbarWaveform = () => {
                     setHasError(true);
                 });
             },
-            playerbarSlider?.loadingDelay ? playerbarSlider.loadingDelay * 1000 : 2000,
+            cachedWaveform
+                ? 0
+                : playerbarSlider?.loadingDelay
+                  ? playerbarSlider.loadingDelay * 1000
+                  : 2000,
         );
 
         return () => {
             cancelled = true;
             wavesurfer.un('ready', handleReady);
+            wavesurfer.un('loading', handleLoading);
             wavesurfer.un('error', handleError);
             clearTimeout(waveformTimeout);
         };
-    }, [wavesurfer, streamUrl, playerbarSlider.loadingDelay]);
+    }, [
+        cachedWaveform,
+        currentSong,
+        playerbarSlider.loadingDelay,
+        songDuration,
+        streamUrl,
+        wavesurfer,
+    ]);
 
     useEffect(() => {
         if (!wavesurfer) return;
@@ -232,7 +293,9 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            // Waveform has no audio for cached peaks (and live streams report NaN
+            // currentTime), so the drop position is the tracked seek value.
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
@@ -301,7 +364,7 @@ export const PlayerbarWaveform = () => {
 
             isDraggingLocal = false;
             const duration = getFiniteDuration(wavesurfer);
-            const seekTime = wavesurfer.getCurrentTime();
+            const seekTime = lastSeekValueRef.current ?? wavesurfer.getCurrentTime();
 
             setTooltipPosition(null);
 
@@ -409,7 +472,7 @@ export const PlayerbarWaveform = () => {
                             left: 0,
                             position: 'absolute',
                             top: 3,
-                            width: '100%',
+                            width: isLoading ? 'calc(100% - 16px)' : '100%',
                         }}
                         transition={{ duration: 0.2 }}
                     >
@@ -417,6 +480,14 @@ export const PlayerbarWaveform = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            {isLoading && (
+                <div
+                    className={styles.loadingStateLightWrapper}
+                    data-tooltip={`Loading ${Math.round(loadingProgress)}%`}
+                >
+                    <div className={styles.loadingStateLight} />
+                </div>
+            )}
             {tooltipPosition && isDragging && (
                 <motion.div
                     animate={{ opacity: 1, scale: 1, x: '-50%' }}

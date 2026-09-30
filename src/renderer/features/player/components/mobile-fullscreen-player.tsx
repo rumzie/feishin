@@ -7,10 +7,12 @@ import {
     ReactNode,
     useCallback,
     useEffect,
+    useLayoutEffect,
     useRef,
     useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 
 import styles from './mobile-fullscreen-player.module.css';
 
@@ -440,6 +442,19 @@ export const MobileFullscreenPlayer = () => {
     const setRating = useSetRating();
 
     const [isPageHovered, setIsPageHovered] = useState(false);
+
+    const location = useLocation();
+    const isOpenedRef = useRef<boolean | null>(null);
+
+    // Close the full-screen player when navigating away via a link (e.g. the
+    // album/artist links in the metadata), matching the desktop player.
+    useLayoutEffect(() => {
+        if (isOpenedRef.current !== null) {
+            setFullScreenPlayerStore({ expanded: false });
+        }
+
+        isOpenedRef.current = true;
+    }, [location, setFullScreenPlayerStore]);
 
     const handleToggleFullScreenPlayer = useCallback(() => {
         setFullScreenPlayerStore({ expanded: false });

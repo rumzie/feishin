@@ -7,7 +7,7 @@ import orderBy from 'lodash/orderBy';
 import md5 from 'md5';
 import { z } from 'zod';
 
-import { contract, ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
+import { contract, fetchPublicIp, ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
 import { mapStructuredLyric } from '/@/renderer/api/subsonic/subsonic-structured-lyrics';
 import {
     getDefaultTranscodingProfiles,
@@ -254,7 +254,7 @@ function buildGetTranscodeStreamUrl(
     },
 ): string {
     const params = new URLSearchParams({
-        c: 'Feishin',
+        c: 'rumTunes',
         mediaId: args.mediaId,
         mediaType: args.mediaType,
         offset: String(args.offset),
@@ -330,6 +330,8 @@ export const SubsonicController: InternalControllerEndpoint = {
             u: string;
         };
 
+        const ipAddressString = await fetchPublicIp();
+
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
 
         if (body.legacy) {
@@ -352,7 +354,7 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         const resp = await ssApiClient({ server: null, url: cleanServerUrl }).authenticate({
             query: {
-                c: 'Feishin',
+                c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
                 f: 'json',
                 username: body.username,
                 v: '1.13.0',
@@ -1974,7 +1976,7 @@ export const SubsonicController: InternalControllerEndpoint = {
         const { server } = apiClientProps;
         const { bitrate, format, id, mediaType = 'song', skipAutoTranscode, transcode } = query;
 
-        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=Feishin&${server?.credential}`;
+        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=rumTunes&${server?.credential}`;
 
         // If transcoding is explicitly enabled, just return the direct transcoded stream URL
         if (transcode) {

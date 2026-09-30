@@ -28,23 +28,23 @@ import {
 const localSettings = isElectron() ? window.api.localSettings : null;
 
 export const ServerRequired = () => {
-    const serverList = useServerList();
+    // const serverList = useServerList();
 
-    if (Object.keys(serverList).length > 0) {
-        return (
-            <ScrollArea>
-                <Stack className={styles.list}>
-                    <ServerSelector />
-                    {!isServerLock() && (
-                        <>
-                            <Divider my="lg" />
-                            <AddServerForm onCancel={null} />
-                        </>
-                    )}
-                </Stack>
-            </ScrollArea>
-        );
-    }
+    // if (Object.keys(serverList).length > 0) {
+    //     return (
+    //         <ScrollArea>
+    //             <Stack className={styles.list}>
+    //                 <ServerSelector />
+    //                 {!isServerLock() && (
+    //                     <>
+    //                         <Divider my="lg" />
+    //                         <AddServerForm onCancel={null} />
+    //                     </>
+    //                 )}
+    //             </Stack>
+    //         </ScrollArea>
+    //     );
+    // }
 
     return <AddServerForm onCancel={null} />;
 };

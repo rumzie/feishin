@@ -251,7 +251,7 @@ const createThrottledSetTableMeta = (
     size?: 'compact' | 'default' | 'large',
 ) => {
     return throttle((width: number, dataLength: number, setTableMeta: (meta: any) => void) => {
-        const isSm = width >= 600;
+        const isSm = width >= 400;
         const isMd = width >= 768;
         const isLg = width >= 960;
         const isXl = width >= 1200;

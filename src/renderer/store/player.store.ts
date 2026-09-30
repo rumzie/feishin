@@ -357,7 +357,7 @@ const initialState: State = {
         speed: 1,
         status: PlayerStatus.PAUSED,
         transitionType: PlayerStyle.GAPLESS,
-        volume: 30,
+        volume: 100,
     },
     queue: {
         default: [],
