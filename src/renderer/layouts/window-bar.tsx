@@ -167,7 +167,8 @@ export const WindowBar = () => {
 
         // Show radio information if radio is active
         if (isRadioActive) {
-            const radioStatusString = !isRadioPlaying ? t('page.windowBar.paused') : '';
+            // const radioStatusString = !isRadioPlaying ? t('page.windowBar.paused') : '';
+            const radioStatusString = '';
             const radioTitle = stationName;
 
             // Format metadata: show title, or combine artist and title if both available
@@ -186,7 +187,8 @@ export const WindowBar = () => {
         }
 
         // Show regular song information
-        const statusString = playerStatus === PlayerStatus.PAUSED ? t('page.windowBar.paused') : '';
+        //const statusString = playerStatus === PlayerStatus.PAUSED ? t('page.windowBar.paused') : '';
+        const statusString = '';
         const queueString = queueLength ? `(${index + 1} / ${queueLength}) ` : '';
         const title = `${
             queueLength
