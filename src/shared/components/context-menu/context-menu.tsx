@@ -9,6 +9,7 @@ import {
     type ReactNode,
     useContext,
     useEffect,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
@@ -86,6 +87,7 @@ export function ContextMenu(props: ContextMenuProps) {
 function Content(props: ContentProps) {
     const { bottomStickyContent, children, stickyContent } = props;
     const { open } = useContext(ContextMenuContext) as ContextMenuContext;
+    const ref = useViewportClamp<HTMLDivElement>(open);
 
     return (
         <AnimatePresence>
@@ -97,6 +99,7 @@ function Content(props: ContentProps) {
                             className={styles.content}
                             exit="hidden"
                             initial="hidden"
+                            ref={ref}
                         >
                             {stickyContent}
                             <ScrollArea className={styles.maxHeight}>{children}</ScrollArea>
@@ -220,6 +223,7 @@ function SubmenuContent(props: SubmenuContentProps) {
     const { cancelCloseTimeout, isCloseDisabled, open, setCloseTimeout, setOpen } = useContext(
         SubmenuContext,
     ) as SubmenuContext;
+    const ref = useViewportClamp<HTMLDivElement>(open);
 
     const handleMouseEnter = () => {
         cancelCloseTimeout();
@@ -242,9 +246,10 @@ function SubmenuContent(props: SubmenuContentProps) {
             {open && (
                 <RadixContextMenu.Portal forceMount>
                     <RadixContextMenu.SubContent
-                        className={styles.content}
+                        className={clsx(styles.content, styles.submenu)}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
+                        ref={ref}
                     >
                         <motion.div
                             animate="show"
@@ -326,3 +331,45 @@ ContextMenu.SubmenuTarget = SubmenuTarget;
 ContextMenu.SubmenuContent = SubmenuContent;
 ContextMenu.Divider = Divider;
 ContextMenu.Arrow = RadixContextMenu.Arrow;
+
+// ponytail: Radix hardcodes side="right" for content and only shifts its cross axis, so panels
+// anchored at a point (or beside a parent menu flush with the viewport edge) land off screen on
+// narrow viewports. Nudge the panel back in; does not re-run on scroll-driven reposition.
+function useViewportClamp<T extends HTMLElement>(mounted: boolean) {
+    const ref = useRef<T>(null);
+
+    useLayoutEffect(() => {
+        const element = ref.current;
+        if (!mounted || !element) return;
+
+        const clamp = () => {
+            // Radix parks the panel off screen until it has measured, don't chase that
+            if (!element.dataset.side) return;
+
+            element.style.left = '0px';
+            element.style.top = '0px';
+
+            const rect = element.getBoundingClientRect();
+
+            element.style.left = `${Math.min(0, window.innerWidth - rect.right) - Math.max(0, -rect.left)}px`;
+            element.style.top = `${Math.min(0, window.innerHeight - rect.bottom) - Math.max(0, -rect.top)}px`;
+        };
+
+        const scheduleClamp = () => requestAnimationFrame(clamp);
+
+        const resizeObserver = new ResizeObserver(scheduleClamp);
+        const placedObserver = new MutationObserver(scheduleClamp);
+
+        resizeObserver.observe(element);
+        placedObserver.observe(element, { attributeFilter: ['data-side'] });
+        window.addEventListener('resize', scheduleClamp);
+
+        return () => {
+            resizeObserver.disconnect();
+            placedObserver.disconnect();
+            window.removeEventListener('resize', scheduleClamp);
+        };
+    }, [mounted]);
+
+    return ref;
+}

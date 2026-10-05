@@ -1,14 +1,28 @@
 .content {
+    --panel-width: min(16rem, calc(100vw - 2rem));
+
+    position: relative;
     z-index: 1000;
-    width: 16rem;
-    min-width: 16rem;
-    max-width: 16rem;
+    display: flex;
+    flex-direction: column;
+    width: var(--panel-width);
+    min-width: var(--panel-width);
+    max-width: var(--panel-width);
+    max-height: min(36rem, calc(100vh - 2rem));
     padding: var(--theme-spacing-xs);
     color: var(--theme-colors-foreground);
     background: var(--theme-colors-background);
     border: 1px solid var(--theme-colors-border);
     border-radius: var(--theme-radius-md);
     filter: drop-shadow(0 0 5px rgb(0 0 0 / 50%));
+}
+
+@media (width < 768px) {
+    /* Radix pins submenus to the right of their trigger and never fits on mobile:
+       slide the panel back over the parent menu so it reads as a stacked level. */
+    .submenu {
+        transform: translate(-100%, 0);
+    }
 }
 
 .inner-content {
@@ -103,5 +117,6 @@
 }
 
 .max-height {
-    max-height: 36rem;
+    flex: 1 1 auto;
+    min-height: 0;
 }
