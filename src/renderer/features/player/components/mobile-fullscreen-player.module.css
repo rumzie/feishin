@@ -192,6 +192,14 @@
     padding-bottom: 1.5rem;
 }
 
+.side-controls {
+    display: flex;
+    flex: 1;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
 .bottom-controls-bar {
     display: flex;
     flex-shrink: 0;

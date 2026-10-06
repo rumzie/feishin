@@ -5,6 +5,10 @@ import styles from './mobile-fullscreen-player.module.css';
 
 import { MainPlayButton, PlayerButton } from '/@/renderer/features/player/components/player-button';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
+import {
+    useIsRadioActive,
+    useRadioControls,
+} from '/@/renderer/features/radio/hooks/use-radio-player';
 import { usePlayerStatus } from '/@/renderer/store';
 import { Icon } from '/@/shared/components/icon/icon';
 import { QueueSong } from '/@/shared/types/domain-types';
@@ -19,36 +23,50 @@ export const MobileFullscreenPlayerControls = memo(
         const currentSongId = currentSong?.id;
         const { t } = useTranslation();
         const status = usePlayerStatus();
+        const isRadioActive = useIsRadioActive();
+        const { stop: radioStop } = useRadioControls();
         const {
             mediaNext,
             mediaPrevious,
             mediaSkipBackward,
             mediaSkipForward,
+            mediaStop,
             mediaTogglePlayPause,
         } = usePlayer();
 
         return (
             <div className={styles.controlsContainer}>
-                <PlayerButton
-                    icon={<Icon fill="default" icon="mediaPrevious" size="xl" />}
-                    onClick={(e) => mediaPrevious(e.altKey)}
-                    tooltip={{
-                        label: t('player.previous'),
-                        openDelay: 0,
-                    }}
-                    variant="secondary"
-                />
-                <PlayerButton
-                    icon={<Icon fill="default" icon="mediaStepBackward" size="xl" />}
-                    onClick={mediaSkipBackward}
-                    tooltip={{
-                        label: t('player.skip', {
-                            context: 'back',
-                        }),
-                        openDelay: 0,
-                    }}
-                    variant="tertiary"
-                />
+                <div className={styles.sideControls}>
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="mediaStop" size="xl" />}
+                        onClick={() => (isRadioActive ? radioStop() : mediaStop())}
+                        tooltip={{
+                            label: t('player.stop'),
+                            openDelay: 0,
+                        }}
+                        variant="tertiary"
+                    />
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="mediaPrevious" size="xl" />}
+                        onClick={(e) => mediaPrevious(e.altKey)}
+                        tooltip={{
+                            label: t('player.previous'),
+                            openDelay: 0,
+                        }}
+                        variant="secondary"
+                    />
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="mediaStepBackward" size="xl" />}
+                        onClick={mediaSkipBackward}
+                        tooltip={{
+                            label: t('player.skip', {
+                                context: 'back',
+                            }),
+                            openDelay: 0,
+                        }}
+                        variant="tertiary"
+                    />
+                </div>
                 <MainPlayButton
                     disabled={currentSongId === undefined}
                     isPaused={status !== PlayerStatus.PLAYING}
@@ -58,26 +76,28 @@ export const MobileFullscreenPlayerControls = memo(
                         width: '50px',
                     }}
                 />
-                <PlayerButton
-                    icon={<Icon fill="default" icon="mediaStepForward" size="xl" />}
-                    onClick={mediaSkipForward}
-                    tooltip={{
-                        label: t('player.skip', {
-                            context: 'forward',
-                        }),
-                        openDelay: 0,
-                    }}
-                    variant="tertiary"
-                />
-                <PlayerButton
-                    icon={<Icon fill="default" icon="mediaNext" size="xl" />}
-                    onClick={(e) => mediaNext(e.altKey)}
-                    tooltip={{
-                        label: t('player.next'),
-                        openDelay: 0,
-                    }}
-                    variant="secondary"
-                />
+                <div className={styles.sideControls}>
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="mediaStepForward" size="xl" />}
+                        onClick={mediaSkipForward}
+                        tooltip={{
+                            label: t('player.skip', {
+                                context: 'forward',
+                            }),
+                            openDelay: 0,
+                        }}
+                        variant="tertiary"
+                    />
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="mediaNext" size="xl" />}
+                        onClick={(e) => mediaNext(e.altKey)}
+                        tooltip={{
+                            label: t('player.next'),
+                            openDelay: 0,
+                        }}
+                        variant="secondary"
+                    />
+                </div>
             </div>
         );
     },
