@@ -16,6 +16,7 @@ export default defineConfig(({ command }) => ({
                 '32x32': normalizePath(path.resolve(__dirname, './assets/icons/32x32.png')),
                 '64x64': normalizePath(path.resolve(__dirname, './assets/icons/64x64.png')),
                 '128x128': normalizePath(path.resolve(__dirname, './assets/icons/128x128.png')),
+                '192x192': normalizePath(path.resolve(__dirname, './assets/icons/192x192.png')),
                 '256x256': normalizePath(path.resolve(__dirname, './assets/icons/256x256.png')),
                 '512x512': normalizePath(path.resolve(__dirname, './assets/icons/512x512.png')),
                 '1024x1024': normalizePath(path.resolve(__dirname, './assets/icons/1024x1024.png')),
@@ -31,6 +32,7 @@ export default defineConfig(({ command }) => ({
                         '32x32.png',
                         '64x64.png',
                         '128x128.png',
+                        '192x192.png',
                         '256x256.png',
                         '512x512.png',
                         '1024x1024.png',
@@ -95,6 +97,11 @@ export default defineConfig(({ command }) => ({
                     {
                         sizes: '128x128',
                         src: '128x128.png',
+                        type: 'image/png',
+                    },
+                    {
+                        sizes: '192x192',
+                        src: '192x192.png',
                         type: 'image/png',
                     },
                     {

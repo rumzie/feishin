@@ -485,7 +485,7 @@ export const fetchPublicIp = async () => {
             const res = await fetch(
                 import.meta.env.DEV
                     ? 'https://api.ipify.org?format=json'
-                    : 'https://testspa.rumtunes.com/ipify',
+                    : 'https://rumtunes.com/ipify',
                 { signal: AbortSignal.timeout(5000) },
             );
 

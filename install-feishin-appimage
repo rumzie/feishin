@@ -54,6 +54,7 @@ curl --fail -L --create-dirs --write-out '%{filename_effective}\n' \
 	-o "${dir}/Feishin-linux-${arch}.AppImage" "https://github.com/jeffvli/feishin/releases/latest/download/Feishin-linux-${arch}.AppImage" \
 	-o "${localShareIcons}/512x512/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/512x512.png?raw=true' \
 	-o "${localShareIcons}/256x256/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/256x256.png?raw=true' \
+	-o "${localShareIcons}/192x192/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/192x192.png?raw=true' \
 	-o "${localShareIcons}/128x128/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/128x128.png?raw=true' \
 	-o "${localShareIcons}/64x64/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/64x64.png?raw=true' \
 	-o "${localShareIcons}/32x32/apps/org.jeffvli.feishin.png" 'https://github.com/jeffvli/feishin/blob/development/assets/icons/32x32.png?raw=true'
