@@ -38,7 +38,6 @@ interface LibraryHeaderProps {
     children?: ReactNode;
     compact?: boolean;
     containerClassName?: string;
-    hideImage?: boolean;
     imageOverlay?: ReactNode;
     imagePlaceholderUrl?: null | string;
     imageUrl?: null | string;
@@ -65,7 +64,6 @@ export const LibraryHeader = forwardRef(
             children,
             compact,
             containerClassName,
-            hideImage,
             imageOverlay,
             imageUrl,
             item,
@@ -162,76 +160,74 @@ export const LibraryHeader = forwardRef(
                 className={clsx(
                     styles.libraryHeader,
                     containerClassName,
-                    hideImage && styles.noImage,
                     compact && styles.compact,
                 )}
                 ref={ref}
             >
                 {topRight && <div className={styles.topRight}>{topRight}</div>}
-                {!hideImage &&
-                    (onImageFileDrop ? (
-                        <DragDropZone
-                            accept="image/*"
-                            className={styles.imageSection}
-                            mode="file"
-                            onFileSelected={(file) => void onImageFileDrop(file)}
-                            {...imageSectionSharedProps}
-                        >
-                            <ItemImage
-                                blurHash={item.blurHash}
-                                className={styles.image}
-                                containerClassName={styles.image}
-                                dominantColor={item.dominantColor}
-                                enableDebounce={false}
-                                enableViewport={false}
-                                explicitStatus={item.explicitStatus ?? null}
-                                fetchPriority="high"
-                                id={item.imageId}
-                                itemType={item.type as LibraryItem}
-                                src={imageUrl || ''}
-                                thumbHash={item.thumbHash}
-                                type="header"
-                            />
-                            {imageOverlay && (
-                                <div
-                                    className={styles.imageOverlay}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onKeyDown={(e) => e.stopPropagation()}
-                                    role="presentation"
-                                >
-                                    {imageOverlay}
-                                </div>
-                            )}
-                        </DragDropZone>
-                    ) : (
-                        <div className={styles.imageSection} {...imageSectionSharedProps}>
-                            <ItemImage
-                                blurHash={item.blurHash}
-                                className={styles.image}
-                                containerClassName={styles.image}
-                                dominantColor={item.dominantColor}
-                                enableDebounce={false}
-                                enableViewport={false}
-                                explicitStatus={item.explicitStatus ?? null}
-                                fetchPriority="high"
-                                id={item.imageId}
-                                itemType={item.type as LibraryItem}
-                                src={imageUrl || ''}
-                                thumbHash={item.thumbHash}
-                                type="header"
-                            />
-                            {imageOverlay && (
-                                <div
-                                    className={styles.imageOverlay}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onKeyDown={(e) => e.stopPropagation()}
-                                    role="presentation"
-                                >
-                                    {imageOverlay}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                {onImageFileDrop ? (
+                    <DragDropZone
+                        accept="image/*"
+                        className={styles.imageSection}
+                        mode="file"
+                        onFileSelected={(file) => void onImageFileDrop(file)}
+                        {...imageSectionSharedProps}
+                    >
+                        <ItemImage
+                            blurHash={item.blurHash}
+                            className={styles.image}
+                            containerClassName={styles.image}
+                            dominantColor={item.dominantColor}
+                            enableDebounce={false}
+                            enableViewport={false}
+                            explicitStatus={item.explicitStatus ?? null}
+                            fetchPriority="high"
+                            id={item.imageId}
+                            itemType={item.type as LibraryItem}
+                            src={imageUrl || ''}
+                            thumbHash={item.thumbHash}
+                            type="header"
+                        />
+                        {imageOverlay && (
+                            <div
+                                className={styles.imageOverlay}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                                role="presentation"
+                            >
+                                {imageOverlay}
+                            </div>
+                        )}
+                    </DragDropZone>
+                ) : (
+                    <div className={styles.imageSection} {...imageSectionSharedProps}>
+                        <ItemImage
+                            blurHash={item.blurHash}
+                            className={styles.image}
+                            containerClassName={styles.image}
+                            dominantColor={item.dominantColor}
+                            enableDebounce={false}
+                            enableViewport={false}
+                            explicitStatus={item.explicitStatus ?? null}
+                            fetchPriority="high"
+                            id={item.imageId}
+                            itemType={item.type as LibraryItem}
+                            src={imageUrl || ''}
+                            thumbHash={item.thumbHash}
+                            type="header"
+                        />
+                        {imageOverlay && (
+                            <div
+                                className={styles.imageOverlay}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                                role="presentation"
+                            >
+                                {imageOverlay}
+                            </div>
+                        )}
+                    </div>
+                )}
                 {title && (
                     <div className={styles.metadataSection}>
                         {item.children ? (
