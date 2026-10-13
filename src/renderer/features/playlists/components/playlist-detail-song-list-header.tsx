@@ -1,16 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { ReactNode, useCallback, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router';
 
-import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
 import { PageHeader } from '/@/renderer/components/page-header/page-header';
 import { useListContext } from '/@/renderer/context/list-context';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
 import { playlistsQueries } from '/@/renderer/features/playlists/api/playlists-api';
 import { PlaylistDetailSongListHeaderFilters } from '/@/renderer/features/playlists/components/playlist-detail-song-list-header-filters';
-import { useDeletePlaylistImage } from '/@/renderer/features/playlists/mutations/delete-playlist-image-mutation';
-import { useUploadPlaylistImage } from '/@/renderer/features/playlists/mutations/upload-playlist-image-mutation';
 import { FilterBar } from '/@/renderer/features/shared/components/filter-bar';
 import {
     LibraryHeader,
@@ -26,77 +23,14 @@ import {
     useSidebarPlaylistFolderSeparator,
 } from '/@/renderer/store';
 import { formatDurationString } from '/@/renderer/utils';
-import { replaceURLWithHTMLLinks } from '/@/renderer/utils/linkify';
-import { hasFeature } from '/@/shared/api/utils';
-import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
-import { FileButton } from '/@/shared/components/file-button/file-button';
-import { Group } from '/@/shared/components/group/group';
-import { Spoiler } from '/@/shared/components/spoiler/spoiler';
 import { Stack } from '/@/shared/components/stack/stack';
-import { Text } from '/@/shared/components/text/text';
 import { useLocalStorage } from '/@/shared/hooks/use-local-storage';
-import { LibraryItem, Playlist, Song } from '/@/shared/types/domain-types';
-import { ServerFeature } from '/@/shared/types/features-types';
+import { LibraryItem, Song } from '/@/shared/types/domain-types';
 import { Play } from '/@/shared/types/types';
 
 interface PlaylistDetailSongListHeaderProps {
     editActions?: ReactNode;
     isSmartPlaylist?: boolean;
-}
-
-function ImageUploadOverlay({
-    data,
-    onUploadFile,
-}: {
-    data?: Playlist;
-    onUploadFile: (file: File) => Promise<void>;
-}) {
-    const deletePlaylistImageMutation = useDeletePlaylistImage({});
-    const server = useCurrentServer();
-
-    if (!data) return null;
-    if (!hasFeature(server, ServerFeature.PLAYLIST_IMAGE_UPLOAD)) return null;
-
-    return (
-        <Group gap="xs">
-            <FileButton
-                accept="image/*"
-                onChange={async (file) => {
-                    if (!file) return;
-                    await onUploadFile(file);
-                }}
-            >
-                {(props) => (
-                    <ActionIcon
-                        icon="uploadImage"
-                        iconProps={{ size: 'lg' }}
-                        radius="xl"
-                        size="xs"
-                        variant="default"
-                        {...props}
-                    />
-                )}
-            </FileButton>
-            <ActionIcon
-                disabled={!data?.uploadedImage}
-                icon="delete"
-                iconProps={{ size: 'lg' }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (!data?._serverId) return;
-                    deletePlaylistImageMutation.mutate({
-                        apiClientProps: {
-                            serverId: data._serverId,
-                        },
-                        query: { id: data.id },
-                    });
-                }}
-                radius="xl"
-                size="xs"
-                variant="default"
-            />
-        </Group>
-    );
 }
 
 export const PlaylistDetailSongListHeader = ({
@@ -115,7 +49,6 @@ export const PlaylistDetailSongListHeader = ({
     });
 
     const playlistDuration = detailQuery?.data?.duration;
-    const playlistDescription = detailQuery?.data?.description?.trim();
     const foldersEnabled = useSidebarPlaylistFolders();
     const folderSeparator = useSidebarPlaylistFolderSeparator();
     const playlistDisplayName = useMemo(() => {
@@ -131,38 +64,10 @@ export const PlaylistDetailSongListHeader = ({
     });
 
     const player = usePlayer();
-    const uploadPlaylistImageMutation = useUploadPlaylistImage({});
 
     const handlePlay = (type?: Play) => {
         player.addToQueueByData(listData as Song[], type || Play.NOW);
     };
-
-    const canUploadPlaylistImage =
-        hasFeature(server, ServerFeature.PLAYLIST_IMAGE_UPLOAD) &&
-        Boolean(detailQuery?.data?._serverId);
-
-    const handlePlaylistImageUpload = useCallback(
-        async (file: File) => {
-            const playlist = detailQuery?.data;
-            if (!playlist?._serverId) return;
-
-            const buffer = await file.arrayBuffer();
-            uploadPlaylistImageMutation.mutate({
-                apiClientProps: {
-                    serverId: playlist._serverId,
-                },
-                body: { image: new Uint8Array(buffer) },
-                query: { id: playlist.id },
-            });
-        },
-        [detailQuery?.data, uploadPlaylistImageMutation],
-    );
-
-    const imageUrl = useItemImageUrl({
-        id: detailQuery?.data?.imageId || undefined,
-        itemType: LibraryItem.PLAYLIST,
-        type: 'header',
-    });
 
     return (
         <Stack gap={0}>
@@ -195,52 +100,18 @@ export const PlaylistDetailSongListHeader = ({
             ) : (
                 <LibraryHeader
                     compact
-                    imageOverlay={
-                        <ImageUploadOverlay
-                            data={detailQuery?.data}
-                            onUploadFile={handlePlaylistImageUpload}
-                        />
-                    }
-                    imageUrl={imageUrl}
+                    hideImage
                     item={{
-                        blurHash: detailQuery?.data?.blurHash,
-                        dominantColor: detailQuery?.data?.dominantColor,
-                        imageId: detailQuery?.data?.imageId,
-                        imageUrl: detailQuery?.data?.imageUrl,
                         route: AppRoute.PLAYLISTS,
-                        thumbHash: detailQuery?.data?.thumbHash,
                         type: LibraryItem.PLAYLIST,
                     }}
-                    onImageFileDrop={canUploadPlaylistImage ? handlePlaylistImageUpload : undefined}
                     title={playlistDisplayName}
                     topRight={<ListSearchInput />}
                 >
-                    <Stack gap="md" w="100%">
-                        {playlistDescription ? (
-                            <Spoiler
-                                hideLabel={<></>}
-                                maxHeight={16}
-                                showLabel={<></>}
-                                style={{ marginBottom: 0 }}
-                            >
-                                <Text
-                                    isMuted
-                                    size="sm"
-                                    style={{
-                                        maxWidth: '100%',
-                                        whiteSpace: 'pre-wrap',
-                                        wordBreak: 'break-word',
-                                    }}
-                                >
-                                    {replaceURLWithHTMLLinks(playlistDescription)}
-                                </Text>
-                            </Spoiler>
-                        ) : null}
-                        <LibraryHeaderMenu
-                            onPlay={(type) => handlePlay(type)}
-                            onShuffle={() => handlePlay(Play.SHUFFLE)}
-                        />
-                    </Stack>
+                    <LibraryHeaderMenu
+                        onPlay={(type) => handlePlay(type)}
+                        onShuffle={() => handlePlay(Play.SHUFFLE)}
+                    />
                 </LibraryHeader>
             )}
             <FilterBar>

@@ -109,6 +109,18 @@
             }
         }
     }
+
+    &.no-image {
+        grid-template-areas: 'info';
+        grid-template-rows: auto;
+        grid-template-columns: minmax(0, 1fr);
+
+        @container (min-width: $mantine-breakpoint-sm) {
+            grid-template-areas: 'info';
+            grid-template-rows: auto;
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
 }
 
 .image-section {
