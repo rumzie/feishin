@@ -9,6 +9,7 @@ import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-ite
 import {
     SidebarPlaylistAddDragContext,
     SidebarPlaylistList,
+    SidebarPlaylistNavigateContext,
     SidebarSharedPlaylistList,
     useSidebarPlaylistAddDragMonitor,
 } from '/@/renderer/features/sidebar/components/sidebar-playlist-list';
@@ -22,14 +23,16 @@ import { Group } from '/@/shared/components/group/group';
 import { ScrollArea } from '/@/shared/components/scroll-area/scroll-area';
 import { Text } from '/@/shared/components/text/text';
 
-const MobileSidebarPlaylistSection = () => {
+const MobileSidebarPlaylistSection = ({ onNavigate }: { onNavigate: () => void }) => {
     const isAddDragActive = useSidebarPlaylistAddDragMonitor();
 
     return (
-        <SidebarPlaylistAddDragContext.Provider value={isAddDragActive}>
-            <SidebarPlaylistList />
-            <SidebarSharedPlaylistList />
-        </SidebarPlaylistAddDragContext.Provider>
+        <SidebarPlaylistNavigateContext.Provider value={onNavigate}>
+            <SidebarPlaylistAddDragContext.Provider value={isAddDragActive}>
+                <SidebarPlaylistList />
+                <SidebarSharedPlaylistList />
+            </SidebarPlaylistAddDragContext.Provider>
+        </SidebarPlaylistNavigateContext.Provider>
     );
 };
 
@@ -119,7 +122,9 @@ export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
                             })}
                         </Accordion.Panel>
                     </Accordion.Item>
-                    {sidebarPlaylistList && <MobileSidebarPlaylistSection />}
+                    {sidebarPlaylistList && (
+                        <MobileSidebarPlaylistSection onNavigate={onNavigate} />
+                    )}
                 </Accordion>
             </ScrollArea>
         </div>
