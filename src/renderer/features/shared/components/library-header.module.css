@@ -69,13 +69,13 @@
         padding: var(--theme-spacing-md) var(--theme-spacing-xs);
 
         :global(.item-image-placeholder) {
-            width: 250px !important;
-            height: 250px;
+            width: 150px !important;
+            height: 150px;
         }
 
         .image {
-            width: 250px !important;
-            height: 250px;
+            width: 150px !important;
+            height: 150px;
         }
 
         @container (min-width: $mantine-breakpoint-sm) {
