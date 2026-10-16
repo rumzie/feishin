@@ -437,7 +437,9 @@ export const LyricsSettingsForm = ({ settingsKey }: LyricsSettingsFormProps) => 
                     aria-label="Lyric providers"
                     clearable
                     data={
-                        isElectron() ? Object.values(LyricSource) : [LyricSource.LRCLIB]
+                        isElectron()
+                            ? Object.values(LyricSource)
+                            : [LyricSource.LRCLIB, LyricSource.SIMPMUSIC]
                     }
                     defaultValue={lyricsSettings.sources}
                     onChange={(e: string[]) => {
