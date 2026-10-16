@@ -76,11 +76,7 @@ export const LyricSettings = memo(() => {
                 <MultiSelect
                     aria-label="Lyric providers"
                     clearable
-                    data={
-                        isElectron()
-                            ? Object.values(LyricSource)
-                            : [LyricSource.LRCLIB, LyricSource.SIMPMUSIC]
-                    }
+                    data={isElectron() ? Object.values(LyricSource) : [LyricSource.LRCLIB]}
                     defaultValue={settings.sources}
                     onChange={(e: string[]) => {
                         localSettings?.set('lyrics', e);
