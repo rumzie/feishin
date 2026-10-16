@@ -14,6 +14,7 @@ import { orderSearchResults } from '/@/shared/utils/order-search-results';
 
 const LRCLIB_FETCH_URL = 'https://lrclib.net/api/get';
 const LRCLIB_SEARCH_URL = 'https://lrclib.net/api/search';
+const SIMPMUSIC_API_URL = 'https://api-lyrics.simpmusic.org/v1';
 
 const TIMEOUT_MS = 5000;
 
@@ -72,15 +73,67 @@ const getLrcLibLyrics: GetFetcher = async (songId) => {
     return result?.data?.syncedLyrics || result?.data?.plainLyrics || null;
 };
 
+const searchSimpMusic: SearchFetcher = async (params) => {
+    if (!params.name) return null;
+
+    const result = await axios
+        .get<{
+            data: Array<{
+                artistName: string;
+                songTitle: string;
+                syncedLyrics?: string;
+                videoId: string;
+            }>;
+        }>(`${SIMPMUSIC_API_URL}/search`, {
+            params: { q: params.name },
+            timeout: TIMEOUT_MS,
+        })
+        .catch((e) => {
+            logger.error('SimpMusic search errored:', (e as Error)?.message);
+            return null;
+        });
+
+    if (!result?.data?.data) return null;
+
+    return orderSearchResults({
+        params,
+        results: result.data.data.map((song) => ({
+            artist: song.artistName,
+            id: song.videoId,
+            isSync: song.syncedLyrics ? true : false,
+            name: song.songTitle,
+            source: LyricSource.SIMPMUSIC,
+        })),
+    });
+};
+
+const getSimpMusicLyrics: GetFetcher = async (songId) => {
+    const result = await axios
+        .get<{
+            data: Array<{ plainLyric?: string; syncedLyrics?: string }>;
+        }>(`${SIMPMUSIC_API_URL}/${songId}`, { timeout: TIMEOUT_MS })
+        .catch((e) => {
+            logger.error('SimpMusic lyrics request errored:', (e as Error)?.message);
+            return null;
+        });
+
+    const firstLyric = result?.data?.data?.[0];
+    if (!firstLyric) return null;
+
+    return firstLyric.syncedLyrics || firstLyric.plainLyric || null;
+};
+
 const SEARCH_FETCHERS: Partial<Record<LyricSource, SearchFetcher>> = {
     [LyricSource.LRCLIB]: searchLrcLib,
+    [LyricSource.SIMPMUSIC]: searchSimpMusic,
 };
 
 const GET_FETCHERS: Partial<Record<LyricSource, GetFetcher>> = {
     [LyricSource.LRCLIB]: getLrcLibLyrics,
+    [LyricSource.SIMPMUSIC]: getSimpMusicLyrics,
 };
 
-const BROWSER_SOURCES = [LyricSource.LRCLIB];
+const BROWSER_SOURCES = [LyricSource.LRCLIB, LyricSource.SIMPMUSIC];
 
 const getEnabledSources = (): LyricSource[] => {
     const { sources } = useSettingsStore.getState().lyrics;
