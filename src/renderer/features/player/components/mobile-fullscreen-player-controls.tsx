@@ -10,6 +10,7 @@ import {
     useRadioControls,
 } from '/@/renderer/features/radio/hooks/use-radio-player';
 import { usePlayerStatus } from '/@/renderer/store';
+import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Icon } from '/@/shared/components/icon/icon';
 import { QueueSong } from '/@/shared/types/domain-types';
 import { PlayerStatus } from '/@/shared/types/types';
@@ -96,6 +97,16 @@ export const MobileFullscreenPlayerControls = memo(
                             openDelay: 0,
                         }}
                         variant="secondary"
+                    />
+                    {/* Invisible spacer mirroring the extra stop button on the left so the play button stays centered */}
+                    <ActionIcon
+                        aria-hidden
+                        disabled
+                        icon="mediaStop"
+                        iconProps={{ size: 'xl' }}
+                        style={{ pointerEvents: 'none', visibility: 'hidden' }}
+                        tabIndex={-1}
+                        variant="subtle"
                     />
                 </div>
             </div>
