@@ -68,13 +68,12 @@ const getLrcLibLyrics: GetFetcher = async (songId) => {
         .get<{
             plainLyrics: null | string;
             syncedLyrics: null | string;
-        }>({
+        }>(`${LRCLIB_FETCH_URL}/${songId}`, {
             headers: {
                 'Lrclib-Client': 'Feishin-rumTunes',
                 'X-User-Agent': 'Feishin-rumTunes',
             },
             timeout: TIMEOUT_MS,
-            url: `${LRCLIB_FETCH_URL}/${songId}`,
         })
         .catch((e) => {
             logger.error('LrcLib lyrics request got an error!', (e as Error)?.message);
