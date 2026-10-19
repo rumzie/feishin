@@ -46,7 +46,12 @@ export async function getLyricsBySongId(songId: string): Promise<null | string> 
     let result: AxiosResponse<LrcLibTrackResponse, any>;
 
     try {
-        result = await axios.get<LrcLibTrackResponse>(`${FETCH_URL}/${songId}`);
+        result = await axios.get<LrcLibTrackResponse>(`${FETCH_URL}/${songId}`, {
+            headers: {
+                'Lrclib-Client': 'Feishin-rumTunes',
+                'X-User-Agent': 'Feishin-rumTunes',
+            },
+        });
     } catch (e) {
         log.error('LrcLib lyrics request got an error!', (e as Error)?.message);
         return null;
@@ -68,6 +73,10 @@ export async function getSearchResults(
 
     try {
         result = await axios.get<LrcLibSearchResponse[]>(SEEARCH_URL, {
+            headers: {
+                'Lrclib-Client': 'Feishin-rumTunes',
+                'X-User-Agent': 'Feishin-rumTunes',
+            },
             params: {
                 q: searchQuery,
             },
@@ -100,7 +109,9 @@ export async function query(
     try {
         result = await axios.get<LrcLibTrackResponse>(FETCH_URL, {
             headers: {
+                'Lrclib-Client': 'Feishin-rumTunes',
                 'User-Agent': 'LRCGET v0.2.0 (https://github.com/jeffvli/feishin)',
+                'X-User-Agent': 'Feishin-rumTunes',
             },
             params: {
                 album_name: params.album,
