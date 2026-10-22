@@ -436,11 +436,7 @@ export const LyricsSettingsForm = ({ settingsKey }: LyricsSettingsFormProps) => 
                 <MultiSelect
                     aria-label="Lyric providers"
                     clearable
-                    data={
-                        isElectron()
-                            ? Object.values(LyricSource)
-                            : [LyricSource.LRCLIB, LyricSource.SIMPMUSIC]
-                    }
+                    data={isElectron() ? Object.values(LyricSource) : [LyricSource.LRCLIB]}
                     defaultValue={lyricsSettings.sources}
                     onChange={(e: string[]) => {
                         localSettings?.set('lyrics', e);
