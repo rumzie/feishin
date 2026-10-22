@@ -23,6 +23,7 @@ COPY --chown=nginx:nginx ng.conf.template /etc/nginx/templates/default.conf.temp
 
 ENV SERVER_LOCK=false SERVER_NAME="" SERVER_TYPE="" SERVER_URL="" REMOTE_URL=""
 ENV LEGACY_AUTHENTICATION="" ANALYTICS_DISABLED="" PUBLIC_PATH="/"
+ENV NETEASE_API_URL=""
 
 EXPOSE 9180
 CMD ["nginx", "-g", "daemon off;"]

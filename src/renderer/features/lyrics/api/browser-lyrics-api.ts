@@ -10,11 +10,26 @@ import {
     LyricSource,
     QueueSong,
 } from '/@/shared/types/domain-types';
+import { getNeteaseLyrics, searchNeteaseLyrics } from '/@/shared/utils/netease-lyrics';
 import { orderSearchResults } from '/@/shared/utils/order-search-results';
 
 const LRCLIB_FETCH_URL = 'https://lrclib.net/api/get';
 const LRCLIB_SEARCH_URL = 'https://lrclib.net/api/search';
-const SIMPMUSIC_API_URL = 'https://api-lyrics.simpmusic.org/v1';
+
+// music.163.com does not send CORS headers, so the browser build goes through a
+// reverse proxy that appends them. Override with the NETEASE_API_URL env var.
+const DEFAULT_NETEASE_BASE_URL = 'https://rumtunes.com/netease/';
+
+const getNeteaseBaseUrl = () => {
+    const configured = window.NETEASE_API_URL;
+    // nginx leaves unsubstituted ${...} placeholders behind in settings.js
+    if (!configured || configured.startsWith('${')) {
+        return DEFAULT_NETEASE_BASE_URL;
+    }
+    return configured;
+};
+
+const NETEASE_BASE_URL = getNeteaseBaseUrl();
 
 const TIMEOUT_MS = 5000;
 
@@ -83,67 +98,32 @@ const getLrcLibLyrics: GetFetcher = async (songId) => {
     return result?.data?.syncedLyrics || result?.data?.plainLyrics || null;
 };
 
-const searchSimpMusic: SearchFetcher = async (params) => {
-    if (!params.name) return null;
-
-    const result = await axios
-        .get<{
-            data: Array<{
-                artistName: string;
-                songTitle: string;
-                syncedLyrics?: string;
-                videoId: string;
-            }>;
-        }>(`${SIMPMUSIC_API_URL}/search`, {
-            params: { q: params.name },
-            timeout: TIMEOUT_MS,
-        })
-        .catch((e) => {
-            logger.error('SimpMusic search errored:', (e as Error)?.message);
-            return null;
-        });
-
-    if (!result?.data?.data) return null;
-
-    return orderSearchResults({
-        params,
-        results: result.data.data.map((song) => ({
-            artist: song.artistName,
-            id: song.videoId,
-            isSync: song.syncedLyrics ? true : false,
-            name: song.songTitle,
-            source: LyricSource.SIMPMUSIC,
-        })),
+const searchNetease: SearchFetcher = async (params) =>
+    searchNeteaseLyrics(params, {
+        baseUrl: NETEASE_BASE_URL,
+        onError: (error) => logger.error('NetEase search request got an error!', error),
+        timeout: TIMEOUT_MS,
     });
-};
 
-const getSimpMusicLyrics: GetFetcher = async (songId) => {
-    const result = await axios
-        .get<{
-            data: Array<{ plainLyric?: string; syncedLyrics?: string }>;
-        }>(`${SIMPMUSIC_API_URL}/${songId}`, { timeout: TIMEOUT_MS })
-        .catch((e) => {
-            logger.error('SimpMusic lyrics request errored:', (e as Error)?.message);
-            return null;
-        });
-
-    const firstLyric = result?.data?.data?.[0];
-    if (!firstLyric) return null;
-
-    return firstLyric.syncedLyrics || firstLyric.plainLyric || null;
-};
+const getNeteaseLyricsById: GetFetcher = async (songId) =>
+    getNeteaseLyrics(songId, {
+        baseUrl: NETEASE_BASE_URL,
+        enableTranslation: useSettingsStore.getState().lyrics.enableNeteaseTranslation,
+        onError: (error) => logger.error('NetEase lyrics request got an error!', error),
+        timeout: TIMEOUT_MS,
+    });
 
 const SEARCH_FETCHERS: Partial<Record<LyricSource, SearchFetcher>> = {
     [LyricSource.LRCLIB]: searchLrcLib,
-    [LyricSource.SIMPMUSIC]: searchSimpMusic,
+    [LyricSource.NETEASE]: searchNetease,
 };
 
 const GET_FETCHERS: Partial<Record<LyricSource, GetFetcher>> = {
     [LyricSource.LRCLIB]: getLrcLibLyrics,
-    [LyricSource.SIMPMUSIC]: getSimpMusicLyrics,
+    [LyricSource.NETEASE]: getNeteaseLyricsById,
 };
 
-const BROWSER_SOURCES = [LyricSource.LRCLIB, LyricSource.SIMPMUSIC];
+const BROWSER_SOURCES = [LyricSource.LRCLIB, LyricSource.NETEASE];
 
 const getEnabledSources = (): LyricSource[] => {
     const { sources } = useSettingsStore.getState().lyrics;

@@ -79,7 +79,7 @@ export const LyricSettings = memo(() => {
                     data={
                         isElectron()
                             ? Object.values(LyricSource)
-                            : [LyricSource.LRCLIB, LyricSource.SIMPMUSIC]
+                            : [LyricSource.LRCLIB, LyricSource.NETEASE]
                     }
                     defaultValue={settings.sources}
                     onChange={(e: string[]) => {
@@ -135,7 +135,6 @@ export const LyricSettings = memo(() => {
             description: t('setting.neteaseTranslation', {
                 context: 'description',
             }),
-            isHidden: !isElectron(),
             title: t('setting.neteaseTranslation'),
         },
         {

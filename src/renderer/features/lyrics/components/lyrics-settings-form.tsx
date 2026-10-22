@@ -436,7 +436,11 @@ export const LyricsSettingsForm = ({ settingsKey }: LyricsSettingsFormProps) => 
                 <MultiSelect
                     aria-label="Lyric providers"
                     clearable
-                    data={isElectron() ? Object.values(LyricSource) : [LyricSource.LRCLIB]}
+                    data={
+                        isElectron()
+                            ? Object.values(LyricSource)
+                            : [LyricSource.LRCLIB, LyricSource.NETEASE]
+                    }
                     defaultValue={lyricsSettings.sources}
                     onChange={(e: string[]) => {
                         localSettings?.set('lyrics', e);
@@ -491,7 +495,6 @@ export const LyricsSettingsForm = ({ settingsKey }: LyricsSettingsFormProps) => 
                 context: 'description',
             }),
             id: 'enableNeteaseTranslation',
-            isHidden: !isElectron(),
             label: t('setting.neteaseTranslation'),
         },
     ];
