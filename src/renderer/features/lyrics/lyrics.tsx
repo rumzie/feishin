@@ -68,7 +68,9 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
         enableAutoTranslation,
         enableFurigana,
         enableRomaji,
+        fetch: lyricsFetchEnabled,
         preferLocalLyrics,
+        sources: lyricsSources,
         translationApiKey,
         translationApiProvider,
         translationTargetLanguage,
@@ -159,6 +161,21 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
         if (!data) return { selected: null, selectedSynced: false };
         return computeSelectedFromResult(data, preferLocalLyrics, indexToUse);
     }, [data, indexToUse, preferLocalLyrics]);
+
+    // A failed remote fetch is cached as "no lyrics". Mark it stale instead of
+    // treating it as final, so the next request for this song tries the
+    // providers again.
+    const shouldRetryRemoteLyrics =
+        !!data &&
+        !lyrics &&
+        !data.suppressRemoteAuto &&
+        lyricsFetchEnabled &&
+        lyricsSources.length > 0;
+
+    useEffect(() => {
+        if (!shouldRetryRemoteLyrics || !lyricsKey) return;
+        queryClient.invalidateQueries({ queryKey: lyricsKey, refetchType: 'none' });
+    }, [lyricsKey, shouldRetryRemoteLyrics]);
 
     const { data: furiganaConvertedLyrics } = useFuriganaLyrics(lyrics?.lyrics, !!enableFurigana);
     const { data: romajiConvertedLyrics, isFetching: isFetchingRomaji } = useRomajiLyrics(
