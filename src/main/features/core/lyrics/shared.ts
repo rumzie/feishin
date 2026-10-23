@@ -1,1 +1,4 @@
-export { orderSearchResults } from '/@/shared/utils/order-search-results';
+export {
+    groupSearchResultsBySource,
+    orderSearchResults,
+} from '/@/shared/utils/order-search-results';

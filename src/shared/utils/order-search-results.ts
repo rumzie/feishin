@@ -3,7 +3,30 @@ import Fuse, { FuseResult, IFuseOptions } from 'fuse.js';
 import {
     InternetProviderLyricSearchResponse,
     LyricSearchQuery,
+    LyricSource,
 } from '/@/shared/types/domain-types';
+
+/**
+ * Group ranked search results by provider, preserving each provider's rank
+ * order. Providers are ordered by their best-ranked result because `results`
+ * is expected to be sorted best-match first.
+ */
+export const groupSearchResultsBySource = (
+    results: InternetProviderLyricSearchResponse[],
+): InternetProviderLyricSearchResponse[][] => {
+    const grouped = new Map<LyricSource, InternetProviderLyricSearchResponse[]>();
+
+    for (const result of results) {
+        const sourceResults = grouped.get(result.source);
+        if (sourceResults) {
+            sourceResults.push(result);
+        } else {
+            grouped.set(result.source, [result]);
+        }
+    }
+
+    return Array.from(grouped.values());
+};
 
 export const orderSearchResults = (args: {
     params: LyricSearchQuery;

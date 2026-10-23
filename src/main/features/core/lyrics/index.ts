@@ -11,7 +11,7 @@ import {
 import { getLyricsBySongId as getGenius, getSearchResults as searchGenius } from './genius';
 import { getLyricsBySongId as getLrcLib, getSearchResults as searchLrcLib } from './lrclib';
 import { getLyricsBySongId as getNetease, getSearchResults as searchNetease } from './netease';
-import { orderSearchResults } from './shared';
+import { groupSearchResultsBySource, orderSearchResults } from './shared';
 import {
     getLyricsBySongId as getSimpMusic,
     getSearchResults as searchSimpMusic,
@@ -91,6 +91,9 @@ const GET_FETCHERS: Record<LyricSource, GetFetcher> = {
 
 const MAX_CACHED_ITEMS = 10;
 
+// How many ranked results to try per provider before falling back to the next
+const MAX_ATTEMPTS_PER_SOURCE = 2;
+
 const lyricCache = new Map<string, CachedLyrics>();
 
 const searchAllSources = async (
@@ -147,35 +150,41 @@ const getRemoteLyrics = async (song: Song) => {
         results: allSearchResults,
     });
 
-    const bestMatch = rankedResults[0];
-
-    if (!bestMatch) {
-        return null;
-    }
-
     // Score is 0-1 where 0 = perfect match, 1 = worst match
     const matchThreshold = 0.55;
-    const matchScore = bestMatch.score ?? 1;
 
-    if (matchScore > matchThreshold) {
-        return null;
-    }
+    // Best matches first, but skip anything too dissimilar to the current song
+    const candidates = rankedResults.filter((result) => (result.score ?? 1) <= matchThreshold);
 
     let lyricsFromSource: InternetProviderLyricResponse | null = null;
 
-    try {
-        const lyrics = await GET_FETCHERS[bestMatch.source](bestMatch.id);
-        if (lyrics) {
-            lyricsFromSource = {
-                artist: bestMatch.artist,
-                id: bestMatch.id,
-                lyrics,
-                name: bestMatch.name,
-                source: bestMatch.source,
-            };
+    // Try the first MAX_ATTEMPTS_PER_SOURCE results from one provider before
+    // moving on to the next provider, so a provider having server issues does
+    // not keep us from trying the next one
+    for (const sourceResults of groupSearchResultsBySource(candidates)) {
+        for (const candidate of sourceResults.slice(0, MAX_ATTEMPTS_PER_SOURCE)) {
+            try {
+                const lyrics = await GET_FETCHERS[candidate.source](candidate.id);
+                if (lyrics) {
+                    lyricsFromSource = {
+                        artist: candidate.artist,
+                        id: candidate.id,
+                        lyrics,
+                        name: candidate.name,
+                        source: candidate.source,
+                    };
+                    break;
+                }
+
+                log.warn(
+                    `No lyrics returned by ${candidate.source} for ${candidate.artist} - ${candidate.name}, trying next result`,
+                );
+            } catch (error) {
+                log.error(`Error fetching lyrics from ${candidate.source}:`, error);
+            }
         }
-    } catch (error) {
-        log.error(`Error fetching lyrics from ${bestMatch.source}:`, error);
+
+        if (lyricsFromSource) break;
     }
 
     if (lyricsFromSource) {

@@ -11,7 +11,10 @@ import {
     QueueSong,
 } from '/@/shared/types/domain-types';
 import { getNeteaseLyrics, searchNeteaseLyrics } from '/@/shared/utils/netease-lyrics';
-import { orderSearchResults } from '/@/shared/utils/order-search-results';
+import {
+    groupSearchResultsBySource,
+    orderSearchResults,
+} from '/@/shared/utils/order-search-results';
 
 const LRCLIB_FETCH_URL = 'https://lrclib.net/api/get';
 const LRCLIB_SEARCH_URL = 'https://lrclib.net/api/search';
@@ -32,6 +35,9 @@ const getNeteaseBaseUrl = () => {
 const NETEASE_BASE_URL = getNeteaseBaseUrl();
 
 const TIMEOUT_MS = 5000;
+
+// How many ranked results to try per provider before falling back to the next
+const MAX_ATTEMPTS_PER_SOURCE = 2;
 
 type GetFetcher = (id: string) => Promise<null | string>;
 
@@ -166,28 +172,38 @@ export const getRemoteLyricsBySong = async (
         return null;
     }
 
-    const bestMatch = orderSearchResults({ params, results: allSearchResults })[0];
-
-    if (!bestMatch) {
-        return null;
-    }
+    const rankedResults = orderSearchResults({ params, results: allSearchResults });
 
     // Score is 0-1 where 0 = perfect match, 1 = worst match
-    if ((bestMatch.score ?? 1) > 0.55) return null;
+    const matchThreshold = 0.55;
 
-    try {
-        const lyrics = await GET_FETCHERS[bestMatch.source]?.(bestMatch.id);
-        if (lyrics) {
-            return {
-                artist: bestMatch.artist,
-                id: bestMatch.id,
-                lyrics,
-                name: bestMatch.name,
-                source: bestMatch.source,
-            };
+    // Best matches first, but skip anything too dissimilar to the current song
+    const candidates = rankedResults.filter((result) => (result.score ?? 1) <= matchThreshold);
+
+    // Try the first MAX_ATTEMPTS_PER_SOURCE results from one provider before
+    // moving on to the next provider, so a provider having server issues does
+    // not keep us from trying the next one
+    for (const sourceResults of groupSearchResultsBySource(candidates)) {
+        for (const candidate of sourceResults.slice(0, MAX_ATTEMPTS_PER_SOURCE)) {
+            try {
+                const lyrics = await GET_FETCHERS[candidate.source]?.(candidate.id);
+                if (lyrics) {
+                    return {
+                        artist: candidate.artist,
+                        id: candidate.id,
+                        lyrics,
+                        name: candidate.name,
+                        source: candidate.source,
+                    };
+                }
+
+                logger.warn(
+                    `No lyrics returned by ${candidate.source} for ${candidate.artist} - ${candidate.name}, trying next result`,
+                );
+            } catch (error) {
+                logger.error(`Error fetching lyrics from ${candidate.source}:`, error);
+            }
         }
-    } catch (error) {
-        logger.error(`Error fetching lyrics from ${bestMatch.source}:`, error);
     }
 
     return null;

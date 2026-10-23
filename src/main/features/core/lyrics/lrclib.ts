@@ -51,6 +51,7 @@ export async function getLyricsBySongId(songId: string): Promise<null | string> 
                 'Lrclib-Client': 'Feishin-rumTunes',
                 'X-User-Agent': 'Feishin-rumTunes',
             },
+            timeout: TIMEOUT_MS,
         });
     } catch (e) {
         log.error('LrcLib lyrics request got an error!', (e as Error)?.message);
@@ -80,6 +81,7 @@ export async function getSearchResults(
             params: {
                 q: searchQuery,
             },
+            timeout: TIMEOUT_MS,
         });
     } catch (e) {
         log.error('LrcLib search request got an error!', (e as Error)?.message);
