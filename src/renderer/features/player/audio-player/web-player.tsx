@@ -526,8 +526,23 @@ export function WebPlayer() {
         }
     }, [calculateReplayGain, player2, player2Source, webAudio]);
 
-    const player1Url = useSongUrl(player1, num === 1, transcode);
-    const player2Url = useSongUrl(player2, num === 2, transcode);
+    // In gapless mode, only start loading the inactive (next) player once the
+    // transition window opens (~last 2 seconds) instead of buffering it for the
+    // whole current track. Crossfade keeps preloading so the incoming track is
+    // ready when its fade begins.
+    const shouldLoadInactivePlayer =
+        transitionType !== PlayerStyle.GAPLESS || Boolean(isTransitioning);
+
+    const player1Url = useSongUrl(
+        num === 1 || shouldLoadInactivePlayer ? player1 : undefined,
+        num === 1,
+        transcode,
+    );
+    const player2Url = useSongUrl(
+        num === 2 || shouldLoadInactivePlayer ? player2 : undefined,
+        num === 2,
+        transcode,
+    );
 
     const applyPendingSeekIfNeeded = useCallback(
         (reactPlayer: ReactPlayer, activeSlot: 1 | 2) => {
