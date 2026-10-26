@@ -200,7 +200,7 @@ export const useAppStore = createWithEqualityFn<AppSlice>()(
                 },
                 albumArtistDetailSort: {
                     groupingType: 'primary',
-                    sortBy: AlbumListSort.RELEASE_DATE,
+                    sortBy: AlbumListSort.YEAR,
                     sortOrder: SortOrder.DESC,
                 },
                 albumArtistIdsMode: 'and',
