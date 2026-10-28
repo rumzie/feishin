@@ -70,7 +70,7 @@ const getSubsonicImageRequest = ({
             `?id=${id}` +
             `&${server.credential}` +
             '&v=1.13.0' +
-            '&c=Feishin' +
+            '&c=rumTunes' +
             (imageSize ? `&size=${imageSize}` : ''),
     };
 };
@@ -983,7 +983,7 @@ export const SubsonicController: InternalControllerEndpoint = {
             `?id=${query.id}` +
             `&${apiClientProps.server?.credential}` +
             '&v=1.13.0' +
-            '&c=Feishin'
+            '&c=rumTunes'
         );
     },
     getFavoriteSongs: async (args) => {
