@@ -28,6 +28,7 @@ import { ListSortOrderToggleButton } from '/@/renderer/features/shared/component
 import { MoreButton } from '/@/renderer/features/shared/components/more-button';
 import { FILTER_KEYS } from '/@/renderer/features/shared/utils';
 import { useContainerQuery } from '/@/renderer/hooks';
+import { useIsMobile } from '/@/renderer/hooks/use-is-mobile';
 import {
     PlaylistTarget,
     useCurrentServerId,
@@ -57,6 +58,7 @@ const PlaylistSongListFiltersModal = () => {
     const { isSidebarOpen, setIsSidebarOpen } = useListContext();
     const { clear, query } = usePlaylistSongListFilters();
     const [isOpen, handlers] = useDisclosure(false);
+    const isMobile = useIsMobile();
 
     const hasActiveFilters = useMemo(() => {
         return Boolean(
@@ -80,16 +82,24 @@ const PlaylistSongListFiltersModal = () => {
         <>
             <FilterButton isActive={hasActiveFilters} onClick={handlers.toggle} />
             <Modal
+                fullScreen={isMobile}
                 handlers={handlers}
                 opened={isOpen}
-                size="lg"
+                size={isMobile ? '100%' : 'lg'}
                 styles={{
-                    content: {
-                        height: '100%',
-                        maxHeight: '640px',
-                        maxWidth: 'var(--theme-content-max-width)',
-                        width: '100%',
-                    },
+                    content: isMobile
+                        ? {
+                              height: '100dvh',
+                              maxHeight: '100dvh',
+                              maxWidth: '100vw',
+                              width: '100vw',
+                          }
+                        : {
+                              height: '100%',
+                              maxHeight: '640px',
+                              maxWidth: '90vw',
+                              width: '100%',
+                          },
                 }}
                 title={
                     <Group justify="space-between" style={{ paddingRight: '3rem', width: '100%' }}>

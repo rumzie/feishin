@@ -13,6 +13,7 @@ import { JellyfinSongFilters } from '/@/renderer/features/songs/components/jelly
 import { NavidromeSongFilters } from '/@/renderer/features/songs/components/navidrome-song-filters';
 import { SubsonicSongFilters } from '/@/renderer/features/songs/components/subsonic-song-filters';
 import { useSongListFilters } from '/@/renderer/features/songs/hooks/use-song-list-filters';
+import { useIsMobile } from '/@/renderer/hooks/use-is-mobile';
 import { useCurrentServer } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Button } from '/@/shared/components/button/button';
@@ -42,6 +43,7 @@ export const ListFiltersModal = ({ isActive, itemType }: ListFiltersProps) => {
     const { t } = useTranslation();
     const server = useCurrentServer();
     const { isSidebarOpen, pageKey, setIsSidebarOpen } = useListContext();
+    const isMobile = useIsMobile();
 
     const serverType = server.type;
 
@@ -71,16 +73,24 @@ export const ListFiltersModal = ({ isActive, itemType }: ListFiltersProps) => {
         <>
             <FilterButton isActive={isActive} onClick={handlers.toggle} />
             <Modal
+                fullScreen={isMobile}
                 handlers={handlers}
                 opened={isOpen}
-                size="lg"
+                size={isMobile ? '100%' : 'lg'}
                 styles={{
-                    content: {
-                        height: '100%',
-                        maxHeight: '640px',
-                        maxWidth: 'var(--theme-content-max-width)',
-                        width: '100%',
-                    },
+                    content: isMobile
+                        ? {
+                              height: '100dvh',
+                              maxHeight: '100dvh',
+                              maxWidth: '100vw',
+                              width: '100vw',
+                          }
+                        : {
+                              height: '100%',
+                              maxHeight: '640px',
+                              maxWidth: '90vw',
+                              width: '100%',
+                          },
                 }}
                 title={
                     <Group justify="space-between" style={{ paddingRight: '3rem', width: '100%' }}>
