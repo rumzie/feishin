@@ -11,7 +11,7 @@
 .item {
     position: relative;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: var(--theme-spacing-md);
     align-items: center;
     justify-content: space-between;
@@ -19,6 +19,11 @@
     padding: var(--theme-spacing-xs);
     border-radius: var(--theme-radius-sm);
     transition: outline 0.2s ease;
+}
+
+.controls {
+    max-width: 100%;
+    margin-left: auto;
 }
 
 .item.matched {
