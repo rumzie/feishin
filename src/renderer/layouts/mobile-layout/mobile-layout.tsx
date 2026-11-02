@@ -109,7 +109,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                     onClose={closeSidebar}
                     opened={sidebarOpened}
                     position="left"
-                    size="320px"
+                    size="75vw"
                     styles={{
                         body: {
                             height: '100%',
@@ -120,7 +120,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                             height: '100%',
                             maxWidth: '100%',
                             minWidth: 0,
-                            width: 'min-content',
+                            width: '75vw',
                         },
                     }}
                     withCloseButton={false}
