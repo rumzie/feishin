@@ -145,7 +145,7 @@ export const SearchInput = ({
         <Box style={containerStyle}>
             <TextInput
                 leftSection={<Icon icon="search" />}
-                maw={fillContainer ? '100%' : '20dvw'}
+                maw="100%"
                 {...inputProps}
                 onBlur={handleBlur}
                 onChange={onChange}
