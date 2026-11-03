@@ -18,6 +18,7 @@ interface UsePlayButtonClickReturn {
         onMouseUp: (e: React.MouseEvent) => void;
         onTouchCancel: (e: React.TouchEvent) => void;
         onTouchEnd: (e: React.TouchEvent) => void;
+        onTouchMove: (e: React.TouchEvent) => void;
         onTouchStart: (e: React.TouchEvent) => void;
     };
     props: {
@@ -91,6 +92,7 @@ export const usePlayButtonClick = ({
             onMouseUp: longPressHandlers.onMouseUp,
             onTouchCancel: longPressHandlers.onTouchCancel,
             onTouchEnd: longPressHandlers.onTouchEnd,
+            onTouchMove: longPressHandlers.onTouchMove,
             onTouchStart: longPressHandlers.onTouchStart,
         }),
         [
@@ -100,6 +102,7 @@ export const usePlayButtonClick = ({
             longPressHandlers.onMouseUp,
             longPressHandlers.onTouchCancel,
             longPressHandlers.onTouchEnd,
+            longPressHandlers.onTouchMove,
             longPressHandlers.onTouchStart,
         ],
     );

@@ -11,7 +11,7 @@ import { ItemListKey } from '/@/shared/types/types';
 
 const FavoritesRoute = () => {
     const [searchParams] = useSearchParams();
-    const itemType = (searchParams.get('type') as LibraryItem) || LibraryItem.SONG;
+    const itemType = (searchParams.get('type') as LibraryItem) || LibraryItem.ALBUM_ARTIST;
 
     const [itemCount, setItemCount] = useState<number | undefined>(undefined);
 

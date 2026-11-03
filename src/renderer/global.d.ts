@@ -94,6 +94,7 @@ declare global {
         FS_PLAYBACK_TRANSCODE_FORMAT?: string;
         FS_PLAYBACK_WEB_AUDIO?: string;
         LEGACY_AUTHENTICATION?: boolean | string;
+        NETEASE_API_URL?: string;
         REMOTE_URL?: string;
         SERVER_LOCK?: boolean | string;
         SERVER_NAME?: string;

@@ -9,6 +9,7 @@ import { SidebarItem } from '/@/renderer/features/sidebar/components/sidebar-ite
 import {
     SidebarPlaylistAddDragContext,
     SidebarPlaylistList,
+    SidebarPlaylistNavigateContext,
     SidebarSharedPlaylistList,
     useSidebarPlaylistAddDragMonitor,
 } from '/@/renderer/features/sidebar/components/sidebar-playlist-list';
@@ -22,18 +23,24 @@ import { Group } from '/@/shared/components/group/group';
 import { ScrollArea } from '/@/shared/components/scroll-area/scroll-area';
 import { Text } from '/@/shared/components/text/text';
 
-const MobileSidebarPlaylistSection = () => {
+const MobileSidebarPlaylistSection = ({ onNavigate }: { onNavigate: () => void }) => {
     const isAddDragActive = useSidebarPlaylistAddDragMonitor();
 
     return (
-        <SidebarPlaylistAddDragContext.Provider value={isAddDragActive}>
-            <SidebarPlaylistList />
-            <SidebarSharedPlaylistList />
-        </SidebarPlaylistAddDragContext.Provider>
+        <SidebarPlaylistNavigateContext.Provider value={onNavigate}>
+            <SidebarPlaylistAddDragContext.Provider value={isAddDragActive}>
+                <SidebarPlaylistList />
+                <SidebarSharedPlaylistList />
+            </SidebarPlaylistAddDragContext.Provider>
+        </SidebarPlaylistNavigateContext.Provider>
     );
 };
 
-export const MobileSidebar = () => {
+interface MobileSidebarProps {
+    onNavigate: () => void;
+}
+
+export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
     const { t } = useTranslation();
     const sidebarPlaylistList = useSidebarPlaylistList();
 
@@ -74,7 +81,7 @@ export const MobileSidebar = () => {
     return (
         <div className={styles.container} id="mobile-sidebar">
             <Group grow id="global-search-container" style={{ flexShrink: 0 }}>
-                <ActionBar />
+                <ActionBar stacked />
             </Group>
             <ScrollArea allowDragScroll className={styles.scrollArea}>
                 <Accordion
@@ -82,6 +89,7 @@ export const MobileSidebar = () => {
                         content: styles.accordionContent,
                         control: styles.accordionControl,
                         item: styles.accordionItem,
+                        label: styles.accordionLabel,
                         root: styles.accordionRoot,
                     }}
                     defaultValue={['library', 'playlists']}
@@ -95,8 +103,16 @@ export const MobileSidebar = () => {
                         </Accordion.Control>
                         <Accordion.Panel>
                             {sidebarItemsWithRoute.map((item) => {
+                                const keepMenuOpen = item.id === 'Search' || item.id === 'Settings';
+
                                 return (
-                                    <SidebarItem key={`sidebar-${item.route}`} to={item.route}>
+                                    <SidebarItem
+                                        key={`sidebar-${item.route}`}
+                                        onClick={() => {
+                                            if (!keepMenuOpen) onNavigate();
+                                        }}
+                                        to={item.route}
+                                    >
                                         <Group gap="sm">
                                             <SidebarIcon route={item.route} />
                                             {item.label}
@@ -106,7 +122,9 @@ export const MobileSidebar = () => {
                             })}
                         </Accordion.Panel>
                     </Accordion.Item>
-                    {sidebarPlaylistList && <MobileSidebarPlaylistSection />}
+                    {sidebarPlaylistList && (
+                        <MobileSidebarPlaylistSection onNavigate={onNavigate} />
+                    )}
                 </Accordion>
             </ScrollArea>
         </div>

@@ -146,16 +146,18 @@ export const playerStoreStorage: PersistStorage<unknown> = {
 };
 
 /**
- * A custom deep merger that will replace all 'columns' items with the persistent
- * state, instead of the default merge behavior. This is important to preserve the user's
- * order, and not lead to an inconsistent state (e.g. multiple 'Favorite' keys)
+ * A custom deep merger that deep-merges objects from the persistent state over the
+ * defaults, while replacing arrays wholesale with the persistent value. The default
+ * lodash merge combines arrays index-wise, which leaves stale default entries behind
+ * when the persisted array is shorter (e.g. a removed lyric source reappearing, or
+ * multiple 'Favorite' columns).
  * @param persistedState the persistent state
  * @param currentState the current state
  * @returns the a custom deep merge
  */
 export const mergeOverridingColumns = <T>(persistedState: unknown, currentState: T) => {
-    return mergeWith(currentState, persistedState, (_original, persistent, key) => {
-        if (key === 'columns') {
+    return mergeWith(currentState, persistedState, (_original, persistent) => {
+        if (Array.isArray(persistent)) {
             return persistent;
         }
 

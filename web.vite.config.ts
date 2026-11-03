@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { kuromojiDictionaryPlugin } from './vite.kuromoji-plugin';
 import { createReactPlugin } from './vite.react-plugin';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     base: './',
     build: {
         emptyOutDir: true,
@@ -16,6 +16,7 @@ export default defineConfig({
                 '32x32': normalizePath(path.resolve(__dirname, './assets/icons/32x32.png')),
                 '64x64': normalizePath(path.resolve(__dirname, './assets/icons/64x64.png')),
                 '128x128': normalizePath(path.resolve(__dirname, './assets/icons/128x128.png')),
+                '192x192': normalizePath(path.resolve(__dirname, './assets/icons/192x192.png')),
                 '256x256': normalizePath(path.resolve(__dirname, './assets/icons/256x256.png')),
                 '512x512': normalizePath(path.resolve(__dirname, './assets/icons/512x512.png')),
                 '1024x1024': normalizePath(path.resolve(__dirname, './assets/icons/1024x1024.png')),
@@ -31,6 +32,7 @@ export default defineConfig({
                         '32x32.png',
                         '64x64.png',
                         '128x128.png',
+                        '192x192.png',
                         '256x256.png',
                         '512x512.png',
                         '1024x1024.png',
@@ -47,7 +49,7 @@ export default defineConfig({
                 sourcemapExcludeSources: false,
             },
         },
-        sourcemap: true,
+        sourcemap: command === 'serve',
     },
     css: {
         modules: {
@@ -98,6 +100,11 @@ export default defineConfig({
                         type: 'image/png',
                     },
                     {
+                        sizes: '192x192',
+                        src: '192x192.png',
+                        type: 'image/png',
+                    },
+                    {
                         sizes: '256x256',
                         src: '256x256.png',
                         type: 'image/png',
@@ -114,18 +121,18 @@ export default defineConfig({
                         type: 'image/png',
                     },
                 ],
-                name: 'Feishin',
+                name: 'rumTunes',
                 orientation: 'portrait',
                 screenshots: [
                     {
                         form_factor: 'wide',
-                        label: 'Full screen player showing music player and lyrics',
+                        label: 'rumTunes HD Music',
                         sizes: '720x450',
                         src: 'preview_full_screen_player.webp',
                         type: 'image/webp',
                     },
                 ],
-                short_name: 'Feishin',
+                short_name: 'rumTunes',
                 start_url: '/',
                 theme_color: '#1E003D',
             },
@@ -156,4 +163,4 @@ export default defineConfig({
         },
     },
     root: path.resolve(__dirname, './src/renderer'),
-});
+}));

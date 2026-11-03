@@ -254,7 +254,7 @@ const normalizeSong = (
             ? songOriginalYear
             : fromSongOriginal.year > 0
               ? fromSongOriginal.year
-              : null;
+              : releaseYear;
 
     return {
         album: item.album,

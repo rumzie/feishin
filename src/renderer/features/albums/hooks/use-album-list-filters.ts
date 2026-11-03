@@ -20,9 +20,9 @@ import { ItemListKey } from '/@/shared/types/types';
 export const useAlbumListFilters = (listKey?: ItemListKey) => {
     const resolvedListKey = listKey ?? ItemListKey.ALBUM;
 
-    const { sortBy } = useSortByFilter<AlbumListSort>(AlbumListSort.NAME, resolvedListKey);
+    const { sortBy } = useSortByFilter<AlbumListSort>(AlbumListSort.RELEASE_DATE, resolvedListKey);
 
-    const { sortOrder } = useSortOrderFilter(SortOrder.ASC, resolvedListKey);
+    const { sortOrder } = useSortOrderFilter(SortOrder.DESC, resolvedListKey);
 
     const { searchTerm, setSearchTerm } = useSearchTermFilter('');
 

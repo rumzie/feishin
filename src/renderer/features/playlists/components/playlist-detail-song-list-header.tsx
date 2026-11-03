@@ -26,14 +26,11 @@ import {
     useSidebarPlaylistFolderSeparator,
 } from '/@/renderer/store';
 import { formatDurationString } from '/@/renderer/utils';
-import { replaceURLWithHTMLLinks } from '/@/renderer/utils/linkify';
 import { hasFeature } from '/@/shared/api/utils';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { FileButton } from '/@/shared/components/file-button/file-button';
 import { Group } from '/@/shared/components/group/group';
-import { Spoiler } from '/@/shared/components/spoiler/spoiler';
 import { Stack } from '/@/shared/components/stack/stack';
-import { Text } from '/@/shared/components/text/text';
 import { useLocalStorage } from '/@/shared/hooks/use-local-storage';
 import { LibraryItem, Playlist, Song } from '/@/shared/types/domain-types';
 import { ServerFeature } from '/@/shared/types/features-types';
@@ -115,7 +112,6 @@ export const PlaylistDetailSongListHeader = ({
     });
 
     const playlistDuration = detailQuery?.data?.duration;
-    const playlistDescription = detailQuery?.data?.description?.trim();
     const foldersEnabled = useSidebarPlaylistFolders();
     const folderSeparator = useSidebarPlaylistFolderSeparator();
     const playlistDisplayName = useMemo(() => {
@@ -215,32 +211,10 @@ export const PlaylistDetailSongListHeader = ({
                     title={playlistDisplayName}
                     topRight={<ListSearchInput />}
                 >
-                    <Stack gap="md" w="100%">
-                        {playlistDescription ? (
-                            <Spoiler
-                                hideLabel={<></>}
-                                maxHeight={16}
-                                showLabel={<></>}
-                                style={{ marginBottom: 0 }}
-                            >
-                                <Text
-                                    isMuted
-                                    size="sm"
-                                    style={{
-                                        maxWidth: '100%',
-                                        whiteSpace: 'pre-wrap',
-                                        wordBreak: 'break-word',
-                                    }}
-                                >
-                                    {replaceURLWithHTMLLinks(playlistDescription)}
-                                </Text>
-                            </Spoiler>
-                        ) : null}
-                        <LibraryHeaderMenu
-                            onPlay={(type) => handlePlay(type)}
-                            onShuffle={() => handlePlay(Play.SHUFFLE)}
-                        />
-                    </Stack>
+                    <LibraryHeaderMenu
+                        onPlay={(type) => handlePlay(type)}
+                        onShuffle={() => handlePlay(Play.SHUFFLE)}
+                    />
                 </LibraryHeader>
             )}
             <FilterBar>

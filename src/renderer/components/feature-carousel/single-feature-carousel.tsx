@@ -135,7 +135,7 @@ const CarouselItem = ({ album }: CarouselItemProps) => {
                     <div className={styles.metadataSection}>
                         <Stack gap="sm">
                             <TextTitle
-                                className={styles.title}
+                                className={`${styles.title} ${styles.albumTitle}`}
                                 fw={900}
                                 lh={1.1}
                                 order={1}

@@ -24,6 +24,7 @@
 .label {
     display: block;
     align-content: center;
+    min-width: max-content;
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 500;

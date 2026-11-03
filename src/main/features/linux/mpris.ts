@@ -8,10 +8,10 @@ import { PlayerRepeat, PlayerStatus } from '/@/shared/types/types';
 
 const mprisPlayer = Player({
     desktopEntry: 'org.jeffvli.feishin',
-    identity: 'Feishin',
+    identity: 'rumTunes',
     maximumRate: 1.0,
     minimumRate: 1.0,
-    name: 'Feishin',
+    name: 'rumTunes',
     rate: 1.0,
     supportedInterfaces: ['player'],
     supportedMimeTypes: ['audio/mpeg', 'application/ogg'],

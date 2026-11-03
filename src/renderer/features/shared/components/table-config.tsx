@@ -781,7 +781,7 @@ const TableColumnItem = memo(
                         size="sm"
                     />
                 </Group>
-                <Group wrap="nowrap">
+                <Group className={styles.controls} justify="flex-end">
                     <ActionIconGroup className={styles.group}>
                         <ActionIcon
                             icon="arrowUp"

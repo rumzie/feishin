@@ -162,12 +162,13 @@ export const WindowBar = () => {
         const privateModeString = privateMode ? t('page.windowBar.privateMode') : '';
 
         if (!windowBarTrackinfo) {
-            return `Feishin${privateMode ? ` ${privateModeString}` : ''}`;
+            return `rumTunes${privateMode ? ` ${privateModeString}` : ''}`;
         }
 
         // Show radio information if radio is active
         if (isRadioActive) {
-            const radioStatusString = !isRadioPlaying ? t('page.windowBar.paused') : '';
+            // const radioStatusString = !isRadioPlaying ? t('page.windowBar.paused') : '';
+            const radioStatusString = '';
             const radioTitle = stationName;
 
             // Format metadata: show title, or combine artist and title if both available
@@ -182,16 +183,17 @@ export const WindowBar = () => {
                 }
             }
 
-            return `${radioStatusString}${radioTitle}${radioMetadata} — Feishin${privateMode ? ` ${privateModeString}` : ''}`;
+            return `rumtunes - ${radioStatusString}${radioTitle}${radioMetadata} — rumTunes${privateMode ? ` ${privateModeString}` : ''}`;
         }
 
         // Show regular song information
-        const statusString = playerStatus === PlayerStatus.PAUSED ? t('page.windowBar.paused') : '';
+        //const statusString = playerStatus === PlayerStatus.PAUSED ? t('page.windowBar.paused') : '';
+        const statusString = '';
         const queueString = queueLength ? `(${index + 1} / ${queueLength}) ` : '';
         const title = `${
             queueLength
-                ? `${statusString}${queueString}${currentSong?.name}${currentSong?.artistName ? ` — ${currentSong?.artistName} — Feishin` : ''}`
-                : 'Feishin'
+                ? `rumtunes - ${statusString}${currentSong?.name}${currentSong?.artistName ? ` — ${currentSong?.artistName}` : ''}`
+                : 'rumTunes'
         }${privateMode ? ` ${privateModeString}` : ''}`;
         return title;
     }, [

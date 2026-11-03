@@ -80,6 +80,9 @@ const getPlaylistOrderKey = (serverId: string | undefined, scope: 'owned' | 'sha
 
 export const SidebarPlaylistAddDragContext = createContext(false);
 
+// Mobile sidebar: invoked after a playlist is clicked so the sidebar can close.
+export const SidebarPlaylistNavigateContext = createContext<(() => void) | undefined>(undefined);
+
 const isAddToPlaylistDragSource = (source: DragData) => {
     return (
         source.itemType !== undefined &&
@@ -134,6 +137,7 @@ export const PlaylistRowButton = memo(
         const [isHovered, setIsHovered] = useState(false);
         const isSmartPlaylist = Boolean(item.rules);
         const isAddDragActive = useContext(SidebarPlaylistAddDragContext);
+        const onNavigate = useContext(SidebarPlaylistNavigateContext);
 
         const { isDraggedOver, isDragging, ref } = useDragDrop<HTMLAnchorElement>({
             drag: {
@@ -295,6 +299,7 @@ export const PlaylistRowButton = memo(
                     [styles.rowIconOnly]: iconOnly,
                 })}
                 initial={false}
+                onClick={onNavigate}
                 onContextMenu={(e: MouseEvent<HTMLAnchorElement>) => {
                     e.preventDefault();
                     onContextMenu(e, item);

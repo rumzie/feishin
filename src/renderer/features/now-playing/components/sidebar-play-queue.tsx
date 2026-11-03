@@ -34,6 +34,11 @@ import { ItemListKey, Platform } from '/@/shared/types/types';
 
 type SidebarPanelType = 'lyrics' | 'queue' | 'visualizer';
 
+const DEFAULT_PANEL_SIZES: Record<Exclude<SidebarPanelType, 'queue'>, number> = {
+    lyrics: 320,
+    visualizer: 300,
+};
+
 const AudioMotionAnalyzerVisualizer = lazy(() =>
     import('../../visualizer/components/audiomotionanalyzer/visualizer').then((module) => ({
         default: module.Visualizer,
@@ -174,26 +179,6 @@ export const SidebarPlayQueue = () => {
                 return undefined;
             }
 
-            const hasQueue = orderedPanels.includes('queue');
-
-            // Without a queue to absorb remaining space, fill the sidebar height
-            if (!hasQueue) {
-                if (orderedPanels.length === 1 || index === orderedPanels.length - 1) {
-                    return undefined;
-                }
-
-                if (
-                    defaultLayout &&
-                    Array.isArray(defaultLayout) &&
-                    defaultLayout[index] !== undefined
-                ) {
-                    return defaultLayout[index];
-                }
-
-                return 100;
-            }
-
-            // If defaultLayout exists and has saved sizes, use them
             if (
                 defaultLayout &&
                 Array.isArray(defaultLayout) &&
@@ -202,29 +187,12 @@ export const SidebarPlayQueue = () => {
                 return defaultLayout[index];
             }
 
-            // Calculate default sizes for non-queue panels based on order
-            const nonQueuePanels = orderedPanels.filter((p) => p !== 'queue');
-            const nonQueueCount = nonQueuePanels.length;
-
-            if (nonQueueCount === 0) {
+            // Without a queue to absorb remaining space, the last panel fills the sidebar
+            if (!orderedPanels.includes('queue') && index === orderedPanels.length - 1) {
                 return undefined;
             }
 
-            // If only one non-queue panel, give it a default size
-            if (nonQueueCount === 1) {
-                return 100;
-            }
-
-            // If multiple non-queue panels, distribute sizes evenly
-            // First non-queue panel gets a size, others get undefined to share remaining
-            const nonQueueIndex = orderedPanels.slice(0, index).filter((p) => p !== 'queue').length;
-            if (nonQueueIndex === 0) {
-                // First non-queue panel gets a default size
-                return 100;
-            }
-
-            // Other non-queue panels autofit
-            return undefined;
+            return DEFAULT_PANEL_SIZES[panelType];
         },
         [defaultLayout, orderedPanels],
     );

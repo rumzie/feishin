@@ -7,7 +7,7 @@ import { isServerLock } from '/@/renderer/features/action-required/utils/window-
 import { Command, CommandPalettePages } from '/@/renderer/features/search/components/command';
 import { ServerList } from '/@/renderer/features/servers/components/server-list';
 import { AppRoute } from '/@/renderer/router/routes';
-import { useAuthStoreActions, useServerList } from '/@/renderer/store';
+import { useAuthStoreActions, useIsAdmin, useServerList } from '/@/renderer/store';
 import { ServerListItemWithCredential } from '/@/shared/types/domain-types';
 
 interface ServerCommandsProps {
@@ -19,6 +19,7 @@ interface ServerCommandsProps {
 export const ServerCommands = ({ handleClose, setPages, setQuery }: ServerCommandsProps) => {
     const { t } = useTranslation();
     const serverList = useServerList();
+    const { isAdmin } = useIsAdmin();
     const navigate = useNavigate();
     const { setCurrentServer } = useAuthStoreActions();
 
@@ -53,7 +54,7 @@ export const ServerCommands = ({ handleClose, setPages, setQuery }: ServerComman
                     >{`${serverList[key].name}...`}</Command.Item>
                 ))}
             </Command.Group>
-            {!isServerLock() && (
+            {!isServerLock() && isAdmin && (
                 <Command.Group heading={t('common.manage')}>
                     <Command.Item onSelect={handleManageServersModal}>
                         {t('page.appMenu.manageServers')}...
