@@ -32,6 +32,20 @@ const navidromeImageIdWithCacheBust = (
     updatedAt: string | undefined,
 ): string => (!uploadedImage ? id : `${id}&_=${updatedAt ?? ''}`);
 
+const normalizeNavidromeImageId = (args: {
+    absent: boolean | undefined;
+    fallback: string;
+    hash: string | undefined;
+    id: string;
+    prefix: string;
+}): null | string => {
+    if (args.absent) {
+        return null;
+    }
+
+    return args.hash ? `${args.prefix}-${args.id}_${args.hash}` : args.fallback;
+};
+
 interface WithDate {
     playDate?: string;
 }
@@ -302,7 +316,13 @@ const normalizeSong = (
             songCount: null,
         })),
         id,
-        imageId: id,
+        imageId: normalizeNavidromeImageId({
+            absent: item.imageAbsent,
+            fallback: id,
+            hash: item.imageHash,
+            id,
+            prefix: 'mf',
+        }),
         imageUrl: null,
         lastPlayedAt: normalizePlayDate(item),
         libraryId: item.libraryId ?? null,
@@ -425,7 +445,13 @@ const normalizeAlbum = (
             songCount: null,
         })),
         id: item.id,
-        imageId: item.coverArtId || item.id,
+        imageId: normalizeNavidromeImageId({
+            absent: item.imageAbsent,
+            fallback: item.coverArtId || item.id,
+            hash: item.imageHash,
+            id: item.id,
+            prefix: 'al',
+        }),
         imageUrl: null,
         isCompilation: item.compilation,
         lastPlayedAt: normalizePlayDate(item),
@@ -482,11 +508,17 @@ const normalizeAlbumArtist = (
         songCount = item.songCount;
     }
 
-    const imageId = navidromeImageIdWithCacheBust(
-        item.id,
-        item.uploadedImage,
-        item.updatedAt ?? item.externalInfoUpdatedAt,
-    );
+    const imageId = normalizeNavidromeImageId({
+        absent: item.imageAbsent,
+        fallback: navidromeImageIdWithCacheBust(
+            item.id,
+            item.uploadedImage,
+            item.updatedAt ?? item.externalInfoUpdatedAt,
+        ),
+        hash: item.imageHash,
+        id: item.id,
+        prefix: 'ar',
+    });
 
     return {
         _itemType: LibraryItem.ALBUM_ARTIST,
@@ -541,7 +573,13 @@ const normalizePlaylist = (
 ): Playlist => {
     // Always bust, not only for uploaded images: the server regenerates the
     // auto-generated cover when the playlist contents change.
-    const imageId = `${item.id}&_=${item.updatedAt}`;
+    const imageId = normalizeNavidromeImageId({
+        absent: item.imageAbsent,
+        fallback: `${item.id}&_=${item.updatedAt}`,
+        hash: item.imageHash,
+        id: item.id,
+        prefix: 'pl',
+    });
 
     return {
         _itemType: LibraryItem.PLAYLIST,
@@ -602,7 +640,13 @@ const normalizeInternetRadioStation = (
     item: z.infer<typeof ndType._response.radioStation>,
 ): InternetRadioStation => {
     const homepageUrl = item.homePageUrl?.trim() ? item.homePageUrl : null;
-    const imageId = navidromeImageIdWithCacheBust(item.id, item.uploadedImage, item.updatedAt);
+    const imageId = normalizeNavidromeImageId({
+        absent: item.imageAbsent,
+        fallback: navidromeImageIdWithCacheBust(item.id, item.uploadedImage, item.updatedAt),
+        hash: item.imageHash,
+        id: item.id,
+        prefix: 'ra',
+    });
 
     return {
         homepageUrl,
