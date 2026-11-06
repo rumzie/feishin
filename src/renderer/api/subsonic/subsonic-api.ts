@@ -478,34 +478,45 @@ const silentlyTransformResponse = (data: any) => {
 };
 
 let cachedPublicIp: string | undefined;
+let publicIpPromise: Promise<string | undefined> | undefined;
 
-export const fetchPublicIp = async () => {
-    if (!cachedPublicIp) {
-        try {
-            const res = await fetch(
-                import.meta.env.DEV
-                    ? 'https://api.ipify.org?format=json'
-                    : 'https://rumtunes.com/ipify',
-                { signal: AbortSignal.timeout(5000) },
-            );
-
-            if (!res.ok) {
-                throw new Error(`IP lookup failed with status ${res.status}`);
-            }
-
-            const { ip } = (await res.json()) as { ip?: unknown };
-
-            if (typeof ip !== 'string') {
-                throw new Error('IP lookup returned no IP');
-            }
-
-            cachedPublicIp = ip;
-        } catch (error) {
-            logger.warn('Error fetching public IP', { error });
-        }
+export const fetchPublicIp = () => {
+    if (cachedPublicIp) {
+        return Promise.resolve(cachedPublicIp);
     }
 
-    return cachedPublicIp;
+    // Memoize the in-flight attempt, including failures. Otherwise every Subsonic
+    // request re-runs the lookup and blocks for up to 5s when the endpoint is blocked.
+    if (!publicIpPromise) {
+        publicIpPromise = (async () => {
+            try {
+                const res = await fetch(
+                    import.meta.env.DEV
+                        ? 'https://api.ipify.org?format=json'
+                        : 'https://rumtunes.com/ipify',
+                    { signal: AbortSignal.timeout(5000) },
+                );
+
+                if (!res.ok) {
+                    throw new Error(`IP lookup failed with status ${res.status}`);
+                }
+
+                const { ip } = (await res.json()) as { ip?: unknown };
+
+                if (typeof ip !== 'string') {
+                    throw new Error('IP lookup returned no IP');
+                }
+
+                cachedPublicIp = ip;
+            } catch (error) {
+                logger.warn('Error fetching public IP', { error });
+            }
+
+            return cachedPublicIp;
+        })();
+    }
+
+    return publicIpPromise;
 };
 
 export const ssApiClient = (args: {

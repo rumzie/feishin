@@ -4,6 +4,7 @@
 }
 
 .icon {
+    object-fit: contain;
     animation: rotating 1s linear infinite;
 }
 

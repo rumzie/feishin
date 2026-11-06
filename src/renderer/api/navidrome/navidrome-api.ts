@@ -339,15 +339,11 @@ const RETRY_DELAY_MS = 1000;
 const MAX_RETRIES = 5;
 
 const waitForResult = async (count = 0): Promise<void> => {
-    return new Promise((resolve) => {
-        if (count === MAX_RETRIES || !shouldDelay) resolve();
+    if (count >= MAX_RETRIES || !shouldDelay) return;
 
-        setTimeout(() => {
-            waitForResult(count + 1)
-                .then(resolve)
-                .catch(resolve);
-        }, RETRY_DELAY_MS);
-    });
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+
+    return waitForResult(count + 1);
 };
 
 const limitedFail = debounce(authenticationFailure, RETRY_DELAY_MS);
