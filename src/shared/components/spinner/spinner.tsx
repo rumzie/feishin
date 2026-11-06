@@ -28,7 +28,7 @@ const sizeMap: Record<string, string> = {
 
 export const SpinnerIcon = LuLoader;
 
-const _Spinner = ({ className, container, size = 'xl', style }: SpinnerProps) => {
+const _Spinner = ({ className, container, size = '5xl', style }: SpinnerProps) => {
     const dimension = typeof size === 'number' ? `${size}px` : (sizeMap[size] ?? size);
 
     const image = (
