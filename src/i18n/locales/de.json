@@ -185,7 +185,7 @@
         "playbackError": "Beim Abspielen der Medien ist ein Fehler aufgetreten",
         "endpointNotImplementedError": "Endpunkt {{endpoint}} ist für {{serverType}} nicht implementiert",
         "remotePortError": "Beim Versuch, den Remote-Server-Port festzulegen, ist ein Fehler aufgetreten",
-        "serverRequired": "Server erforderlich",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Authentifizierung fehlgeschlagen",
         "apiRouteError": "Anfrage kann nicht weitergeleitet werden",
         "genericError": "Ein Fehler ist aufgetreten",

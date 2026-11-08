@@ -218,7 +218,7 @@
         "remotePortError": "Pri nastavljanju vrat oddaljenega strežnika je prišlo do napake",
         "remotePortWarning": "Ponovno zaženite strežnik da aplicirate spremembo strežniških vrat",
         "serverNotSelectedError": "Izbran ni bil noben strežnik",
-        "serverRequired": "Strežnik zahtevan",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Vaša seja se je iztekla",
         "systemFontError": "Napaka pri pridobivanju sistemskih pisav"
     },

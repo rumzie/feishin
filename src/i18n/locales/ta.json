@@ -206,7 +206,7 @@
         "remotePortError": "தொலை சேவையக துறைமுகத்தை அமைக்க முயற்சிக்கும்போது பிழை ஏற்பட்டது",
         "remotePortWarning": "புதிய துறைமுகத்தைப் பயன்படுத்த சேவையகத்தை மறுதொடக்கம் செய்யுங்கள்",
         "serverNotSelectedError": "சேவையகம் எதுவும் தேர்ந்தெடுக்கப்படவில்லை",
-        "serverRequired": "சேவையகம் தேவை",
+        "serverRequired": "Welcome to rumTunes",
         "remoteEnableError": "தொலைநிலை சேவையகத்தை $t(common.enable) முயற்சிக்கும்போது பிழை ஏற்பட்டது",
         "apiRouteError": "பாதை கோரிக்கை செய்ய முடியவில்லை",
         "audioDeviceFetchError": "ஆடியோ சாதனங்களைப் பெற முயற்சிக்கும்போது பிழை ஏற்பட்டது",

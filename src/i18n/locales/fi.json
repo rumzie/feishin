@@ -207,7 +207,7 @@
         "remotePortError": "Virhe tapahtui etäpalvelimen porttia määrittäessä",
         "serverNotSelectedError": "Palvelinta ei ole valittu",
         "remoteDisableError": "Virhe tapahtui yrittäessä $t(common.disable) etäpalvelinta",
-        "serverRequired": "Palvelin vaadittu",
+        "serverRequired": "Welcome to rumTunes",
         "systemFontError": "Virhe tapahtui yrittäessä hakea järjestelmän fontteja",
         "sessionExpiredError": "Istuntosi on vanhentunut",
         "genericError": "Tapahtui virhe",

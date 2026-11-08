@@ -704,7 +704,7 @@
         "playbackError": "Si è verificato un errore nel riprodurre il media",
         "endpointNotImplementedError": "L'endpoint {{endpoint}} non è implementato per {{serverType}}",
         "remotePortError": "Si è verificato un errore nell'impostare la porta del server remoto",
-        "serverRequired": "Server richiesto",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Autenticazione fallita",
         "apiRouteError": "Impossibile indirizzare la richiesta",
         "genericError": "Si è verificato un errore",

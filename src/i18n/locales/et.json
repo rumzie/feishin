@@ -248,7 +248,7 @@
         "saveQueueFailed": "Järjekorra salvestamine nurjus",
         "serverLockSingleServer": "Lukustatud serveri korral on lubatud ainult üks server",
         "serverNotSelectedError": "Serverit pole valitud",
-        "serverRequired": "Vajalik on server",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Su seanss on aegunud",
         "systemFontError": "Süsteemifontide hankimisel ilmnes viga",
         "settingsSyncError": "Esitaja (renderer) ja peaprotsessi seadete vahel leiti lahknevusi. Muudatuste rakendamiseks taaskäivita rakendus",

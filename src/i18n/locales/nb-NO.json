@@ -237,7 +237,7 @@
         "serverNotSelectedError": "Ingen tjener er valgt",
         "remotePortError": "Et problem oppstod med å sette serverport",
         "systemFontError": "Et problem oppstod med innlasting av systemskrifttyper",
-        "serverRequired": "Tjener er påkrevd",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Sesjonen din har utløpt",
         "remotePortWarning": "Ta omstart av serveren for å aktivere ny port",
         "remoteDisableError": "En problem oppstod ved å $t(common.disable) serveren",

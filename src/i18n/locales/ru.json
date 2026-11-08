@@ -368,7 +368,7 @@
         "playbackError": "Произошла ошибка при попытке воспроизведения медиафайла",
         "endpointNotImplementedError": "Конечная точка {{endpoint}} не реализована для типа сервера {{serverType}}",
         "remotePortError": "Произошла ошибка при попытке установить порт удаленного сервера",
-        "serverRequired": "Необходим сервер",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Ошибка аутентификации",
         "apiRouteError": "Не удалось обработать запрос",
         "genericError": "Произошла ошибка",

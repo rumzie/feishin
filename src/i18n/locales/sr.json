@@ -365,7 +365,7 @@
         "playbackError": "Došlo je do greške prilikom pokušaja reprodukcije medija",
         "endpointNotImplementedError": "Krajnja tačka {{endpoint}} nije implementirana za {{serverType}}",
         "remotePortError": "Došlo je do greške prilikom postavljanja porta udaljenog servera",
-        "serverRequired": "Potreban je server",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Neuspešna autentikacija",
         "apiRouteError": "Nije moguće usmeriti zahtev",
         "genericError": "Došlo je do greške",

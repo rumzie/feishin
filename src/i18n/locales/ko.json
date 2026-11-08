@@ -198,7 +198,7 @@
         "playbackError": "미디어를 재생하는 도중에 에러가 발생하였습니다",
         "remoteEnableError": "원격 서버를 $t(common.enable) 하는데 실패하였습니다",
         "serverNotSelectedError": "선택된 서버가 없습니다",
-        "serverRequired": "서버가 필요합니다",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "세션이 만료되었습니다",
         "networkError": "네트워크 에러가 발생하였습니다",
         "remotePortError": "원격 서버의 포트 설정하는데 실패하였습니다",

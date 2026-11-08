@@ -225,7 +225,7 @@
         "saveQueueFailed": "บันทึกคิวไม่สำเร็จ",
         "serverLockSingleServer": "อนุญาตให้ใช้ 1 เซิร์ฟเวอร์เท่านั้นเมื่อเซิร์ฟเวอร์ถูกล็อก",
         "serverNotSelectedError": "ยังไม่ได้เลือกเซิร์ฟเวอร์",
-        "serverRequired": "จำเป็นต้องระบุเซิร์ฟเวอร์",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "เซสชันของคุณหมดอายุแล้ว",
         "systemFontError": "เกิดข้อผิดพลาดขณะดึงข้อมูลฟอนต์ของระบบ",
         "settingsSyncError": "พบความไม่สอดคล้องกันระหว่างการตั้งค่าในโปรแกรมเรนเดอร์และกระบวนการหลัก รีสตาร์ทแอปพลิเคชันเพื่อใช้การเปลี่ยนแปลง"

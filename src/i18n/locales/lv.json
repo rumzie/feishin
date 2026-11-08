@@ -196,7 +196,7 @@
         "saveQueueFailed": "Neizdevās saglabāt rindu",
         "serverLockSingleServer": "Ir atļauts izmantot tikai vienu serveri, ja serveris ir bloķēts",
         "serverNotSelectedError": "Nav izvēlēts serveris",
-        "serverRequired": "Nepieciešams serveris",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Jūsu sesija ir beigusies",
         "systemFontError": "Radās kļūda, mēģinot iegūt sistēmas fontus",
         "settingsSyncError": "Atšķirības tika konstatētas starp renderētāja un galvenā procesa iestatījumiem. Lai piemērotu izmaiņas, restartējiet lietojumprogrammu"

@@ -311,7 +311,7 @@
         "remotePortError": "Pri nastavovaní portu vzdialeného servera sa vyskytla chyba",
         "remotePortWarning": "Pre použitie nového portu reštartujte server",
         "serverNotSelectedError": "Nebol vybraný žiadny server",
-        "serverRequired": "Vyžaduje sa server",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Vaša relácia vypršala",
         "systemFontError": "Pri pokuse o získanie systémových fontov sa vyskytla chyba"
     },

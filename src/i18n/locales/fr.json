@@ -246,7 +246,7 @@
         "playbackError": "Une erreur s'est produite lors de la tentative de lecture du média",
         "endpointNotImplementedError": "L'endpoint {{endpoint}} n'est pas implémenté pour {{serverType}}",
         "remotePortError": "Une erreur s'est produite lors de la tentative de définir le port du serveur distant",
-        "serverRequired": "Serveur requis",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "L'authentification a échoué",
         "apiRouteError": "Incapable d’acheminer la demande",
         "genericError": "Une erreur s'est produite",

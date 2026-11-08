@@ -218,7 +218,7 @@
         "remotePortError": "Uzak sunucu bağlantı noktası ayarlanmaya çalışılırken bir hata oluştu",
         "remotePortWarning": "Yeni bağlantı noktasını uygulamak için sunucuyu yeniden başlatın",
         "serverNotSelectedError": "Sunucu seçili değil",
-        "serverRequired": "Sunucu gerekli",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Oturumunuzun süresi doldu",
         "systemFontError": "Sistem fontlarını almaya çalışırken bir hata oluştu",
         "endpointNotImplementedError": "{{endpoint}} uç noktası bu {{serverType}} için uygulanamaz",

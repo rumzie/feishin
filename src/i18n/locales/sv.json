@@ -184,7 +184,7 @@
         "playbackError": "Ett fel uppstod när mediet skulle spelas upp",
         "endpointNotImplementedError": "Slutpunkten {{endpoint}} har inte implementerats för {{serverType}}",
         "remotePortError": "Ett fel uppstod när fjärrserverns port skulle anges",
-        "serverRequired": "En server krävs",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Autentiseringen misslyckades",
         "apiRouteError": "Begäran kunde inte dirigeras",
         "genericError": "Ett fel uppstod",

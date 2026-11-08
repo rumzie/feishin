@@ -738,7 +738,7 @@
         "playbackError": "Un error ocurrió cuando se intentó reproducir el medio",
         "endpointNotImplementedError": "El punto final {{endpoint}} no está implementado para {{serverType}}",
         "remotePortError": "Un error ocurrió cuando se intentó establecer el puerto del servidor remoto",
-        "serverRequired": "Servidor requerido",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Autenticación fallida",
         "apiRouteError": "No se puede encaminar la solicitud",
         "genericError": "Sucedió un error",

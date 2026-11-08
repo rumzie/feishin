@@ -670,7 +670,7 @@
         "playbackError": "尝试播放媒体时出错",
         "endpointNotImplementedError": "{{serverType}} 尚未实现端点 {{endpoint}}",
         "remotePortError": "尝试设置远程服务器端口时出错",
-        "serverRequired": "需要服务器",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "身份验证失败",
         "apiRouteError": "无法路由请求",
         "genericError": "发生了错误",

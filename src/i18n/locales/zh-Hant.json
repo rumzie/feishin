@@ -142,7 +142,7 @@
         "remoteEnableError": "嘗試 $t(common.enable) 遠端伺服器時發生了錯誤",
         "remotePortError": "嘗試設定遠端伺服器連接埠時發生了錯誤",
         "remotePortWarning": "重啟伺服器以套用新連接埠",
-        "serverRequired": "需要伺服器",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "您的工作階段已過期",
         "systemFontError": "嘗試取得系統字型時發生了錯誤",
         "serverNotSelectedError": "未選擇伺服器",

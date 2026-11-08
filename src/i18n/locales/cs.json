@@ -856,7 +856,7 @@
         "playbackError": "Při pokusu o přehrání médií se vyskytla chyba",
         "endpointNotImplementedError": "Endpoint {{endpoint}} není u serveru {{serverType}} implementován",
         "remotePortError": "Při pokusu o nastavení portu vzdáleného serveru se vyskytla chyba",
-        "serverRequired": "Vyžadován server",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Ověření selhalo",
         "apiRouteError": "Nepodařilo se přesměrovat žádost",
         "genericError": "Vyskytla se chyba",

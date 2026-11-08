@@ -501,7 +501,7 @@
         "playbackError": "Er is iets fout gegaan bij het afspelen van de media",
         "endpointNotImplementedError": "Endpoint {{endpoint}} is niet geïmplementeerd voor {{serverType}}",
         "remotePortError": "Er is iets fout gegaan tijdens het selecteren van de remote server",
-        "serverRequired": "Server vereist",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Authenticatie mislukt",
         "apiRouteError": "Verzoek kan niet doorgestuurd worden",
         "genericError": "Er is iets fout gegaan",

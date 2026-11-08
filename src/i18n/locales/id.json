@@ -216,7 +216,7 @@
         "remotePortError": "Terjadi kesalahan saat mencoba mengatur port server jarak jauh",
         "remotePortWarning": "Restart server untuk menerapkan port baru",
         "serverNotSelectedError": "Tidak ada server yang dipilih",
-        "serverRequired": "Server diperlukan",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Sesi Anda telah kedaluwarsa",
         "systemFontError": "Terjadi kesalahan saat mencoba mendapatkan font sistem",
         "badValue": "Opsi tidak valid \"{{value}}\". nilai ini sudah tidak ada",

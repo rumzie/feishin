@@ -1381,7 +1381,7 @@
         "systemFontError": "S'ha produït un error en intentar obtenir els tipus de lletra del sistema",
         "remoteEnableError": "S'ha produït un error en intentar $t(common.enable) el servidor remot",
         "remotePortWarning": "Reiniciar el servidor per aplicar el nou port",
-        "serverRequired": "Servidor requerit",
+        "serverRequired": "Welcome to rumTunes",
         "apiRouteError": "No es pot encaminar la sol·licitud",
         "audioDeviceFetchError": "Hi ha hagut un error en obtenir els dispositius d'àudio",
         "authenticationFailed": "Autenticació fallida",

@@ -227,7 +227,7 @@
         "remoteDisableError": "Hiba történt a távoli szerver műveletkor: $t(common.disable)",
         "sessionExpiredError": "A munkameneted lejárt",
         "systemFontError": "Hiba történt a rendszer betűtípusainak lekérésekor",
-        "serverRequired": "Szerver szükséges",
+        "serverRequired": "Welcome to rumTunes",
         "serverNotSelectedError": "Nincs szerver kiválasztva",
         "notificationDenied": "Az értesítések engedélyezése megtagadva. Ez a beállítás hatástalan",
         "badValue": "Érvénytelen opció \"{{value}}\". ez az érték már nem létezik",

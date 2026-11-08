@@ -248,7 +248,7 @@
         "playbackError": "Wystąpił błąd podczas próby odtwarzania mediów",
         "endpointNotImplementedError": "Punkt końcowy {{endpoint}} nie został zaimplementowany dla {{serverType}}",
         "remotePortError": "Wystąpił problem podczas ustawiania portu dla zdalnego serwera",
-        "serverRequired": "Wymagany serwer",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "Uwierzytelnianie nie powiodło się",
         "apiRouteError": "Nie można wykonać żądania",
         "genericError": "Wystąpił błąd",

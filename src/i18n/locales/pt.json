@@ -229,7 +229,7 @@
         "remotePortError": "Ocorreu um erro ao tentar definir a porta do servidor remoto",
         "remotePortWarning": "Reinicie o servidor para aplicar a nova porta",
         "serverNotSelectedError": "Nenhum servidor selecionado",
-        "serverRequired": "Servidor necessário",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "A sua sessão expirou",
         "systemFontError": "Ocorreu um erro ao tentar obter fontes do sistema",
         "invalidJson": "JSON inválido",

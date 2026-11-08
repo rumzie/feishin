@@ -267,7 +267,7 @@
         "remotePortWarning": "برای تعیین port تازه، سرویس دهنده را دوباره راه‌اندازی کنید",
         "playbackError": "هنگام پخش خطایی رخ داد",
         "remotePortError": "هنگام تعیین port سرویس دهنده خطایی رخ داد",
-        "serverRequired": "سرویس‌دهنده ضروری است",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "احراز هویت شکست خورد",
         "apiRouteError": "درخواست منتقل نشد",
         "genericError": "خطایی رخ داد",

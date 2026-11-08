@@ -841,7 +841,7 @@
         "systemFontError": "システム フォントを取得する際にエラーが発生しました",
         "playbackError": "メディアの再生開始時にエラーが発生しました",
         "remotePortError": "リモート サーバーのポート設定時にエラーが発生しました",
-        "serverRequired": "サーバーが必要です",
+        "serverRequired": "Welcome to rumTunes",
         "authenticationFailed": "認証に失敗しました",
         "apiRouteError": "リクエストをルーティングできません",
         "genericError": "エラーが発生しました",

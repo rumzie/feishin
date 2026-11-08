@@ -227,7 +227,7 @@
         "remotePortWarning": "Genstart serveren for at anvende den nye port",
         "saveQueueFailed": "Kunne ikke gemme kø",
         "serverNotSelectedError": "Ingen server valgt",
-        "serverRequired": "Server påkrævet",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Din session er udløbet",
         "systemFontError": "Der opstod en fejl under hentning af systemskrifttyper",
         "settingsSyncError": "Der blev fundet uoverensstemmelser mellem indstillingerne i rendereren og hovedprocessen. genstart programmet for at anvende ændringerne"

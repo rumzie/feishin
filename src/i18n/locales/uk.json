@@ -268,7 +268,7 @@
         "remotePortWarning": "Перезапустіть сервер, щоб застосувати новий порт",
         "saveQueueFailed": "Не вдалося зберегти чергу",
         "serverNotSelectedError": "Сервер не вибрано",
-        "serverRequired": "Потрібно вказати сервер",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "Термін дії вашого сеансу минув",
         "systemFontError": "Сталася помилка під час отримання системних шрифтів",
         "settingsSyncError": "Виявлено розбіжності між налаштуваннями рендерера та основного процесу. Перезапустіть програму, щоб застосувати зміни",

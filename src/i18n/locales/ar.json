@@ -327,7 +327,7 @@
         "saveQueueFailed": "فشل حفظ قائمة التشغيل",
         "serverLockSingleServer": "فقط خادم واحد متاح إذا الخادم مقفل",
         "serverNotSelectedError": "لم يتم اختيار أي خادم",
-        "serverRequired": "يتطلب خادم",
+        "serverRequired": "Welcome to rumTunes",
         "sessionExpiredError": "انتهت صلاحية جلستك",
         "systemFontError": "حدث خطأ أثناء محاولة الحصول على خطوط النظام",
         "settingsSyncError": "تم اكتشاف تعارضات بين إعدادات العارض والعملية الرئيسية. أعد تشغيل التطبيق لتطبيق التغييرات",
