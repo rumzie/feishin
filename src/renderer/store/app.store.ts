@@ -245,7 +245,7 @@ export const useAppStore = createWithEqualityFn<AppSlice>()(
                     leftWidth: '260px',
                     rightExpanded: true,
                     rightHeight: '320px',
-                    rightWidth: '600px',
+                    rightWidth: '500px',
                 },
                 titlebar: {
                     backgroundColor: '#000000',

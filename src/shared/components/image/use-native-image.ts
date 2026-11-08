@@ -9,6 +9,12 @@ interface NativeImageState {
     status: 'error' | 'idle' | 'loaded' | 'loading';
 }
 
+interface SharedImageRequest {
+    controller: AbortController;
+    promise: Promise<Blob>;
+    refs: number;
+}
+
 interface UseNativeImageArgs {
     enabled: boolean;
     fetchPriority?: FetchPriority;
@@ -16,13 +22,110 @@ interface UseNativeImageArgs {
     request?: ImageRequest | null;
 }
 
+// Keep decoded artwork around for the session so remounts, virtualization and
+// duplicate components (list + sidebar + player bar) share one network request.
+const IMAGE_CACHE_MAX_BYTES = 64 * 1024 * 1024;
+const imageBlobCache = new Map<string, Blob>();
+const sharedImageRequests = new Map<string, SharedImageRequest>();
+let imageBlobCacheBytes = 0;
+
+const getCachedImageBlob = (signature: string) => {
+    const blob = imageBlobCache.get(signature);
+
+    if (!blob) {
+        return undefined;
+    }
+
+    // Refresh insertion order so eviction drops the least recently used entry.
+    imageBlobCache.delete(signature);
+    imageBlobCache.set(signature, blob);
+
+    return blob;
+};
+
+const storeCachedImageBlob = (signature: string, blob: Blob) => {
+    const existing = imageBlobCache.get(signature);
+    if (existing) {
+        imageBlobCacheBytes -= existing.size;
+        imageBlobCache.delete(signature);
+    }
+
+    imageBlobCache.set(signature, blob);
+    imageBlobCacheBytes += blob.size;
+
+    while (imageBlobCacheBytes > IMAGE_CACHE_MAX_BYTES) {
+        const oldest = imageBlobCache.entries().next().value;
+        if (!oldest) {
+            break;
+        }
+
+        imageBlobCache.delete(oldest[0]);
+        imageBlobCacheBytes -= oldest[1].size;
+    }
+};
+
+const acquireSharedImage = (
+    signature: string,
+    request: ImageRequest,
+    init: RequestInit & { priority?: FetchPriority },
+) => {
+    let entry = sharedImageRequests.get(signature);
+
+    if (!entry) {
+        const controller = new AbortController();
+        const promise = (async () => {
+            const response = await fetch(request.url, { ...init, signal: controller.signal });
+
+            if (!response.ok) {
+                throw new Error(`Failed to load image: ${response.status}`);
+            }
+
+            const blob = await response.blob();
+            storeCachedImageBlob(signature, blob);
+            return blob;
+        })().finally(() => {
+            if (sharedImageRequests.get(signature) === entry) {
+                sharedImageRequests.delete(signature);
+            }
+        });
+
+        entry = { controller, promise, refs: 0 };
+        sharedImageRequests.set(signature, entry);
+    }
+
+    const acquiredEntry = entry;
+    acquiredEntry.refs += 1;
+    let released = false;
+
+    return {
+        promise: acquiredEntry.promise,
+        release: () => {
+            if (released) {
+                return;
+            }
+            released = true;
+            acquiredEntry.refs -= 1;
+
+            if (acquiredEntry.refs > 0) {
+                return;
+            }
+
+            // Abort only once every consumer has gone away, so one unmounting
+            // row does not cancel an image another row is still waiting for.
+            if (sharedImageRequests.get(signature) === acquiredEntry) {
+                sharedImageRequests.delete(signature);
+            }
+            acquiredEntry.controller.abort();
+        },
+    };
+};
+
 export function useNativeImage({
     enabled,
     fetchPriority,
     onFetchError,
     request,
 }: UseNativeImageArgs) {
-    const abortControllerRef = useRef<AbortController | null>(null);
     const loadedRequestSignatureRef = useRef<null | string>(null);
     const objectUrlRef = useRef<null | string>(null);
     const onFetchErrorRef = useRef(onFetchError);
@@ -44,10 +147,7 @@ export function useNativeImage({
     onFetchErrorRef.current = onFetchError;
 
     useEffect(() => {
-        const abortCurrentRequest = () => {
-            abortControllerRef.current?.abort();
-            abortControllerRef.current = null;
-        };
+        let requestActive = true;
 
         const revokeObjectUrl = () => {
             if (!objectUrlRef.current) {
@@ -60,14 +160,12 @@ export function useNativeImage({
         };
 
         if (!request || !requestSignature) {
-            abortCurrentRequest();
             revokeObjectUrl();
             setState({ status: 'idle' });
             return;
         }
 
         if (!enabled) {
-            abortCurrentRequest();
             setState((currentState) =>
                 currentState.displaySrc
                     ? { ...currentState, status: 'loaded' }
@@ -81,34 +179,33 @@ export function useNativeImage({
             return;
         }
 
-        abortCurrentRequest();
         revokeObjectUrl();
+
+        const cachedBlob = getCachedImageBlob(requestSignature);
+        if (cachedBlob) {
+            const objectUrl = URL.createObjectURL(cachedBlob);
+            objectUrlRef.current = objectUrl;
+            loadedRequestSignatureRef.current = requestSignature;
+            setState({ displaySrc: objectUrl, status: 'loaded' });
+            return;
+        }
+
         setState({ status: 'loading' });
 
-        const abortController = new AbortController();
-        abortControllerRef.current = abortController;
+        const init = {
+            credentials: request.credentials,
+            headers: request.headers,
+        } as RequestInit & { priority?: FetchPriority };
 
-        void (async () => {
-            try {
-                const init = {
-                    credentials: request.credentials,
-                    headers: request.headers,
-                    signal: abortController.signal,
-                } as RequestInit & { priority?: FetchPriority };
+        if (fetchPriority) {
+            init.priority = fetchPriority;
+        }
 
-                if (fetchPriority) {
-                    init.priority = fetchPriority;
-                }
+        const sharedImage = acquireSharedImage(requestSignature, request, init);
 
-                const response = await fetch(request.url, init);
-
-                if (!response.ok) {
-                    throw new Error(`Failed to load image: ${response.status}`);
-                }
-
-                const blob = await response.blob();
-
-                if (abortController.signal.aborted) {
+        void sharedImage.promise
+            .then((blob) => {
+                if (!requestActive) {
                     return;
                 }
 
@@ -116,34 +213,25 @@ export function useNativeImage({
                 objectUrlRef.current = objectUrl;
                 loadedRequestSignatureRef.current = requestSignature;
                 setState({ displaySrc: objectUrl, status: 'loaded' });
-            } catch {
-                if (abortController.signal.aborted) {
+            })
+            .catch(() => {
+                if (!requestActive) {
                     return;
                 }
 
                 revokeObjectUrl();
                 setState({ status: 'error' });
                 onFetchErrorRef.current?.();
-            } finally {
-                if (abortControllerRef.current === abortController) {
-                    abortControllerRef.current = null;
-                }
-            }
-        })();
+            });
 
         return () => {
-            abortController.abort();
-
-            if (abortControllerRef.current === abortController) {
-                abortControllerRef.current = null;
-            }
+            requestActive = false;
+            sharedImage.release();
         };
     }, [enabled, fetchPriority, request, requestSignature]);
 
     useEffect(() => {
         return () => {
-            abortControllerRef.current?.abort();
-
             if (objectUrlRef.current) {
                 URL.revokeObjectURL(objectUrlRef.current);
             }

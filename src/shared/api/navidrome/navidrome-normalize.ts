@@ -32,6 +32,23 @@ const navidromeImageIdWithCacheBust = (
     updatedAt: string | undefined,
 ): string => (!uploadedImage ? id : `${id}&_=${updatedAt ?? ''}`);
 
+// Navidrome serves `Cache-Control: immutable` only when the artwork id asserts the
+// current content hash. Passing the hash therefore turns every repeat image fetch
+// into a local cache hit instead of a revalidating request to the server.
+const navidromeArtworkId = (args: {
+    absent: boolean | undefined;
+    fallback: string;
+    hash: string | undefined;
+    id: string;
+    kind: 'al' | 'ar' | 'mf' | 'pl' | 'ra';
+}): null | string => {
+    if (args.absent) {
+        return null;
+    }
+
+    return args.hash ? `${args.kind}-${args.id}_${args.hash}` : args.fallback;
+};
+
 interface WithDate {
     playDate?: string;
 }
@@ -302,7 +319,13 @@ const normalizeSong = (
             songCount: null,
         })),
         id,
-        imageId: id,
+        imageId: navidromeArtworkId({
+            absent: item.imageAbsent,
+            fallback: id,
+            hash: item.imageHash,
+            id,
+            kind: 'mf',
+        }),
         imageUrl: null,
         lastPlayedAt: normalizePlayDate(item),
         libraryId: item.libraryId ?? null,
@@ -425,7 +448,13 @@ const normalizeAlbum = (
             songCount: null,
         })),
         id: item.id,
-        imageId: item.coverArtId || item.id,
+        imageId: navidromeArtworkId({
+            absent: item.imageAbsent,
+            fallback: item.coverArtId || item.id,
+            hash: item.imageHash,
+            id: item.id,
+            kind: 'al',
+        }),
         imageUrl: null,
         isCompilation: item.compilation,
         lastPlayedAt: normalizePlayDate(item),
@@ -482,11 +511,17 @@ const normalizeAlbumArtist = (
         songCount = item.songCount;
     }
 
-    const imageId = navidromeImageIdWithCacheBust(
-        item.id,
-        item.uploadedImage,
-        item.updatedAt ?? item.externalInfoUpdatedAt,
-    );
+    const imageId = navidromeArtworkId({
+        absent: item.imageAbsent,
+        fallback: navidromeImageIdWithCacheBust(
+            item.id,
+            item.uploadedImage,
+            item.updatedAt ?? item.externalInfoUpdatedAt,
+        ),
+        hash: item.imageHash,
+        id: item.id,
+        kind: 'ar',
+    });
 
     return {
         _itemType: LibraryItem.ALBUM_ARTIST,
@@ -539,9 +574,15 @@ const normalizePlaylist = (
     item: z.infer<typeof ndType._response.playlist>,
     server?: null | ServerListItem,
 ): Playlist => {
-    // Always bust, not only for uploaded images: the server regenerates the
-    // auto-generated cover when the playlist contents change.
-    const imageId = `${item.id}&_=${item.updatedAt}`;
+    // The content hash changes whenever the server regenerates the cover, so it
+    // both busts the cache and lets the server answer with an immutable response.
+    const imageId = navidromeArtworkId({
+        absent: item.imageAbsent,
+        fallback: `${item.id}&_=${item.updatedAt}`,
+        hash: item.imageHash,
+        id: item.id,
+        kind: 'pl',
+    });
 
     return {
         _itemType: LibraryItem.PLAYLIST,
@@ -602,7 +643,13 @@ const normalizeInternetRadioStation = (
     item: z.infer<typeof ndType._response.radioStation>,
 ): InternetRadioStation => {
     const homepageUrl = item.homePageUrl?.trim() ? item.homePageUrl : null;
-    const imageId = navidromeImageIdWithCacheBust(item.id, item.uploadedImage, item.updatedAt);
+    const imageId = navidromeArtworkId({
+        absent: item.imageAbsent,
+        fallback: navidromeImageIdWithCacheBust(item.id, item.uploadedImage, item.updatedAt),
+        hash: item.imageHash,
+        id: item.id,
+        kind: 'ra',
+    });
 
     return {
         homepageUrl,
