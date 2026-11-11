@@ -8,7 +8,7 @@ import qs from 'qs';
 import i18n from '/@/i18n/i18n';
 import { validateResponse } from '/@/renderer/api/response-validation';
 import { authenticationFailure } from '/@/renderer/api/utils';
-import { useAuthStore } from '/@/renderer/store';
+import { getServerById, useAuthStore } from '/@/renderer/store';
 import { logger } from '/@/renderer/utils/logger';
 import { getServerUrl } from '/@/renderer/utils/normalize-server-url';
 import { ndType } from '/@/shared/api/navidrome/navidrome-types';
@@ -387,6 +387,19 @@ axiosClient.interceptors.response.use(
                             // Hopefully the delay was sufficient for authentication.
                             // Otherwise, it will require manual intervention
                             if (authSuccess) {
+                                // error.config still carries the token from before the re-login.
+                                // Retrying with it would 401 again and trigger another /auth/login,
+                                // which the server rate limits (429)
+                                const token = getServerById(currentServer.id)?.ndCredential;
+
+                                if (token) {
+                                    error.config.headers['x-nd-authorization'] = `Bearer ${token}`;
+                                }
+
+                                logger.debug('Retrying request with refreshed token', {
+                                    serverId: currentServer.id,
+                                });
+
                                 return axiosClient.request(error.config);
                             }
 
@@ -493,6 +506,13 @@ export const ndApiClient = (args: {
 
             try {
                 if (shouldDelay) await waitForResult();
+
+                // A re-login may have completed during the wait, in which case the token
+                // captured above is expired. Re-read it so this request does not 401 and
+                // burn another rate-limited /auth/login attempt
+                if (server) {
+                    token = getServerById(server.id)?.ndCredential ?? token;
+                }
 
                 const result = await axiosClient.request({
                     data: body,
