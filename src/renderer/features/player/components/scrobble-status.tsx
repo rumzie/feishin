@@ -1,6 +1,8 @@
 import formatDuration from 'format-duration';
 import { useTranslation } from 'react-i18next';
 
+import styles from './scrobble-status.module.css';
+
 import {
     invokeScrobbleForceSubmit,
     invokeScrobbleResetListenedState,
@@ -20,6 +22,7 @@ import { Progress } from '/@/shared/components/progress/progress';
 import { Stack } from '/@/shared/components/stack/stack';
 import { Text } from '/@/shared/components/text/text';
 import { PlaybackSelectors } from '/@/shared/constants/playback-selectors';
+import { PlayerStatus } from '/@/shared/types/types';
 
 const scrobbleProgressProps = {
     'aria-hidden': true,
@@ -48,6 +51,9 @@ export const ScrobbleStatus = () => {
     const formattedTime = formatDuration(usePlayerTimestamp() * 1000 || 0);
 
     const hookInactive = !scrobbleEnabled || privateMode;
+    const scrobblePending = !hookInactive && Boolean(snapshot.songId) && !snapshot.submitted;
+    const isCounting = scrobblePending && snapshot.playerStatus === PlayerStatus.PLAYING;
+    const lightColor = snapshot.submitted ? 'primary' : scrobblePending ? 'muted' : 'transparent';
 
     const listenedSecRaw = snapshot.listenedMs / 1000;
     const listenedSecDisplay = snapshot.submitted
@@ -81,6 +87,7 @@ export const ScrobbleStatus = () => {
                 <Group
                     align="center"
                     aria-label={`${t('player.scrobble')}, ${formattedTime}`}
+                    className={styles.target}
                     fz="xs"
                     gap="sm"
                     justify="center"
@@ -89,9 +96,10 @@ export const ScrobbleStatus = () => {
                     wrap="nowrap"
                 >
                     <Icon
+                        animate={isCounting ? 'pulse' : undefined}
                         aria-hidden
-                        color={snapshot.submitted ? 'primary' : 'transparent'}
-                        fill={snapshot.submitted ? 'primary' : 'transparent'}
+                        color={lightColor}
+                        fill={lightColor}
                         icon="circle"
                         size="0.375rem"
                     />
