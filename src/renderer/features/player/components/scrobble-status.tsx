@@ -1,8 +1,6 @@
 import formatDuration from 'format-duration';
 import { useTranslation } from 'react-i18next';
 
-import styles from './scrobble-status.module.css';
-
 import {
     invokeScrobbleForceSubmit,
     invokeScrobbleResetListenedState,
@@ -83,7 +81,6 @@ export const ScrobbleStatus = () => {
                 <Group
                     align="center"
                     aria-label={`${t('player.scrobble')}, ${formattedTime}`}
-                    className={styles.target}
                     fz="xs"
                     gap="sm"
                     justify="center"
