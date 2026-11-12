@@ -519,6 +519,11 @@ export const fetchPublicIp = () => {
     return publicIpPromise;
 };
 
+// Single source of truth for the Subsonic `c` (client name) parameter. Navidrome keys players on
+// the client name, so every request must send the same value or it registers duplicate players.
+export const subsonicClientName = () =>
+    cachedPublicIp ? `rumTunes (${cachedPublicIp})` : 'rumTunes';
+
 export const ssApiClient = (args: {
     forceRemoteUrl?: boolean;
     server: null | ServerListItemWithCredential;
@@ -567,7 +572,8 @@ export const ssApiClient = (args: {
             const isGetTranscodeDecisionPost =
                 method === 'POST' && api === 'getTranscodeDecision.view';
 
-            const ipAddressString = await fetchPublicIp();
+            await fetchPublicIp();
+            const clientName = subsonicClientName();
 
             if (isGetTranscodeDecisionPost && body != null) {
                 request.method = 'POST';
@@ -577,7 +583,7 @@ export const ssApiClient = (args: {
                 };
                 request.data = body;
                 request.params = {
-                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
+                    c: clientName,
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -589,7 +595,7 @@ export const ssApiClient = (args: {
                 headers['Content-Type'] = 'application/x-www-form-urlencoded';
                 request.method = 'POST';
                 const data = {
-                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
+                    c: clientName,
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,
@@ -598,7 +604,7 @@ export const ssApiClient = (args: {
                 request.data = qs.stringify(data, { arrayFormat: 'repeat' });
             } else {
                 const data = {
-                    c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
+                    c: clientName,
                     f: 'json',
                     v: '1.13.0',
                     ...authParams,

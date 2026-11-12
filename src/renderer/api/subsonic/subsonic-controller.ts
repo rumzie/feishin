@@ -7,7 +7,12 @@ import orderBy from 'lodash/orderBy';
 import md5 from 'md5';
 import { z } from 'zod';
 
-import { contract, fetchPublicIp, ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
+import {
+    contract,
+    fetchPublicIp,
+    ssApiClient,
+    subsonicClientName,
+} from '/@/renderer/api/subsonic/subsonic-api';
 import { mapStructuredLyric } from '/@/renderer/api/subsonic/subsonic-structured-lyrics';
 import {
     getDefaultTranscodingProfiles,
@@ -70,7 +75,7 @@ const getSubsonicImageRequest = ({
             `?id=${id}` +
             `&${server.credential}` +
             '&v=1.13.0' +
-            '&c=rumTunes' +
+            `&c=${encodeURIComponent(subsonicClientName())}` +
             (imageSize ? `&size=${imageSize}` : ''),
     };
 };
@@ -254,7 +259,7 @@ function buildGetTranscodeStreamUrl(
     },
 ): string {
     const params = new URLSearchParams({
-        c: 'rumTunes',
+        c: subsonicClientName(),
         mediaId: args.mediaId,
         mediaType: args.mediaType,
         offset: String(args.offset),
@@ -330,7 +335,7 @@ export const SubsonicController: InternalControllerEndpoint = {
             u: string;
         };
 
-        const ipAddressString = await fetchPublicIp();
+        await fetchPublicIp();
 
         const cleanServerUrl = `${url.replace(/\/$/, '')}/rest`;
 
@@ -354,7 +359,7 @@ export const SubsonicController: InternalControllerEndpoint = {
 
         const resp = await ssApiClient({ server: null, url: cleanServerUrl }).authenticate({
             query: {
-                c: ipAddressString ? `rumTunes (${ipAddressString})` : 'rumTunes',
+                c: subsonicClientName(),
                 f: 'json',
                 username: body.username,
                 v: '1.13.0',
@@ -983,7 +988,7 @@ export const SubsonicController: InternalControllerEndpoint = {
             `?id=${query.id}` +
             `&${apiClientProps.server?.credential}` +
             '&v=1.13.0' +
-            '&c=rumTunes'
+            `&c=${encodeURIComponent(subsonicClientName())}`
         );
     },
     getFavoriteSongs: async (args) => {
@@ -1976,7 +1981,8 @@ export const SubsonicController: InternalControllerEndpoint = {
         const { server } = apiClientProps;
         const { bitrate, format, id, mediaType = 'song', skipAutoTranscode, transcode } = query;
 
-        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=rumTunes&${server?.credential}`;
+        await fetchPublicIp();
+        const streamUrl = `${server?.url}/rest/stream.view?id=${id}&v=1.13.0&c=${encodeURIComponent(subsonicClientName())}&${server?.credential}`;
 
         // If transcoding is explicitly enabled, just return the direct transcoded stream URL
         if (transcode) {
