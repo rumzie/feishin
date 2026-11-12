@@ -22,6 +22,12 @@ import { DragPreview } from '/@/renderer/components/drag-preview/drag-preview';
 import { LibraryItem } from '/@/shared/types/domain-types';
 import { dndUtils, DragData, DragOperation, DragTarget } from '/@/shared/types/drag-and-drop';
 
+// Native HTML5 drag starts on a touch long-press, which hijacks the gesture
+// before the browser can fire `contextmenu`. Touch devices use the context
+// menu for reordering/moving instead.
+const isCoarsePointer =
+    typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 interface UseDraggableProps {
     drag?: {
         getId: () => string[];
@@ -59,7 +65,7 @@ export const useDragDrop = <TElement extends HTMLElement>({
 
         const functions: CleanupFn[] = [];
 
-        if (drag) {
+        if (drag && !isCoarsePointer) {
             functions.push(
                 draggable({
                     element: ref.current,
