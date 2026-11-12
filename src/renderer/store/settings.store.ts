@@ -1370,7 +1370,7 @@ const initialState: SettingsState = {
         enableGridMultiSelect: false,
         externalLinks: true,
         followCurrentSong: true,
-        followSystemTheme: false,
+        followSystemTheme: true,
         fullscreenAutoOpenTimeout: 0,
         genreTarget: GenreTarget.TRACK,
         homeFeature: true,
