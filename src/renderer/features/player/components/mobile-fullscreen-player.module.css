@@ -45,8 +45,7 @@
 }
 
 .player-state,
-.queue-state,
-.lyrics-state {
+.queue-state {
     position: absolute;
     top: 0;
     right: 0;
@@ -63,9 +62,43 @@
 }
 
 .player-state[style*='z-index: 2'],
-.queue-state[style*='z-index: 2'],
-.lyrics-state[style*='z-index: 2'] {
+.queue-state[style*='z-index: 2'] {
     pointer-events: auto;
+}
+
+/* Split view: player stays on screen while the lyrics panel shares the height. */
+.player-state-split .header {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.player-state-split .image-container {
+    flex: 0 0 auto;
+    height: clamp(96px, 18vh, 180px);
+    padding: 0.5rem 1rem;
+}
+
+.player-state-split .metadata-container {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.split-lyrics {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0 1rem;
+}
+
+@media (height <= 620px) {
+    .player-state-split .image-container {
+        display: none;
+    }
+}
+
+@media (height <= 480px) {
+    .player-state-split .metadata-container {
+        display: none;
+    }
 }
 
 .header {
@@ -227,20 +260,11 @@
     min-height: 100%;
 }
 
-.queue-header,
-.lyrics-header {
+.queue-header {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 1rem;
-}
-
-.lyrics-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 1rem;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }

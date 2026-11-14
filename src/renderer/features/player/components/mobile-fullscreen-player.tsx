@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { AnimatePresence, motion } from 'motion/react';
 import { Variants } from 'motion/react';
 import {
@@ -11,7 +12,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 
 import styles from './mobile-fullscreen-player.module.css';
@@ -45,7 +45,6 @@ import {
 } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Stack } from '/@/shared/components/stack/stack';
-import { Text } from '/@/shared/components/text/text';
 import { LibraryItem, ServerType } from '/@/shared/types/domain-types';
 import { ItemListKey } from '/@/shared/types/types';
 
@@ -423,7 +422,6 @@ const mobileContainerVariants: Variants = {
 };
 
 export const MobileFullscreenPlayer = () => {
-    const { t } = useTranslation();
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const { setStore } = useFullScreenPlayerStoreActions();
     const { activeTab, dynamicBackground, dynamicImageBlur, dynamicIsImage, opacity } =
@@ -505,7 +503,7 @@ export const MobileFullscreenPlayer = () => {
         [currentSong, setRating],
     );
 
-    const isPlayerState = activeTab !== 'queue' && activeTab !== 'lyrics';
+    const isPlayerState = activeTab !== 'queue';
     const isQueueState = activeTab === 'queue';
     const isLyricsState = activeTab === 'lyrics';
     const isSongDefined = Boolean(currentSong?.id);
@@ -526,7 +524,9 @@ export const MobileFullscreenPlayer = () => {
                     opacity: isPlayerState ? 1 : 0,
                     zIndex: isPlayerState ? 2 : 1,
                 }}
-                className={styles.playerState}
+                className={clsx(styles.playerState, {
+                    [styles.playerStateSplit]: isLyricsState,
+                })}
                 onMouseEnter={() => setIsPageHovered(true)}
                 onMouseLeave={() => setIsPageHovered(false)}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
@@ -542,6 +542,11 @@ export const MobileFullscreenPlayer = () => {
                     showFavorite={showFavorites}
                     showRating={showRating}
                 />
+                {isLyricsState && (
+                    <div className={styles.splitLyrics}>
+                        <Lyrics fadeOutNoLyricsMessage={false} />
+                    </div>
+                )}
                 <MobileFullscreenPlayerProgress currentSong={currentSong} />
                 <MobileFullscreenPlayerControls currentSong={currentSong} />
                 <MobileFullscreenPlayerBottomControls
@@ -581,41 +586,6 @@ export const MobileFullscreenPlayer = () => {
                         <Stack gap={0} h="100%" w="100%">
                             <PlayQueue listKey={ItemListKey.FULL_SCREEN} searchTerm={undefined} />
                         </Stack>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-                {isLyricsState && (
-                    <motion.div
-                        animate={{ opacity: 1 }}
-                        className={styles.lyricsState}
-                        exit={{ opacity: 0 }}
-                        initial={{ opacity: 0 }}
-                        style={{ zIndex: 2 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    >
-                        <div className={styles.lyricsHeader}>
-                            <ActionIcon
-                                icon="arrowDownS"
-                                onClick={handleToggleFullScreenPlayer}
-                                size="sm"
-                                variant={isPageHovered ? 'default' : 'subtle'}
-                            />
-                            <Text fw={600} size="lg">
-                                {t('page.fullscreenPlayer.lyrics')}
-                            </Text>
-                            <ActionIcon
-                                icon="x"
-                                iconProps={{ size: 'xl' }}
-                                onClick={handleToggleLyrics}
-                                size="sm"
-                                variant={isPageHovered ? 'default' : 'subtle'}
-                            />
-                        </div>
-                        <div className={styles.lyricsContent}>
-                            <Lyrics fadeOutNoLyricsMessage={false} />
-                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
