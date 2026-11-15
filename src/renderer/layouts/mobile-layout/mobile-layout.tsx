@@ -1,3 +1,4 @@
+import { useModals } from '@mantine/modals';
 import clsx from 'clsx';
 import { AnimatePresence } from 'motion/react';
 import { Suspense, useEffect, useRef } from 'react';
@@ -29,7 +30,13 @@ interface MobileLayoutProps {
 
 export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const [sidebarOpened, { close: closeSidebar, open: openSidebar }] = useDisclosure(false);
+    const { closeAll: closeAllModals, modals } = useModals();
     const fullScreenPlayerHistoryRef = useRef(false);
+    const fullScreenPlayerExpandedRef = useRef(false);
+    const modalHistoryRef = useRef(false);
+    const modalOpenRef = useRef(false);
+    const closingModalViaBackRef = useRef(false);
+    const skipNextPopStateRef = useRef(false);
     const { opened: commandPaletteOpened } = useCommandPalette();
     const {
         expanded: isFullScreenPlayerExpanded,
@@ -37,6 +44,16 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     } = useFullScreenPlayerOverlayState();
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const windowBarStyle = useWindowBarStyle();
+
+    const modalOpen = modals.length > 0;
+
+    useEffect(() => {
+        fullScreenPlayerExpandedRef.current = isFullScreenPlayerExpanded;
+    }, [isFullScreenPlayerExpanded]);
+
+    useEffect(() => {
+        modalOpenRef.current = modalOpen;
+    }, [modalOpen]);
 
     useEffect(() => {
         if (commandPaletteOpened) closeSidebar();
@@ -51,11 +68,12 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                 // from it (e.g. an album/artist link), otherwise we'd undo that
                 // navigation.
                 if (window.history.state?.mobileFullscreenPlayer) {
+                    skipNextPopStateRef.current = true;
                     window.history.back();
                 }
             }
 
-            return undefined;
+            return;
         }
 
         if (!fullScreenPlayerHistoryRef.current) {
@@ -66,8 +84,59 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
             );
             fullScreenPlayerHistoryRef.current = true;
         }
+    }, [isFullScreenPlayerExpanded]);
 
+    // Push a history entry while a modal is open so the Android/browser back
+    // button closes the modal instead of navigating the page behind it.
+    useEffect(() => {
+        if (modalOpen) {
+            if (modalHistoryRef.current) {
+                return;
+            }
+
+            modalHistoryRef.current = true;
+            window.history.pushState(
+                { ...window.history.state, mobileModal: true },
+                '',
+                window.location.href,
+            );
+            return;
+        }
+
+        if (!modalHistoryRef.current) {
+            return;
+        }
+
+        modalHistoryRef.current = false;
+
+        if (closingModalViaBackRef.current) {
+            closingModalViaBackRef.current = false;
+            return;
+        }
+
+        // The modal was closed by its own UI, so remove the history entry we
+        // added without triggering the back navigation handlers.
+        skipNextPopStateRef.current = true;
+        window.history.back();
+    }, [modalOpen]);
+
+    useEffect(() => {
         const handlePopState = () => {
+            if (skipNextPopStateRef.current) {
+                skipNextPopStateRef.current = false;
+                return;
+            }
+
+            if (modalOpenRef.current) {
+                closingModalViaBackRef.current = true;
+                closeAllModals();
+                return;
+            }
+
+            if (!fullScreenPlayerExpandedRef.current) {
+                return;
+            }
+
             fullScreenPlayerHistoryRef.current = false;
             setFullScreenPlayerStore({ expanded: false });
         };
@@ -75,7 +144,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
         window.addEventListener('popstate', handlePopState);
 
         return () => window.removeEventListener('popstate', handlePopState);
-    }, [isFullScreenPlayerExpanded, setFullScreenPlayerStore]);
+    }, [closeAllModals, setFullScreenPlayerStore]);
 
     return (
         <>
