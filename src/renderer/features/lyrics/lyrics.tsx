@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import clsx from 'clsx';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +87,50 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
     const [pendingSongId, setPendingSongId] = useState<string | undefined>(currentSong?.id);
     const lyricsFetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const previousSongIdRef = useRef<string | undefined>(currentSong?.id);
+    const [controlsVisible, setControlsVisible] = useState(false);
+    const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+    // The actions fade out on their own instead of relying only on :hover, which
+    // can stay stuck after a click. Pointer and scroll interaction reveals them.
+    const hideControls = useCallback(() => {
+        clearTimeout(controlsTimeoutRef.current);
+        setControlsVisible(false);
+    }, []);
+
+    const revealControls = useCallback(() => {
+        setControlsVisible(true);
+        clearTimeout(controlsTimeoutRef.current);
+        controlsTimeoutRef.current = setTimeout(() => setControlsVisible(false), 3000);
+    }, []);
+
+    const handlePointerMove = useCallback(
+        (event: React.PointerEvent<HTMLDivElement>) => {
+            // Touch moves are scroll gestures, handled by onTouchMove.
+            if (event.pointerType === 'touch') {
+                return;
+            }
+
+            revealControls();
+        },
+        [revealControls],
+    );
+
+    const handlePointerLeave = useCallback(
+        (event: React.PointerEvent<HTMLDivElement>) => {
+            // A touch pointer is removed right after a tap/scroll; keep the
+            // reveal timer running instead of hiding immediately.
+            if (event.pointerType === 'touch') {
+                return;
+            }
+
+            hideControls();
+        },
+        [hideControls],
+    );
+
+    useEffect(() => {
+        return () => clearTimeout(controlsTimeoutRef.current);
+    }, []);
 
     useEffect(() => {
         const currentSongId = currentSong?.id;
@@ -539,9 +584,18 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
 
     return (
         <ComponentErrorBoundary>
-            <div className={styles.lyricsContainer}>
+            <div
+                className={styles.lyricsContainer}
+                onPointerDown={revealControls}
+                onPointerLeave={handlePointerLeave}
+                onPointerMove={handlePointerMove}
+                onTouchMove={revealControls}
+                onWheel={revealControls}
+            >
                 <ActionIcon
-                    className={styles.settingsIcon}
+                    className={clsx(styles.settingsIcon, {
+                        [styles.controlsVisible]: controlsVisible,
+                    })}
                     icon="settings2"
                     iconProps={{ size: 'lg' }}
                     onClick={handleOpenSettings}
@@ -600,7 +654,11 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
                         )}
                     </AnimatePresence>
                 )}
-                <div className={styles.actionsContainer}>
+                <div
+                    className={clsx(styles.actionsContainer, {
+                        [styles.controlsVisible]: controlsVisible,
+                    })}
+                >
                     <LyricsActions
                         hasLyrics={!!displayLyrics}
                         index={indexToUse}

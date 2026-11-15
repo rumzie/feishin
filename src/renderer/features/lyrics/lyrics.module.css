@@ -12,26 +12,23 @@
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 
-    &:hover {
-        opacity: 1 !important;
-    }
-
-    &:focus-within {
-        opacity: 1 !important;
-    }
-
     :global(> *),
     :global(> * > *),
     :global(div) {
         pointer-events: none;
     }
 
-    :global(button),
-    :global(input),
-    :global([role='button']),
-    :global([role='combobox']),
-    :global([role='textbox']) {
-        pointer-events: auto;
+    &.controls-visible,
+    &:focus-within {
+        opacity: 1 !important;
+
+        :global(button),
+        :global(input),
+        :global([role='button']),
+        :global([role='combobox']),
+        :global([role='textbox']) {
+            pointer-events: auto;
+        }
     }
 }
 
@@ -44,12 +41,6 @@
     height: 100%;
     min-height: 0;
     overflow: hidden;
-
-    &:hover {
-        .actions-container {
-            opacity: 0.6;
-        }
-    }
 }
 
 .scroll-container {
@@ -79,10 +70,12 @@
 
 .settings-icon {
     z-index: 100;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;
 }
 
-.lyrics-container:hover .settings-icon {
+.settings-icon.controls-visible {
+    pointer-events: auto;
     opacity: 1;
 }
