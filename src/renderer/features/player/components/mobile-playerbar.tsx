@@ -18,7 +18,6 @@ import {
 import { AppRoute } from '/@/renderer/router/routes';
 import {
     useFullScreenPlayerStore,
-    useFullScreenPlayerStoreActions,
     usePlayerSong,
     usePlayerStatus,
     useSetFullScreenPlayerStore,
@@ -37,7 +36,6 @@ export const MobilePlayerbar = () => {
     const { t } = useTranslation();
     const { expanded: isFullScreenPlayerExpanded } = useFullScreenPlayerStore();
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
-    const { setStore } = useFullScreenPlayerStoreActions();
     const currentSong = usePlayerSong();
     const { currentStationArt } = useRadioPlayer();
     const status = usePlayerStatus();
@@ -50,8 +48,6 @@ export const MobilePlayerbar = () => {
 
     const handleToggleFullScreenPlayer = (e?: KeyboardEvent | MouseEvent<HTMLDivElement>) => {
         e?.stopPropagation();
-        // Set active tab to player when opening fullscreen player
-        setStore({ activeTab: 'player' });
         setFullScreenPlayerStore({ expanded: !isFullScreenPlayerExpanded });
     };
 
