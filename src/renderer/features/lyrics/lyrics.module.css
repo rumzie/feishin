@@ -12,6 +12,14 @@
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
 
+    &:hover {
+        opacity: 1 !important;
+    }
+
+    &:focus-within {
+        opacity: 1 !important;
+    }
+
     :global(> *),
     :global(> * > *),
     :global(div) {
@@ -27,17 +35,6 @@
     }
 }
 
-.actions-container:focus-within,
-.actions-container.controls-visible {
-    opacity: 1 !important;
-}
-
-@media (hover: hover) {
-    .actions-container:hover {
-        opacity: 1 !important;
-    }
-}
-
 .lyrics-container {
     position: relative;
     display: flex;
@@ -47,6 +44,12 @@
     height: 100%;
     min-height: 0;
     overflow: hidden;
+
+    &:hover {
+        .actions-container {
+            opacity: 0.6;
+        }
+    }
 }
 
 .scroll-container {
@@ -80,6 +83,6 @@
     transition: opacity 0.2s ease;
 }
 
-.settings-icon.controls-visible {
+.lyrics-container:hover .settings-icon {
     opacity: 1;
 }
