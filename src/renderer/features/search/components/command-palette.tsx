@@ -175,7 +175,6 @@ export const CommandPalette = ({ modalProps }: CommandPaletteProps) => {
                 },
             }}
             size="lg"
-            withCloseButton={false}
         >
             <Command
                 filter={(value, search) => {

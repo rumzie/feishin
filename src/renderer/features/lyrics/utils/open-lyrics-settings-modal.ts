@@ -12,6 +12,5 @@ export const openLyricsSettingsModal = (settingsKey: string = 'default') => {
         transitionProps: {
             transition: 'pop',
         },
-        withCloseButton: false,
     });
 };

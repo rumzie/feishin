@@ -123,7 +123,6 @@ export const ListConfigMenu = ({ buttonProps, ...formProps }: ListConfigMenuProp
                     innerProps: formProps,
                     modal: 'listConfigSettings',
                     size: 'xl',
-                    withCloseButton: false,
                 });
             }}
         />

@@ -12,6 +12,5 @@ export const openFullScreenPlayerSettingsModal = () => {
         transitionProps: {
             transition: 'pop',
         },
-        withCloseButton: false,
     });
 };
