@@ -424,8 +424,14 @@ const mobileContainerVariants: Variants = {
 export const MobileFullscreenPlayer = () => {
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const { setStore } = useFullScreenPlayerStoreActions();
-    const { activeTab, dynamicBackground, dynamicImageBlur, dynamicIsImage, opacity } =
-        useFullScreenPlayerStore();
+    const {
+        activeTab,
+        dynamicBackground,
+        dynamicImageBlur,
+        dynamicIsImage,
+        mobileLyricsSideBySide,
+        opacity,
+    } = useFullScreenPlayerStore();
     const currentSong = usePlayerSong();
     const { currentSong: currentSongData } = usePlayerData();
     const isRadioActive = useIsRadioActive();
@@ -529,7 +535,8 @@ export const MobileFullscreenPlayer = () => {
                     zIndex: isPlayerState ? 2 : 1,
                 }}
                 className={clsx(styles.playerState, {
-                    [styles.playerStateSplit]: isLyricsState,
+                    [styles.playerStateSplit]: isLyricsState && mobileLyricsSideBySide,
+                    [styles.playerStateSplitStacked]: isLyricsState && !mobileLyricsSideBySide,
                 })}
                 onMouseEnter={() => setIsPageHovered(true)}
                 onMouseLeave={() => setIsPageHovered(false)}

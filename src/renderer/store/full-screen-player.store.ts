@@ -22,6 +22,7 @@ interface FullScreenPlayerState {
     dynamicImageBlur: number;
     dynamicIsImage?: boolean;
     expanded: boolean;
+    mobileLyricsSideBySide: boolean;
     opacity: number;
     playerItemAlignment: FullScreenPlayerItemAlignment;
     titleDisplayType: FullScreenPlayerTitleDisplayType;
@@ -46,6 +47,7 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                 dynamicImageBlur: 6,
                 dynamicIsImage: false,
                 expanded: false,
+                mobileLyricsSideBySide: true,
                 opacity: 25,
                 playerItemAlignment: 'center',
                 titleDisplayType: 'scroll',

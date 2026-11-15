@@ -614,6 +614,8 @@
                 "lyricOpacityNonActive_description": "Opacity of lyric lines that are not currently active",
                 "lyricScaleNonActive": "Non-active lyric scale",
                 "lyricScaleNonActive_description": "Scale of lyric lines that are not currently active",
+                "mobileLyricsSideBySide": "Side-by-side artwork with lyrics (mobile)",
+                "mobileLyricsSideBySide_description": "Place the album art next to the track details when lyrics are open on mobile. Turn off to stack them above the lyrics.",
                 "opacity": "Opacity",
                 "playerItemAlignment": "Player item alignment",
                 "showLyricMatch": "Show lyric match",

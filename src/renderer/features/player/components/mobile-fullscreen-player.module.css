@@ -119,6 +119,23 @@
     grid-area: bottom;
 }
 
+/* Stacked split view: artwork and details sit above the lyrics. */
+.player-state-split-stacked .header {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.player-state-split-stacked .image-container {
+    flex: 0 0 auto;
+    height: clamp(96px, 18vh, 180px);
+    padding: 0.5rem 1rem;
+}
+
+.player-state-split-stacked .metadata-container {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
 .split-lyrics {
     flex: 1 1 auto;
     min-height: 0;
@@ -126,13 +143,15 @@
 }
 
 @media (height <= 620px) {
-    .player-state-split .image-container {
+    .player-state-split .image-container,
+    .player-state-split-stacked .image-container {
         display: none;
     }
 }
 
 @media (height <= 480px) {
-    .player-state-split .metadata-container {
+    .player-state-split .metadata-container,
+    .player-state-split-stacked .metadata-container {
         display: none;
     }
 }

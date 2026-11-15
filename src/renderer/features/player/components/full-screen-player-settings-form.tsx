@@ -25,6 +25,7 @@ export const FullScreenPlayerSettingsForm = () => {
         dynamicBackground,
         dynamicImageBlur,
         dynamicIsImage,
+        mobileLyricsSideBySide,
         opacity,
         playerItemAlignment,
         titleDisplayType,
@@ -127,6 +128,17 @@ export const FullScreenPlayerSettingsForm = () => {
             ),
             id: 'coverArtSize',
             label: t('page.fullscreenPlayer.config.coverArtSize'),
+        },
+        {
+            component: (
+                <ListConfigBooleanControl
+                    onChange={(value) => setStore({ mobileLyricsSideBySide: value })}
+                    value={mobileLyricsSideBySide}
+                />
+            ),
+            description: t('page.fullscreenPlayer.config.mobileLyricsSideBySide_description'),
+            id: 'mobileLyricsSideBySide',
+            label: t('page.fullscreenPlayer.config.mobileLyricsSideBySide'),
         },
         {
             component: (
