@@ -30,8 +30,9 @@ interface LyricsActionsProps {
     index: number;
     languages: { label: string; value: string }[];
     offsetMs: number;
+    onClearLyric: () => void;
     onExportLyrics: () => void;
-    onRemoveLyric: () => void;
+    onRefreshLyric: () => void;
     onSearchOverride: (params: LyricsOverride) => void;
     onToggleOverlayLayer?: (key: string) => void;
     onTranslateLyric?: () => void;
@@ -71,8 +72,9 @@ export const LyricsActions = ({
     index,
     languages,
     offsetMs,
+    onClearLyric,
     onExportLyrics,
-    onRemoveLyric,
+    onRefreshLyric,
     onSearchOverride,
     onToggleOverlayLayer,
     onTranslateLyric,
@@ -91,6 +93,7 @@ export const LyricsActions = ({
 
     const isActionsDisabled = !currentSong;
     const isDesktop = isElectron();
+    const isClearAction = hasLyrics && isDesktop;
     const hasServerTranslationLayer = overlayLayers.some((layer) => layer.kind === 'translation');
     const hasMultipleLanguages = languages.length > 1;
 
@@ -300,11 +303,11 @@ export const LyricsActions = ({
                 {sources.length ? (
                     <Button
                         disabled={isActionsDisabled}
-                        onClick={onRemoveLyric}
+                        onClick={isClearAction ? onClearLyric : onRefreshLyric}
                         uppercase
                         variant="subtle"
                     >
-                        {hasLyrics && isDesktop ? t('common.clear') : t('common.refresh')}
+                        {isClearAction ? t('common.clear') : t('common.refresh')}
                     </Button>
                 ) : null}
                 {isDesktop && sources.length && onTranslateLyric && !hasServerTranslationLayer ? (

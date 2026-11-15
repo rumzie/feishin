@@ -428,7 +428,7 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
         [data, delayMs, lyricsKey, preferLocalLyrics],
     );
 
-    const handleOnRemoveLyric = useCallback(async () => {
+    const handleOnClearLyric = useCallback(async () => {
         if (!currentSong || !lyricsKey) return;
 
         queryClient.setQueryData<LyricsQueryResult>(lyricsKey, (prev) =>
@@ -444,6 +444,18 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
         );
         await queryClient.invalidateQueries({ queryKey: lyricsKey });
     }, [currentSong, lyricsKey]);
+
+    const handleOnRefreshLyric = useCallback(async () => {
+        if (!lyricsKey) return;
+
+        // Match a fresh track start: drop the cache (including any previous
+        // suppressRemoteAuto flag) and fetch again from the same sources.
+        setIndexState(0);
+        setShowTranslation(false);
+        setTranslatedLyrics(null);
+
+        await queryClient.resetQueries({ exact: true, queryKey: lyricsKey });
+    }, [lyricsKey]);
 
     const fetchTranslation = useCallback(async () => {
         if (!lyrics || isLyricsDisabled) return;
@@ -641,8 +653,9 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
                         index={indexToUse}
                         languages={languages}
                         offsetMs={displayOffsetMs}
+                        onClearLyric={handleOnClearLyric}
                         onExportLyrics={handleExportLyrics}
-                        onRemoveLyric={handleOnRemoveLyric}
+                        onRefreshLyric={handleOnRefreshLyric}
                         onSearchOverride={handleOnSearchOverride}
                         onToggleOverlayLayer={handleToggleOverlayLayer}
                         onTranslateLyric={
