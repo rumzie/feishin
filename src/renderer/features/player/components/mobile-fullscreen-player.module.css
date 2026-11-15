@@ -67,20 +67,56 @@
 }
 
 /* Split view: player stays on screen while the lyrics panel shares the height. */
+.player-state-split {
+    display: grid;
+    grid-template-areas:
+        'header header'
+        'art metadata'
+        'lyrics lyrics'
+        'progress progress'
+        'controls controls'
+        'bottom bottom';
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+    grid-template-columns: auto minmax(0, 1fr);
+}
+
 .player-state-split .header {
+    grid-area: header;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 }
 
 .player-state-split .image-container {
-    flex: 0 0 auto;
-    height: clamp(96px, 18vh, 180px);
-    padding: 0.5rem 1rem;
+    flex: none;
+    grid-area: art;
+    align-self: center;
+    width: clamp(88px, 18vh, 150px);
+    height: clamp(88px, 18vh, 150px);
+    padding: 0.5rem 0 0.5rem 1rem;
 }
 
 .player-state-split .metadata-container {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    grid-area: metadata;
+    align-items: flex-start;
+    align-self: center;
+    min-width: 0;
+    padding: 0.5rem 1rem 0.5rem 0.75rem;
+}
+
+.player-state-split .split-lyrics {
+    grid-area: lyrics;
+}
+
+.player-state-split .progress-container {
+    grid-area: progress;
+}
+
+.player-state-split .controls-container {
+    grid-area: controls;
+}
+
+.player-state-split .bottom-controls-bar {
+    grid-area: bottom;
 }
 
 .split-lyrics {
