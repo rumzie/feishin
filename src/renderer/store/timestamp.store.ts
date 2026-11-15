@@ -1,5 +1,5 @@
 import { del, get, set } from 'idb-keyval';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { persist, subscribeWithSelector } from 'zustand/middleware';
 import { createWithEqualityFn } from 'zustand/traditional';
 
@@ -62,26 +62,60 @@ export const usePlayerProgress = () => {
     return useTimestampStoreBase((state) => state.timestamp);
 };
 
+let polledTimestamp = useTimestampStoreBase.getState().timestamp;
+let pollInterval: ReturnType<typeof setInterval> | null = null;
+const polledTimestampListeners = new Set<() => void>();
+
+const emitPolledTimestamp = () => {
+    for (const listener of polledTimestampListeners) {
+        listener();
+    }
+};
+
+const syncPolledTimestamp = () => {
+    const nextTimestamp = useTimestampStoreBase.getState().timestamp;
+    if (nextTimestamp !== polledTimestamp) {
+        polledTimestamp = nextTimestamp;
+        emitPolledTimestamp();
+    }
+};
+
+const startTimestampPolling = () => {
+    if (pollInterval) {
+        return;
+    }
+
+    polledTimestamp = useTimestampStoreBase.getState().timestamp;
+    pollInterval = setInterval(syncPolledTimestamp, PLAYER_TIMESTAMP_POLL_INTERVAL_MS);
+};
+
+const stopTimestampPolling = () => {
+    if (!pollInterval) {
+        return;
+    }
+
+    clearInterval(pollInterval);
+    pollInterval = null;
+};
+
+const subscribePolledTimestamp = (listener: () => void) => {
+    polledTimestampListeners.add(listener);
+    if (polledTimestampListeners.size === 1) {
+        startTimestampPolling();
+    }
+
+    return () => {
+        polledTimestampListeners.delete(listener);
+        if (polledTimestampListeners.size === 0) {
+            stopTimestampPolling();
+        }
+    };
+};
+
+const getPolledTimestamp = () => polledTimestamp;
+
 export const usePlayerTimestamp = () => {
-    const [timestamp, setLocalTimestamp] = useState(
-        () => useTimestampStoreBase.getState().timestamp,
-    );
-
-    useEffect(() => {
-        const syncTimestamp = () => {
-            const nextTimestamp = useTimestampStoreBase.getState().timestamp;
-            setLocalTimestamp((prevTimestamp) =>
-                prevTimestamp !== nextTimestamp ? nextTimestamp : prevTimestamp,
-            );
-        };
-
-        syncTimestamp();
-        const interval = setInterval(syncTimestamp, PLAYER_TIMESTAMP_POLL_INTERVAL_MS);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    return timestamp;
+    return useSyncExternalStore(subscribePolledTimestamp, getPolledTimestamp, getPolledTimestamp);
 };
 
 export const setTimestamp = (timestamp: number) => {

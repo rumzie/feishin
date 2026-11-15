@@ -4,7 +4,9 @@ import { FullScreenVisualizer } from '/@/renderer/features/player/components/ful
 import { useFullScreenPlayerStore } from '/@/renderer/store/full-screen-player.store';
 
 export const FullScreenVisualizerOverlay = () => {
-    const { visualizerExpanded: isFullScreenVisualizerExpanded } = useFullScreenPlayerStore();
+    const isFullScreenVisualizerExpanded = useFullScreenPlayerStore(
+        (state) => state.visualizerExpanded,
+    );
 
     return (
         <AnimatePresence initial={false}>

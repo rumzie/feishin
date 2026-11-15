@@ -1,4 +1,5 @@
 import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { shallow } from 'zustand/shallow';
 
 import styles from './visualizer.module.css';
 
@@ -353,7 +354,14 @@ const VisualizerInner = () => {
 };
 
 export const Visualizer = () => {
-    const { expanded, visualizerExpanded, visualizerReturnToPlayer } = useFullScreenPlayerStore();
+    const { expanded, visualizerExpanded, visualizerReturnToPlayer } = useFullScreenPlayerStore(
+        (state) => ({
+            expanded: state.expanded,
+            visualizerExpanded: state.visualizerExpanded,
+            visualizerReturnToPlayer: state.visualizerReturnToPlayer,
+        }),
+        shallow,
+    );
     const { setStore } = useFullScreenPlayerStoreActions();
 
     const handleToggleFullscreen = () => {

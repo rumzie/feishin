@@ -34,7 +34,7 @@ import { PlayerStatus } from '/@/shared/types/types';
 
 export const MobilePlayerbar = () => {
     const { t } = useTranslation();
-    const { expanded: isFullScreenPlayerExpanded } = useFullScreenPlayerStore();
+    const isFullScreenPlayerExpanded = useFullScreenPlayerStore((state) => state.expanded);
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const currentSong = usePlayerSong();
     const { currentStationArt } = useRadioPlayer();

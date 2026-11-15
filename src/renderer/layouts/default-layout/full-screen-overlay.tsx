@@ -4,7 +4,7 @@ import { FullScreenPlayer } from '/@/renderer/features/player/components/full-sc
 import { useFullScreenPlayerStore } from '/@/renderer/store';
 
 export const FullScreenOverlay = () => {
-    const { expanded: isFullScreenPlayerExpanded } = useFullScreenPlayerStore();
+    const isFullScreenPlayerExpanded = useFullScreenPlayerStore((state) => state.expanded);
 
     return (
         <AnimatePresence initial={false}>
