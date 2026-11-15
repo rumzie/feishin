@@ -89,18 +89,26 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
     const previousSongIdRef = useRef<string | undefined>(currentSong?.id);
     const [controlsVisible, setControlsVisible] = useState(false);
     const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+    const controlsVisibleRef = useRef(false);
 
     // The actions fade out on their own instead of relying only on :hover, which
     // can stay stuck after a click. Pointer and scroll interaction reveals them.
     const hideControls = useCallback(() => {
         clearTimeout(controlsTimeoutRef.current);
+        controlsVisibleRef.current = false;
         setControlsVisible(false);
     }, []);
 
     const revealControls = useCallback(() => {
-        setControlsVisible(true);
         clearTimeout(controlsTimeoutRef.current);
-        controlsTimeoutRef.current = setTimeout(() => setControlsVisible(false), 3000);
+        if (!controlsVisibleRef.current) {
+            controlsVisibleRef.current = true;
+            setControlsVisible(true);
+        }
+        controlsTimeoutRef.current = setTimeout(() => {
+            controlsVisibleRef.current = false;
+            setControlsVisible(false);
+        }, 3000);
     }, []);
 
     const handlePointerMove = useCallback(
