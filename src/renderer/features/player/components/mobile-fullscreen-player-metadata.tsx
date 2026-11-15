@@ -32,12 +32,13 @@ export const MobileFullscreenPlayerMetadata = memo(
 
         const isFavorite = currentSong?.userFavorite;
         const rating = currentSong?.userRating;
+        const showActions = !isRadio && (showFavorite || showRating);
 
         return (
             <div className={styles.metadataContainer}>
                 <SharedFullscreenPlayerMetadata />
 
-                {!isRadio && (
+                {showActions && (
                     <Group align="center" className={styles.actionsRow} gap="xs">
                         {showFavorite && (
                             <ActionIcon

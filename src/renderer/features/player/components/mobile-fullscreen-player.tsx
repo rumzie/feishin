@@ -539,7 +539,7 @@ export const MobileFullscreenPlayer = () => {
                     onUpdateRating={handleUpdateRating}
                     radioStationName={isRadioActive ? (stationName ?? undefined) : undefined}
                     radioTitle={isRadioActive ? (radioMetadata?.title ?? undefined) : undefined}
-                    showFavorite={showFavorites}
+                    showFavorite={showFavorites && !isLyricsState}
                     showRating={showRating}
                 />
                 {isLyricsState && (
