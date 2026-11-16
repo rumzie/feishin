@@ -192,17 +192,7 @@ export const SharedFullscreenPlayerMetadata = ({
                                     {stationName || 'Radio'}
                                 </TextScrolling>
                             ) : (
-                                <Text
-                                    overflow="hidden"
-                                    size="xl"
-                                    style={{
-                                        display: '-webkit-box',
-                                        overflow: 'hidden',
-                                        WebkitBoxOrient: 'vertical',
-                                        WebkitLineClamp: titleLineCount,
-                                    }}
-                                    w="100%"
-                                >
+                                <Text overflow="hidden" size="xl" w="100%">
                                     {stationName || 'Radio'}
                                 </Text>
                             )
@@ -226,12 +216,6 @@ export const SharedFullscreenPlayerMetadata = ({
                                 isLink
                                 overflow="hidden"
                                 size="xl"
-                                style={{
-                                    display: '-webkit-box',
-                                    overflow: 'hidden',
-                                    WebkitBoxOrient: 'vertical',
-                                    WebkitLineClamp: titleLineCount,
-                                }}
                                 to={generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, {
                                     albumId: currentSong?.albumId || '',
                                 })}
