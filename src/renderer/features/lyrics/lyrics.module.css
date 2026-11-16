@@ -18,8 +18,7 @@
         pointer-events: none;
     }
 
-    &.controls-visible,
-    &:focus-within {
+    &.controls-visible {
         opacity: 1 !important;
 
         :global(button),

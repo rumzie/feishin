@@ -594,6 +594,12 @@ export const Lyrics = ({ fadeOutNoLyricsMessage = true, settingsKey = 'default' 
         <ComponentErrorBoundary>
             <div
                 className={styles.lyricsContainer}
+                onBlurCapture={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                        hideControls();
+                    }
+                }}
+                onFocusCapture={revealControls}
                 onPointerDown={revealControls}
                 onPointerLeave={handlePointerLeave}
                 onPointerMove={handlePointerMove}
