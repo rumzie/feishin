@@ -187,15 +187,51 @@ export const SharedFullscreenPlayerMetadata = ({
                     )}
                     {showAlbum &&
                         (isRadioActive ? (
-                            <Text overflow="hidden" size="xl" w="100%">
-                                {stationName || 'Radio'}
-                            </Text>
+                            titleDisplayType === 'scroll' ? (
+                                <TextScrolling gap={100} pause={5} size="xl" speed={50}>
+                                    {stationName || 'Radio'}
+                                </TextScrolling>
+                            ) : (
+                                <Text
+                                    overflow="hidden"
+                                    size="xl"
+                                    style={{
+                                        display: '-webkit-box',
+                                        overflow: 'hidden',
+                                        WebkitBoxOrient: 'vertical',
+                                        WebkitLineClamp: titleLineCount,
+                                    }}
+                                    w="100%"
+                                >
+                                    {stationName || 'Radio'}
+                                </Text>
+                            )
+                        ) : titleDisplayType === 'scroll' ? (
+                            <TextScrolling
+                                component={Link}
+                                gap={100}
+                                isLink
+                                pause={5}
+                                size="xl"
+                                speed={50}
+                                to={generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, {
+                                    albumId: currentSong?.albumId || '',
+                                })}
+                            >
+                                {currentSong?.album}
+                            </TextScrolling>
                         ) : (
                             <Text
                                 component={Link}
                                 isLink
                                 overflow="hidden"
                                 size="xl"
+                                style={{
+                                    display: '-webkit-box',
+                                    overflow: 'hidden',
+                                    WebkitBoxOrient: 'vertical',
+                                    WebkitLineClamp: titleLineCount,
+                                }}
                                 to={generatePath(AppRoute.LIBRARY_ALBUMS_DETAIL, {
                                     albumId: currentSong?.albumId || '',
                                 })}
