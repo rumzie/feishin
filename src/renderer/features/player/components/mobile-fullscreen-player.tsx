@@ -582,7 +582,7 @@ export const MobileFullscreenPlayer = () => {
                         <div className={styles.queueHeader}>
                             <ActionIcon
                                 icon="arrowDownS"
-                                onClick={handleToggleFullScreenPlayer}
+                                onClick={handleToggleQueue}
                                 size="sm"
                                 variant={isPageHovered ? 'default' : 'subtle'}
                             />
