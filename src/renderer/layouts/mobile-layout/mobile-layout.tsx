@@ -15,6 +15,7 @@ import { WindowBar } from '/@/renderer/layouts/window-bar';
 import {
     useCommandPalette,
     useFullScreenPlayerOverlayState,
+    useFullScreenPlayerStore,
     useSetFullScreenPlayerStore,
     useWindowBarStyle,
 } from '/@/renderer/store';
@@ -36,16 +37,21 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const modalHistoryRef = useRef(false);
     const modalOpenRef = useRef(false);
     const closingModalViaBackRef = useRef(false);
+    const queueHistoryRef = useRef(false);
+    const queueOpenRef = useRef(false);
+    const closingQueueViaBackRef = useRef(false);
     const skipNextPopStateRef = useRef(false);
     const { opened: commandPaletteOpened } = useCommandPalette();
     const {
         expanded: isFullScreenPlayerExpanded,
         visualizerExpanded: isFullScreenVisualizerExpanded,
     } = useFullScreenPlayerOverlayState();
+    const activeTab = useFullScreenPlayerStore((state) => state.activeTab);
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const windowBarStyle = useWindowBarStyle();
 
     const modalOpen = modals.length > 0;
+    const isQueueOpen = isFullScreenPlayerExpanded && activeTab === 'queue';
 
     useEffect(() => {
         fullScreenPlayerExpandedRef.current = isFullScreenPlayerExpanded;
@@ -56,11 +62,25 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     }, [modalOpen]);
 
     useEffect(() => {
+        queueOpenRef.current = isQueueOpen;
+    }, [isQueueOpen]);
+
+    useEffect(() => {
         if (commandPaletteOpened) closeSidebar();
     }, [closeSidebar, commandPaletteOpened]);
 
     useEffect(() => {
         if (!isFullScreenPlayerExpanded) {
+            if (queueHistoryRef.current) {
+                queueHistoryRef.current = false;
+                closingQueueViaBackRef.current = false;
+
+                if (window.history.state?.mobileQueue) {
+                    skipNextPopStateRef.current = true;
+                    window.history.back();
+                }
+            }
+
             if (fullScreenPlayerHistoryRef.current) {
                 fullScreenPlayerHistoryRef.current = false;
 
@@ -85,6 +105,46 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
             fullScreenPlayerHistoryRef.current = true;
         }
     }, [isFullScreenPlayerExpanded]);
+
+    // Push a history entry while the mobile queue is open so the Android/browser
+    // back button closes the queue instead of the full-screen player.
+    useEffect(() => {
+        if (!isFullScreenPlayerExpanded) {
+            return;
+        }
+
+        if (isQueueOpen) {
+            if (queueHistoryRef.current) {
+                return;
+            }
+
+            queueHistoryRef.current = true;
+            window.history.pushState(
+                { ...window.history.state, mobileQueue: true },
+                '',
+                window.location.href,
+            );
+            return;
+        }
+
+        if (!queueHistoryRef.current) {
+            return;
+        }
+
+        queueHistoryRef.current = false;
+
+        if (closingQueueViaBackRef.current) {
+            closingQueueViaBackRef.current = false;
+            return;
+        }
+
+        // The queue was closed by its own UI, so remove the history entry we
+        // added without triggering the back navigation handlers.
+        if (window.history.state?.mobileQueue) {
+            skipNextPopStateRef.current = true;
+            window.history.back();
+        }
+    }, [isFullScreenPlayerExpanded, isQueueOpen]);
 
     // Push a history entry while a modal is open so the Android/browser back
     // button closes the modal instead of navigating the page behind it.
@@ -130,6 +190,13 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
             if (modalOpenRef.current) {
                 closingModalViaBackRef.current = true;
                 closeAllModals();
+                return;
+            }
+
+            if (queueOpenRef.current) {
+                closingQueueViaBackRef.current = true;
+                queueHistoryRef.current = false;
+                setFullScreenPlayerStore({ activeTab: 'player' });
                 return;
             }
 
