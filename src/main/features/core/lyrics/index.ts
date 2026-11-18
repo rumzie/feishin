@@ -138,7 +138,10 @@ const getRemoteLyrics = async (song: Song) => {
         name: song.name,
     };
 
-    const artist = song.artists?.[0]?.name || song.artistName || song.albumArtistName;
+    const artist =
+        song.artists?.map((artist) => artist.name).join(', ') ||
+        song.artistName ||
+        song.albumArtistName;
     if (artist) {
         params.artist = artist;
     }
@@ -154,18 +157,12 @@ const getRemoteLyrics = async (song: Song) => {
         results: allSearchResults,
     });
 
-    // Score is 0-1 where 0 = perfect match, 1 = worst match
-    const matchThreshold = 0.55;
-
-    // Best matches first, but skip anything too dissimilar to the current song
-    const candidates = rankedResults.filter((result) => (result.score ?? 1) <= matchThreshold);
-
     let lyricsFromSource: InternetProviderLyricResponse | null = null;
 
     // Try the first MAX_ATTEMPTS_PER_SOURCE results from one provider before
     // moving on to the next provider, so a provider having server issues does
     // not keep us from trying the next one
-    for (const sourceResults of groupSearchResultsBySource(candidates)) {
+    for (const sourceResults of groupSearchResultsBySource(rankedResults)) {
         for (const candidate of sourceResults.slice(0, MAX_ATTEMPTS_PER_SOURCE)) {
             try {
                 const lyrics = await GET_FETCHERS[candidate.source](candidate.id);
