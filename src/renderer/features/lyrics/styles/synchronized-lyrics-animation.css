@@ -10,6 +10,8 @@
     opacity: 1 !important;
 }
 
-.synchronized-lyrics .lyric-line:hover {
-    opacity: 1 !important;
+@media (hover: hover) {
+    .synchronized-lyrics .lyric-line:hover {
+        opacity: 1 !important;
+    }
 }

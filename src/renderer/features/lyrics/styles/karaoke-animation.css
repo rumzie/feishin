@@ -24,8 +24,10 @@
     opacity: 1 !important;
 }
 
-.synchronized-karaoke-lyrics :is(.karaoke-line, .lyric-line):hover {
-    opacity: 1 !important;
+@media (hover: hover) {
+    .synchronized-karaoke-lyrics :is(.karaoke-line, .lyric-line):hover {
+        opacity: 1 !important;
+    }
 }
 
 /* Word highlight via stacked text twin + gradient swipe */
