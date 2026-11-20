@@ -14,11 +14,11 @@
     margin: 0 auto;
 }
 
-.track div {
+.track > * {
     flex-shrink: 0;
     white-space: nowrap;
 }
 
-.track div + div {
+.track > * + * {
     margin-left: var(--scroll-gap);
 }
