@@ -170,6 +170,7 @@ export const getRemoteLyricsBySong = async (
 
     if (allSearchResults.length === 0 && params.name?.includes(' (')) {
         params.name = params.name.split(' (')[0];
+        params.artist = params.artist?.split('; ')[0];
         allSearchResults = await searchAllSources(params);
     }
 
