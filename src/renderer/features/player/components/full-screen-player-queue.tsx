@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { AnimatePresence, motion, Variants } from 'motion/react';
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import styles from './full-screen-player-queue.module.css';
@@ -8,6 +8,7 @@ import styles from './full-screen-player-queue.module.css';
 import { Lyrics } from '/@/renderer/features/lyrics/lyrics';
 import { PlayQueue } from '/@/renderer/features/now-playing/components/play-queue';
 import { FullScreenSimilarSongs } from '/@/renderer/features/player/components/full-screen-similar-songs';
+import { ResizeHandle } from '/@/renderer/features/shared/components/resize-handle';
 import { useListSettings, usePlaybackSettings, useSettingsStore } from '/@/renderer/store';
 import {
     useFullScreenPlayerStore,
@@ -30,11 +31,26 @@ const ButterchurnVisualizer = lazy(() =>
     })),
 );
 
+const VisualizerContent = () => {
+    const visualizerType = useSettingsStore((store) => store.visualizer.type);
+
+    return (
+        <Suspense fallback={<></>}>
+            {visualizerType === 'butterchurn' ? (
+                <ButterchurnVisualizer />
+            ) : (
+                <AudioMotionAnalyzerVisualizer />
+            )}
+        </Suspense>
+    );
+};
+
 const isDesktopPanelOpen = (activeTab: string, webAudio: boolean) =>
     activeTab === 'queue' ||
     activeTab === 'related' ||
     activeTab === 'lyrics' ||
-    (activeTab === 'visualizer' && webAudio);
+    (activeTab === 'visualizer' && webAudio) ||
+    (activeTab === 'split' && webAudio);
 
 const moduleContentVariants: Variants = {
     animate: {
@@ -105,6 +121,12 @@ const Controls = () => {
                 label: t('page.fullscreenPlayer.visualizer'),
                 onClick: () => toggleTab('visualizer'),
             });
+            items.push({
+                active: activeTab === 'split',
+                icon: 'layoutPanelBottom',
+                label: t('page.fullscreenPlayer.split'),
+                onClick: () => toggleTab('split'),
+            });
         }
 
         return items;
@@ -139,15 +161,45 @@ const Controls = () => {
 export const FullScreenPlayerControls = Controls;
 
 export const FullScreenPlayerQueue = () => {
-    const { activeTab } = useFullScreenPlayerStore();
+    const { activeTab, splitVisualizerHeight } = useFullScreenPlayerStore();
+    const { setStore } = useFullScreenPlayerStoreActions();
     const { webAudio } = usePlaybackSettings();
-    const visualizerType = useSettingsStore((store) => store.visualizer.type);
     const { table } = useListSettings(ItemListKey.FULL_SCREEN) || {};
+    const [isSplitResizing, setIsSplitResizing] = useState(false);
+    const splitRef = useRef<HTMLDivElement | null>(null);
+    const initialMouseYRef = useRef(0);
+    const initialVisualizerHeightRef = useRef(splitVisualizerHeight);
     const queueContainerClassName = clsx(styles.queueContainer, {
         [styles.queueContainerFadeTopBottom]: !table?.enableHeader,
     });
     const isPanelOpen = isDesktopPanelOpen(activeTab, webAudio);
     const isCollapsed = !isPanelOpen;
+
+    const resizeSplit = useCallback(
+        (event: MouseEvent) => {
+            const containerHeight = splitRef.current?.clientHeight;
+            if (!containerHeight) return;
+
+            const delta = ((event.clientY - initialMouseYRef.current) / containerHeight) * 100;
+            const nextHeight = initialVisualizerHeightRef.current - delta;
+            setStore({ splitVisualizerHeight: Math.min(70, Math.max(15, nextHeight)) });
+        },
+        [setStore],
+    );
+
+    const stopSplitResize = useCallback(() => setIsSplitResizing(false), []);
+
+    useEffect(() => {
+        if (!isSplitResizing) return;
+
+        window.addEventListener('mousemove', resizeSplit);
+        window.addEventListener('mouseup', stopSplitResize);
+
+        return () => {
+            window.removeEventListener('mousemove', resizeSplit);
+            window.removeEventListener('mouseup', stopSplitResize);
+        };
+    }, [isSplitResizing, resizeSplit, stopSplitResize]);
 
     return (
         <div
@@ -156,7 +208,37 @@ export const FullScreenPlayerQueue = () => {
             })}
         >
             <AnimatePresence initial={false} mode="wait">
-                {activeTab === 'queue' ? (
+                {activeTab === 'split' && webAudio ? (
+                    <motion.div
+                        animate="animate"
+                        className={styles.splitContent}
+                        exit="exit"
+                        initial="initial"
+                        key="split"
+                        ref={splitRef}
+                        variants={moduleContentVariants}
+                    >
+                        <div className={styles.splitLyrics}>
+                            <ResizeHandle
+                                isResizing={isSplitResizing}
+                                onMouseDown={(event) => {
+                                    event.preventDefault();
+                                    initialMouseYRef.current = event.clientY;
+                                    initialVisualizerHeightRef.current = splitVisualizerHeight;
+                                    setIsSplitResizing(true);
+                                }}
+                                placement="bottom"
+                            />
+                            <Lyrics fadeOutNoLyricsMessage={false} />
+                        </div>
+                        <div
+                            className={styles.splitVisualizer}
+                            style={{ flexBasis: `${splitVisualizerHeight}%` }}
+                        >
+                            <VisualizerContent />
+                        </div>
+                    </motion.div>
+                ) : activeTab === 'queue' ? (
                     <motion.div
                         animate="animate"
                         className={queueContainerClassName}
@@ -202,13 +284,7 @@ export const FullScreenPlayerQueue = () => {
                         key="visualizer"
                         variants={moduleContentVariants}
                     >
-                        <Suspense fallback={<></>}>
-                            {visualizerType === 'butterchurn' ? (
-                                <ButterchurnVisualizer />
-                            ) : (
-                                <AudioMotionAnalyzerVisualizer />
-                            )}
-                        </Suspense>
+                        <VisualizerContent />
                     </motion.div>
                 ) : null}
             </AnimatePresence>

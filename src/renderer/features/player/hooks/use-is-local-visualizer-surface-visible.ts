@@ -10,7 +10,8 @@ export function useIsLocalVisualizerSurfaceVisible(): boolean {
     const { activeTab, expanded, visualizerExpanded } = useFullScreenPlayerStore();
 
     const sidebarVisualizer = showVisualizerInSidebar && webAudioEnabled;
-    const fullScreenPlayerVisualizerTab = expanded && activeTab === 'visualizer' && webAudioEnabled;
+    const fullScreenPlayerVisualizerTab =
+        expanded && (activeTab === 'visualizer' || activeTab === 'split') && webAudioEnabled;
     const fullScreenVisualizerOverlay = visualizerExpanded && webAudioEnabled;
 
     return sidebarVisualizer || fullScreenPlayerVisualizerTab || fullScreenVisualizerOverlay;

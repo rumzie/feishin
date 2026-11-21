@@ -317,7 +317,8 @@ export const FullScreenPlayer = () => {
         activeTab === 'queue' ||
         activeTab === 'related' ||
         activeTab === 'lyrics' ||
-        activeTab === 'visualizer';
+        activeTab === 'visualizer' ||
+        activeTab === 'split';
 
     const isRadioActive = useIsRadioActive();
     const { isPlaying: isRadioPlaying } = useRadioPlayer();

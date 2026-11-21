@@ -25,6 +25,7 @@ interface FullScreenPlayerState {
     mobileLyricsSideBySide: boolean;
     opacity: number;
     playerItemAlignment: FullScreenPlayerItemAlignment;
+    splitVisualizerHeight: number;
     titleDisplayType: FullScreenPlayerTitleDisplayType;
     titleLineCount: number;
     useImageAspectRatio: boolean;
@@ -50,6 +51,7 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                 mobileLyricsSideBySide: true,
                 opacity: 25,
                 playerItemAlignment: 'center',
+                splitVisualizerHeight: 35,
                 titleDisplayType: 'scroll',
                 titleLineCount: 1,
                 useImageAspectRatio: true,
