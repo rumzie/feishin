@@ -104,7 +104,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
     const { t } = useTranslation();
     const focusTrapRef = useFocusTrap(true);
     const [isLoading, setIsLoading] = useState(false);
-    const { addServer, setCurrentServer } = useAuthStoreActions();
+    const { addServer, logout, setCurrentServer } = useAuthStoreActions();
     const { applyDefaultSettings } = useSettingsStoreActions();
     const serverList = useServerList();
     const { servers: discovered } = useAutodiscovery();
@@ -172,6 +172,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
                 serverItem.enableAudiobooks = form.values.enableAudiobooks;
             }
 
+            logout();
             addServer(serverItem);
             setCurrentServer(serverItem);
             closeAllModals();
@@ -261,6 +262,7 @@ export const AddServerForm = ({ onCancel }: AddServerFormProps) => {
                 serverItem.ndCredential = data.ndCredential;
             }
 
+            logout();
             addServer(serverItem);
             setCurrentServer(serverItem);
             await applyDefaultSettings();

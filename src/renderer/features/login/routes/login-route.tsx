@@ -6,10 +6,7 @@ import { Navigate } from 'react-router';
 
 import { api } from '/@/renderer/api';
 import { PageHeader } from '/@/renderer/components/page-header/page-header';
-import {
-    findExistingServerLockServer,
-    normalizeServerUrl,
-} from '/@/renderer/features/action-required/utils/server-lock';
+import { normalizeServerUrl } from '/@/renderer/features/action-required/utils/server-lock';
 import {
     isLegacyAuth,
     isServerLock,
@@ -27,13 +24,7 @@ import { useJellyfinQuickConnect } from '/@/renderer/features/servers/hooks/use-
 import { AnimatedPage } from '/@/renderer/features/shared/components/animated-page';
 import { PageErrorBoundary } from '/@/renderer/features/shared/components/page-error-boundary';
 import { AppRoute } from '/@/renderer/router/routes';
-import {
-    getServerById,
-    useAuthStore,
-    useAuthStoreActions,
-    useCurrentServer,
-    useServerList,
-} from '/@/renderer/store';
+import { useAuthStoreActions, useCurrentServer } from '/@/renderer/store';
 import { Button } from '/@/shared/components/button/button';
 import { Center } from '/@/shared/components/center/center';
 import { Code } from '/@/shared/components/code/code';
@@ -65,10 +56,9 @@ const SERVER_NAMES: Record<ServerType, string> = {
 const LoginRoute = () => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
-    const { addServer, deleteServer, setCurrentServer, updateServer } = useAuthStoreActions();
+    const { addServer, logout, setCurrentServer } = useAuthStoreActions();
     const { applyDefaultSettings } = useSettingsStoreActions();
     const currentServer = useCurrentServer();
-    const serverList = useServerList();
 
     // Check if server lock is configured
     const serverLock = isServerLock();
@@ -123,47 +113,21 @@ const LoginRoute = () => {
         stop: stopQuickConnect,
     } = useJellyfinQuickConnect({
         onAuthenticated: (data) => {
-            const normalizedUrl = normalizeServerUrl(serverUrl);
-            const normalizedRemoteURL = normalizeServerUrl(remoteUrl);
-            const existingServer = serverLock
-                ? findExistingServerLockServer(serverList, normalizedUrl, serverType)
-                : undefined;
-
-            const serverId = existingServer?.id ?? nanoid();
             const serverItem: ServerListItemWithCredential = {
                 credential: data.credential,
-                id: serverId,
+                id: nanoid(),
                 isAdmin: data.isAdmin,
                 name: serverName,
-                remoteUrl: normalizedRemoteURL,
+                remoteUrl: normalizeServerUrl(remoteUrl),
                 type: serverType as ServerType,
-                url: normalizedUrl,
+                url: normalizeServerUrl(serverUrl),
                 userId: data.userId,
                 username: data.username,
             };
 
-            if (existingServer) {
-                updateServer(existingServer.id, {
-                    credential: data.credential,
-                    isAdmin: data.isAdmin,
-                    name: serverName,
-                    remoteUrl: normalizedRemoteURL,
-                    url: normalizedUrl,
-                    userId: data.userId,
-                    username: data.username,
-                });
-                const updated = getServerById(existingServer.id);
-                if (updated) setCurrentServer(updated);
-            } else {
-                addServer(serverItem);
-                setCurrentServer(serverItem);
-            }
-
-            if (serverLock) {
-                Object.values(useAuthStore.getState().serverList).forEach((server) => {
-                    if (server.id !== serverId) deleteServer(server.id);
-                });
-            }
+            logout();
+            addServer(serverItem);
+            setCurrentServer(serverItem);
 
             toast.success({ message: t('form.addServer.success') });
         },
@@ -221,65 +185,34 @@ const LoginRoute = () => {
                 });
             }
 
-            const normalizedUrl = normalizeServerUrl(serverUrl);
-            const normalizedRemoteURL = normalizeServerUrl(remoteUrl);
-            const existingServer = serverLock
-                ? findExistingServerLockServer(serverList, normalizedUrl, serverType)
-                : undefined;
-
-            const serverId = existingServer?.id ?? nanoid();
             const serverItem: ServerListItemWithCredential = {
                 credential: data.credential,
-                id: serverId,
+                id: nanoid(),
                 isAdmin: data.isAdmin,
                 name: serverName,
-                remoteUrl: normalizedRemoteURL,
+                remoteUrl: normalizeServerUrl(remoteUrl),
                 type: serverType as ServerType,
-                url: normalizedUrl,
+                url: normalizeServerUrl(serverUrl),
                 userId: data.userId,
                 username: data.username,
             };
 
-            if (existingServer) {
-                const updates: Partial<ServerListItemWithCredential> = {
-                    credential: data.credential,
-                    isAdmin: data.isAdmin,
-                    name: serverName,
-                    remoteUrl: normalizedRemoteURL,
-                    url: normalizedUrl,
-                    userId: data.userId,
-                    username: data.username,
-                };
-                if (data.ndCredential !== undefined) {
-                    updates.ndCredential = data.ndCredential;
-                }
-                updateServer(existingServer.id, updates);
-                const updated = getServerById(existingServer.id);
-                if (updated) setCurrentServer(updated);
-            } else {
-                if (data.ndCredential !== undefined) {
-                    serverItem.ndCredential = data.ndCredential;
-                }
-                addServer(serverItem);
-                setCurrentServer(serverItem);
+            if (data.ndCredential !== undefined) {
+                serverItem.ndCredential = data.ndCredential;
             }
+
+            logout();
+            addServer(serverItem);
+            setCurrentServer(serverItem);
 
             await applyDefaultSettings();
-
-            if (serverLock) {
-                Object.values(useAuthStore.getState().serverList).forEach((server) => {
-                    if (server.id !== serverId) {
-                        deleteServer(server.id);
-                    }
-                });
-            }
 
             toast.success({
                 message: t('form.addServer.success'),
             });
 
             if (localSettings && values.password) {
-                const saved = await localSettings.passwordSet(values.password, serverId);
+                const saved = await localSettings.passwordSet(values.password, serverItem.id);
                 if (!saved) {
                     toast.error({
                         message: t('form.addServer.error', {

@@ -1,3 +1,4 @@
+import isElectron from 'is-electron';
 import merge from 'lodash/merge';
 import { nanoid } from 'nanoid/non-secure';
 import { devtools, persist } from 'zustand/middleware';
@@ -6,6 +7,8 @@ import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 
 import { ServerListItem, ServerListItemWithCredential } from '/@/shared/types/domain-types';
+
+const localSettings = isElectron() ? window.api.localSettings : null;
 
 export interface AuthSlice extends AuthState {
     actions: {
@@ -50,6 +53,9 @@ export const useAuthStore = createWithEqualityFn<AuthSlice>()(
                         return null;
                     },
                     logout: () => {
+                        Object.values(get().serverList).forEach((server) => {
+                            localSettings?.passwordRemove(server.id);
+                        });
                         set((state) => {
                             state.serverList = {};
                             state.currentServer = null;

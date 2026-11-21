@@ -131,9 +131,6 @@ export const ServerSelectorItems = () => {
         // Cancel in-flight requests before clearing credentials so they don't
         // retry/refetch with an empty token and surface auth error toasts.
         await queryClient.cancelQueries();
-        Object.values(serverList).forEach((server) => {
-            localSettings?.passwordRemove(server.id);
-        });
         logout();
 
         // Defer cache clear until after authenticated routes unmount.
