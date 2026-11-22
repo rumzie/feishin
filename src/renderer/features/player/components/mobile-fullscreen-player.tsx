@@ -578,26 +578,28 @@ export const MobileFullscreenPlayer = () => {
                         style={{ zIndex: 2 }}
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                        <div className={styles.queueHeader}>
-                            <ActionIcon
-                                icon="arrowDownS"
-                                onClick={handleToggleFullScreenPlayer}
-                                size="sm"
-                                variant={isPageHovered ? 'default' : 'subtle'}
-                            />
-                            <ActionIcon
-                                icon="x"
-                                iconProps={{ size: 'xl' }}
-                                onClick={handleToggleQueue}
-                                size="sm"
-                                variant={isPageHovered ? 'default' : 'subtle'}
-                            />
-                        </div>
                         <PlayQueueListControls
                             handleSearch={setQueueSearch}
                             isMobile
+                            leadingActions={
+                                <ActionIcon
+                                    icon="arrowDownS"
+                                    onClick={handleToggleFullScreenPlayer}
+                                    size="sm"
+                                    variant={isPageHovered ? 'default' : 'subtle'}
+                                />
+                            }
                             searchTerm={queueSearch}
                             tableRef={queueRef}
+                            trailingActions={
+                                <ActionIcon
+                                    icon="x"
+                                    iconProps={{ size: 'xl' }}
+                                    onClick={handleToggleQueue}
+                                    size="sm"
+                                    variant={isPageHovered ? 'default' : 'subtle'}
+                                />
+                            }
                             type={ItemListKey.FULL_SCREEN}
                         />
                         <Stack gap={0} h="100%" w="100%">

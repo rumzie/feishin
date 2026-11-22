@@ -1,6 +1,6 @@
 import { useIsFetching } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { MouseEvent, RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { MouseEvent, ReactNode, RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import styles from './play-queue-list-controls.module.css';
@@ -45,16 +45,20 @@ const getOverflowTier = (width: number): OverflowTier => {
 interface PlayQueueListOptionsProps {
     handleSearch: (value: string) => void;
     isMobile?: boolean;
+    leadingActions?: ReactNode;
     searchTerm?: string;
     tableRef: RefObject<ItemListHandle | null>;
+    trailingActions?: ReactNode;
     type: ItemListKey;
 }
 
 export const PlayQueueListControls = ({
     handleSearch,
     isMobile = false,
+    leadingActions,
     searchTerm,
     tableRef,
+    trailingActions,
     type,
 }: PlayQueueListOptionsProps) => {
     const { t } = useTranslation();
@@ -144,7 +148,13 @@ export const PlayQueueListControls = ({
             w="100%"
             wrap="nowrap"
         >
-            <Group gap="xs" style={{ flexShrink: 0 }} wrap="nowrap">
+            {leadingActions}
+            <Group
+                gap="xs"
+                mx={isMobile ? 'auto' : undefined}
+                style={{ flexShrink: 0 }}
+                wrap="nowrap"
+            >
                 {supportsQueue && (
                     <span className={styles.overflowTier1}>
                         <ActionIcon
@@ -263,6 +273,7 @@ export const PlayQueueListControls = ({
                     </DropdownMenu>
                 </span>
             </Group>
+            {trailingActions}
             {!isMobile && (
                 <>
                     <Divider h="60%" orientation="vertical" style={{ alignSelf: 'center' }} />
