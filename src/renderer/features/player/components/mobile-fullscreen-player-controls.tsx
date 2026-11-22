@@ -5,12 +5,12 @@ import styles from './mobile-fullscreen-player.module.css';
 
 import { MainPlayButton, PlayerButton } from '/@/renderer/features/player/components/player-button';
 import { usePlayer } from '/@/renderer/features/player/context/player-context';
+import { useToggleFullScreenPlayer } from '/@/renderer/features/player/hooks/use-toggle-full-screen-player';
 import {
     useIsRadioActive,
     useRadioControls,
 } from '/@/renderer/features/radio/hooks/use-radio-player';
 import { usePlayerStatus } from '/@/renderer/store';
-import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Icon } from '/@/shared/components/icon/icon';
 import { QueueSong } from '/@/shared/types/domain-types';
 import { PlayerStatus } from '/@/shared/types/types';
@@ -23,6 +23,7 @@ export const MobileFullscreenPlayerControls = memo(
     ({ currentSong }: MobileFullscreenPlayerControlsProps) => {
         const currentSongId = currentSong?.id;
         const { t } = useTranslation();
+        const handleMinimize = useToggleFullScreenPlayer();
         const status = usePlayerStatus();
         const isRadioActive = useIsRadioActive();
         const { stop: radioStop } = useRadioControls();
@@ -98,15 +99,14 @@ export const MobileFullscreenPlayerControls = memo(
                         }}
                         variant="secondary"
                     />
-                    {/* Invisible spacer mirroring the extra stop button on the left so the play button stays centered */}
-                    <ActionIcon
-                        aria-hidden
-                        disabled
-                        icon="mediaStop"
-                        iconProps={{ size: 'xl' }}
-                        style={{ pointerEvents: 'none', visibility: 'hidden' }}
-                        tabIndex={-1}
-                        variant="subtle"
+                    <PlayerButton
+                        icon={<Icon fill="default" icon="arrowDownS" size="xl" />}
+                        onClick={handleMinimize}
+                        tooltip={{
+                            label: t('common.minimize'),
+                            openDelay: 0,
+                        }}
+                        variant="tertiary"
                     />
                 </div>
             </div>

@@ -1,28 +1,19 @@
 import { useTranslation } from 'react-i18next';
 
 import { SONG_TABLE_COLUMNS } from '/@/renderer/components/item-list/item-table-list/default-columns';
+import { useToggleFullScreenPlayer } from '/@/renderer/features/player/hooks/use-toggle-full-screen-player';
 import { openFullScreenPlayerSettingsModal } from '/@/renderer/features/player/utils/open-full-screen-player-settings-modal';
 import {
     ListConfigMenu,
     SONG_DISPLAY_TYPES,
 } from '/@/renderer/features/shared/components/list-config-menu';
 import { useHotkeys } from '/@/renderer/hooks/use-hotkeys';
-import { useFullScreenPlayerStore, useFullScreenPlayerStoreActions } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { ItemListKey, ListDisplayType } from '/@/shared/types/types';
 
 export const SharedFullscreenPlayerSettings = () => {
     const { t } = useTranslation();
-    const { expanded } = useFullScreenPlayerStore();
-    const { setStore } = useFullScreenPlayerStoreActions();
-
-    const handleToggleFullScreenPlayer = () => {
-        setStore({
-            expanded: !expanded,
-            visualizerExpanded: false,
-            visualizerReturnToPlayer: false,
-        });
-    };
+    const handleToggleFullScreenPlayer = useToggleFullScreenPlayer();
 
     useHotkeys([['Escape', handleToggleFullScreenPlayer]]);
 
