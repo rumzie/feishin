@@ -558,13 +558,6 @@ export const MobileFullscreenPlayer = () => {
                 )}
                 <MobileFullscreenPlayerProgress currentSong={currentSong} />
                 <MobileFullscreenPlayerControls currentSong={currentSong} />
-                <MobileFullscreenPlayerBottomControls
-                    isLyricsActive={isLyricsState}
-                    isQueueActive={isQueueState}
-                    onToggleContextMenu={handleToggleContextMenu}
-                    onToggleLyrics={handleToggleLyrics}
-                    onToggleQueue={handleToggleQueue}
-                />
             </motion.div>
 
             <AnimatePresence>
@@ -598,6 +591,14 @@ export const MobileFullscreenPlayer = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <MobileFullscreenPlayerBottomControls
+                isLyricsActive={isLyricsState}
+                isQueueActive={isQueueState}
+                onToggleContextMenu={handleToggleContextMenu}
+                onToggleLyrics={handleToggleLyrics}
+                onToggleQueue={handleToggleQueue}
+            />
         </MobilePlayerContainer>
     );
 };

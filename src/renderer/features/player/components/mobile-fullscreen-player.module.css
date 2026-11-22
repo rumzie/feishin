@@ -2,6 +2,9 @@
     position: absolute;
     top: 0;
     left: 0;
+    display: grid;
+    grid-template-areas: 'content' 'bottom';
+    grid-template-rows: minmax(0, 1fr) auto;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -46,16 +49,13 @@
 
 .player-state,
 .queue-state {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
+    grid-area: content;
     width: 100%;
-    height: 100%;
+    min-height: 0;
     overflow: hidden;
     pointer-events: none;
     background: transparent;
@@ -74,9 +74,8 @@
         'art metadata'
         'lyrics lyrics'
         'progress progress'
-        'controls controls'
-        'bottom bottom';
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+        'controls controls';
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
     grid-template-columns: auto minmax(0, 1fr);
 }
 
@@ -113,10 +112,6 @@
 
 .player-state-split .controls-container {
     grid-area: controls;
-}
-
-.player-state-split .bottom-controls-bar {
-    grid-area: bottom;
 }
 
 /* Stacked split view: artwork and details sit above the lyrics. */
@@ -289,12 +284,14 @@
 }
 
 .bottom-controls-bar {
+    position: relative;
+    z-index: 3;
     display: flex;
     flex-shrink: 0;
+    grid-area: bottom;
     align-items: stretch;
     justify-content: center;
     width: 100%;
-    margin-top: auto;
     border-top: 1px solid var(--theme-colors-border);
 }
 
