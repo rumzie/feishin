@@ -450,18 +450,16 @@ export const MobileFullscreenPlayer = () => {
     const location = useLocation();
     const locationKeyRef = useRef<null | string>(null);
 
-    // Close the full-screen player when navigating away via a link (e.g. the
-    // album/artist links in the metadata), matching the desktop player. Compare
-    // the actual route instead of the location object so same-URL history
-    // changes (such as a modal closing) do not dismiss the player.
+    // Close the full-screen player when navigating via a link, matching the
+    // desktop player. Compare history keys rather than the route string so a
+    // link to the page already behind the player still dismisses it, while
+    // same-URL history changes (such as a modal closing) do not.
     useLayoutEffect(() => {
-        const locationKey = `${location.pathname}${location.search}${location.hash}`;
-
-        if (locationKeyRef.current !== null && locationKeyRef.current !== locationKey) {
+        if (locationKeyRef.current !== null && locationKeyRef.current !== location.key) {
             setFullScreenPlayerStore({ expanded: false });
         }
 
-        locationKeyRef.current = locationKey;
+        locationKeyRef.current = location.key;
     }, [location, setFullScreenPlayerStore]);
 
     const handleToggleFullScreenPlayer = useCallback(() => {
