@@ -18,6 +18,14 @@
     overflow: hidden;
 }
 
+.stacked-content {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    margin-top: var(--theme-spacing-xs);
+    background: var(--theme-colors-surface);
+}
+
 .item {
     position: relative;
     display: flex;

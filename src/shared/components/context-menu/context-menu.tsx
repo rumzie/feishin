@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { AnimatePresence, motion } from 'motion/react';
 import {
     createContext,
-    Fragment,
     type MouseEvent,
     type PointerEvent,
     type ReactNode,
@@ -21,6 +20,7 @@ import styles from './context-menu.module.css';
 import { animationVariants } from '/@/shared/components/animations/animation-variants';
 import { AppIcon, Icon } from '/@/shared/components/icon/icon';
 import { ScrollArea } from '/@/shared/components/scroll-area/scroll-area';
+import { useMediaQuery } from '/@/shared/hooks/use-media-query';
 
 interface ContextMenuContext {
     open: boolean;
@@ -222,6 +222,7 @@ function SubmenuContent(props: SubmenuContentProps) {
     const { cancelCloseTimeout, isCloseDisabled, open, setCloseTimeout, setOpen } = useContext(
         SubmenuContext,
     ) as SubmenuContext;
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     const handleMouseEnter = () => {
         cancelCloseTimeout();
@@ -239,28 +240,36 @@ function SubmenuContent(props: SubmenuContentProps) {
         }
     };
 
+    if (!open) return null;
+
+    const content = (
+        <motion.div
+            animate="show"
+            className={styles.innerContent}
+            initial="hidden"
+            variants={animationVariants.fadeIn}
+        >
+            {stickyContent}
+            <ScrollArea className={styles.maxHeight}>{children}</ScrollArea>
+        </motion.div>
+    );
+
+    // Radix hardcodes submenus to the side. On mobile, render inline so each
+    // level stacks below the one that opened it.
+    if (isMobile) {
+        return <div className={clsx(styles.content, styles.stackedContent)}>{content}</div>;
+    }
+
     return (
-        <Fragment>
-            {open && (
-                <RadixContextMenu.Portal forceMount>
-                    <RadixContextMenu.SubContent
-                        className={styles.content}
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                    >
-                        <motion.div
-                            animate="show"
-                            className={styles.innerContent}
-                            initial="hidden"
-                            variants={animationVariants.fadeIn}
-                        >
-                            {stickyContent}
-                            <ScrollArea className={styles.maxHeight}>{children}</ScrollArea>
-                        </motion.div>
-                    </RadixContextMenu.SubContent>
-                </RadixContextMenu.Portal>
-            )}
-        </Fragment>
+        <RadixContextMenu.Portal forceMount>
+            <RadixContextMenu.SubContent
+                className={styles.content}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
+                {content}
+            </RadixContextMenu.SubContent>
+        </RadixContextMenu.Portal>
     );
 }
 
