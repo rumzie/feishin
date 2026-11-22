@@ -13,6 +13,10 @@
     display: none;
 }
 
+.mobile-toolbar {
+    flex-shrink: 0;
+}
+
 .toolbar[data-overflow-tier='1'] .overflow-tier-1,
 .toolbar[data-overflow-tier='2'] .overflow-tier-1,
 .toolbar[data-overflow-tier='3'] .overflow-tier-1 {

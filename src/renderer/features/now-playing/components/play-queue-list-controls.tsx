@@ -44,6 +44,7 @@ const getOverflowTier = (width: number): OverflowTier => {
 
 interface PlayQueueListOptionsProps {
     handleSearch: (value: string) => void;
+    isMobile?: boolean;
     searchTerm?: string;
     tableRef: RefObject<ItemListHandle | null>;
     type: ItemListKey;
@@ -51,6 +52,7 @@ interface PlayQueueListOptionsProps {
 
 export const PlayQueueListControls = ({
     handleSearch,
+    isMobile = false,
     searchTerm,
     tableRef,
     type,
@@ -60,11 +62,12 @@ export const PlayQueueListControls = ({
     const player = usePlayer();
     const supportsQueue = hasFeature(server, ServerFeature.SERVER_PLAY_QUEUE);
     const toolbarRef = useRef<HTMLDivElement>(null);
-    const [overflowTier, setOverflowTier] = useState<OverflowTier>(0);
+    // Mobile keeps shuffle/clear visible and moves the rest into the overflow menu.
+    const [overflowTier, setOverflowTier] = useState<OverflowTier>(isMobile ? 2 : 0);
 
     useEffect(() => {
         const element = toolbarRef.current;
-        if (!element) return;
+        if (!element || isMobile) return;
 
         const updateTier = (width: number) => {
             setOverflowTier(getOverflowTier(width));
@@ -83,7 +86,7 @@ export const PlayQueueListControls = ({
         updateTier(element.getBoundingClientRect().width - horizontalPadding);
 
         return () => observer.disconnect();
-    }, []);
+    }, [isMobile]);
 
     const isFetching = useIsFetching({ queryKey: queryKeys.player.fetch({ type: 'queue' }) });
     const { isPending: isSavingQueue, mutate: saveQueue } = useSaveQueue();
@@ -129,6 +132,7 @@ export const PlayQueueListControls = ({
             align="center"
             className={clsx(styles.toolbar, {
                 [styles.hasRestore]: supportsQueue,
+                [styles.mobileToolbar]: isMobile,
             })}
             data-overflow-tier={overflowTier}
             gap="sm"
@@ -259,32 +263,36 @@ export const PlayQueueListControls = ({
                     </DropdownMenu>
                 </span>
             </Group>
-            <Divider h="60%" orientation="vertical" style={{ alignSelf: 'center' }} />
-            <Box style={{ display: 'flex', flex: 1, minWidth: 0 }}>
-                <SearchInput
-                    enableHotkey={false}
-                    fillContainer
-                    onChange={(e) => handleSearch(e.target.value)}
-                    value={searchTerm}
-                />
-            </Box>
-            <Divider h="60%" orientation="vertical" style={{ alignSelf: 'center' }} />
-            <Box style={{ flexShrink: 0 }}>
-                <ListConfigMenu
-                    displayTypes={[
-                        { hidden: true, value: ListDisplayType.GRID },
-                        ...SONG_DISPLAY_TYPES,
-                    ]}
-                    listKey={type}
-                    optionsConfig={{
-                        table: {
-                            itemsPerPage: { hidden: true },
-                            pagination: { hidden: true },
-                        },
-                    }}
-                    tableColumnsData={SONG_TABLE_COLUMNS}
-                />
-            </Box>
+            {!isMobile && (
+                <>
+                    <Divider h="60%" orientation="vertical" style={{ alignSelf: 'center' }} />
+                    <Box style={{ display: 'flex', flex: 1, minWidth: 0 }}>
+                        <SearchInput
+                            enableHotkey={false}
+                            fillContainer
+                            onChange={(e) => handleSearch(e.target.value)}
+                            value={searchTerm}
+                        />
+                    </Box>
+                    <Divider h="60%" orientation="vertical" style={{ alignSelf: 'center' }} />
+                    <Box style={{ flexShrink: 0 }}>
+                        <ListConfigMenu
+                            displayTypes={[
+                                { hidden: true, value: ListDisplayType.GRID },
+                                ...SONG_DISPLAY_TYPES,
+                            ]}
+                            listKey={type}
+                            optionsConfig={{
+                                table: {
+                                    itemsPerPage: { hidden: true },
+                                    pagination: { hidden: true },
+                                },
+                            }}
+                            tableColumnsData={SONG_TABLE_COLUMNS}
+                        />
+                    </Box>
+                </>
+            )}
         </Group>
     );
 };

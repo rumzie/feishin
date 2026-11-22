@@ -17,9 +17,11 @@ import { useLocation } from 'react-router';
 import styles from './mobile-fullscreen-player.module.css';
 
 import { useItemImageUrl } from '/@/renderer/components/item-image/item-image';
+import { ItemListHandle } from '/@/renderer/components/item-list/types';
 import { ContextMenuController } from '/@/renderer/features/context-menu/context-menu-controller';
 import { Lyrics } from '/@/renderer/features/lyrics/lyrics';
 import { PlayQueue } from '/@/renderer/features/now-playing/components/play-queue';
+import { PlayQueueListControls } from '/@/renderer/features/now-playing/components/play-queue-list-controls';
 import { MobileFullscreenPlayerAlbumArt } from '/@/renderer/features/player/components/mobile-fullscreen-player-album-art';
 import { MobileFullscreenPlayerBottomControls } from '/@/renderer/features/player/components/mobile-fullscreen-player-bottom-controls';
 import { MobileFullscreenPlayerControls } from '/@/renderer/features/player/components/mobile-fullscreen-player-controls';
@@ -447,6 +449,8 @@ export const MobileFullscreenPlayer = () => {
     const setRating = useSetRating();
 
     const [isPageHovered, setIsPageHovered] = useState(false);
+    const queueRef = useRef<ItemListHandle | null>(null);
+    const [queueSearch, setQueueSearch] = useState<string | undefined>(undefined);
 
     const location = useLocation();
     const locationKeyRef = useRef<null | string>(null);
@@ -589,8 +593,19 @@ export const MobileFullscreenPlayer = () => {
                                 variant={isPageHovered ? 'default' : 'subtle'}
                             />
                         </div>
+                        <PlayQueueListControls
+                            handleSearch={setQueueSearch}
+                            isMobile
+                            searchTerm={queueSearch}
+                            tableRef={queueRef}
+                            type={ItemListKey.FULL_SCREEN}
+                        />
                         <Stack gap={0} h="100%" w="100%">
-                            <PlayQueue listKey={ItemListKey.FULL_SCREEN} searchTerm={undefined} />
+                            <PlayQueue
+                                listKey={ItemListKey.FULL_SCREEN}
+                                ref={queueRef}
+                                searchTerm={queueSearch}
+                            />
                         </Stack>
                     </motion.div>
                 )}
