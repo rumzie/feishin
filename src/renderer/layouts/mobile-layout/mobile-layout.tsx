@@ -46,12 +46,12 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
         expanded: isFullScreenPlayerExpanded,
         visualizerExpanded: isFullScreenVisualizerExpanded,
     } = useFullScreenPlayerOverlayState();
-    const activeTab = useFullScreenPlayerStore((state) => state.activeTab);
+    const mobileQueueOpen = useFullScreenPlayerStore((state) => state.mobileQueueOpen);
     const setFullScreenPlayerStore = useSetFullScreenPlayerStore();
     const windowBarStyle = useWindowBarStyle();
 
     const modalOpen = modals.length > 0;
-    const isQueueOpen = isFullScreenPlayerExpanded && activeTab === 'queue';
+    const isQueueOpen = isFullScreenPlayerExpanded && mobileQueueOpen;
 
     useEffect(() => {
         fullScreenPlayerExpandedRef.current = isFullScreenPlayerExpanded;
@@ -196,7 +196,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
             if (queueOpenRef.current) {
                 closingQueueViaBackRef.current = true;
                 queueHistoryRef.current = false;
-                setFullScreenPlayerStore({ activeTab: 'player' });
+                setFullScreenPlayerStore({ mobileQueueOpen: false });
                 return;
             }
 

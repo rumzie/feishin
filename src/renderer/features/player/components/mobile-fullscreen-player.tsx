@@ -430,6 +430,7 @@ export const MobileFullscreenPlayer = () => {
         dynamicImageBlur,
         dynamicIsImage,
         mobileLyricsSideBySide,
+        mobileQueueOpen,
         opacity,
     } = useFullScreenPlayerStore();
     const currentSong = usePlayerSong();
@@ -484,8 +485,8 @@ export const MobileFullscreenPlayer = () => {
     );
 
     const handleToggleQueue = useCallback(() => {
-        setStore({ activeTab: activeTab === 'queue' ? 'player' : 'queue' });
-    }, [activeTab, setStore]);
+        setStore({ mobileQueueOpen: !mobileQueueOpen });
+    }, [mobileQueueOpen, setStore]);
 
     const handleToggleFavorite = useCallback(
         (e: MouseEvent<HTMLButtonElement>) => {
@@ -499,8 +500,11 @@ export const MobileFullscreenPlayer = () => {
     );
 
     const handleToggleLyrics = useCallback(() => {
-        setStore({ activeTab: activeTab === 'lyrics' ? 'player' : 'lyrics' });
-    }, [activeTab, setStore]);
+        setStore({
+            activeTab: activeTab === 'lyrics' && !mobileQueueOpen ? 'player' : 'lyrics',
+            mobileQueueOpen: false,
+        });
+    }, [activeTab, mobileQueueOpen, setStore]);
 
     const handleUpdateRating = useCallback(
         (rating: number) => {
@@ -511,8 +515,8 @@ export const MobileFullscreenPlayer = () => {
         [currentSong, setRating],
     );
 
-    const isPlayerState = activeTab !== 'queue';
-    const isQueueState = activeTab === 'queue';
+    const isPlayerState = !mobileQueueOpen;
+    const isQueueState = mobileQueueOpen;
     const isLyricsState = activeTab === 'lyrics';
     const isSongDefined = Boolean(currentSong?.id);
     const showRating =

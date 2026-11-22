@@ -23,6 +23,7 @@ interface FullScreenPlayerState {
     dynamicIsImage?: boolean;
     expanded: boolean;
     mobileLyricsSideBySide: boolean;
+    mobileQueueOpen: boolean;
     opacity: number;
     playerItemAlignment: FullScreenPlayerItemAlignment;
     splitVisualizerHeight: number;
@@ -49,6 +50,7 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                 dynamicIsImage: false,
                 expanded: false,
                 mobileLyricsSideBySide: true,
+                mobileQueueOpen: false,
                 opacity: 25,
                 playerItemAlignment: 'center',
                 splitVisualizerHeight: 35,
@@ -85,10 +87,10 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                 return persistedState;
             },
             name: 'store_full_screen_player',
-            // `visualizerReturnToPlayer` is transient navigation intent used only to route
-            // the "shrink visualizer" action back to the full-screen player; it isn't
-            // meaningful across app restarts, so it's excluded from persistence.
-            partialize: (state) => omit(state, ['visualizerReturnToPlayer']),
+            // `mobileQueueOpen` and `visualizerReturnToPlayer` are transient navigation
+            // intent; they aren't meaningful across app restarts, so they're excluded
+            // from persistence.
+            partialize: (state) => omit(state, ['mobileQueueOpen', 'visualizerReturnToPlayer']),
             version: 5,
         },
     ),
