@@ -68,7 +68,10 @@ export const MobilePlayerbar = () => {
     const stopPropagation = (e?: MouseEvent) => e?.stopPropagation();
 
     return (
-        <div className={clsx(styles.container, PlaybackSelectors.mediaPlayer)}>
+        <div
+            className={clsx(styles.container, PlaybackSelectors.mediaPlayer)}
+            onClick={handleToggleFullScreenPlayer}
+        >
             <div className={styles.contentWrapper}>
                 <LayoutGroup>
                     <AnimatePresence initial={false} mode="popLayout">
@@ -125,7 +128,7 @@ export const MobilePlayerbar = () => {
                             />
                         ) : (
                             <>
-                                <div className={styles.lineItem} onClick={stopPropagation}>
+                                <div className={styles.lineItem}>
                                     <Group align="center" gap="xs" wrap="nowrap">
                                         <Text
                                             className={PlaybackSelectors.songTitle}
@@ -162,7 +165,6 @@ export const MobilePlayerbar = () => {
                                         styles.secondary,
                                         PlaybackSelectors.songArtist,
                                     )}
-                                    onClick={stopPropagation}
                                 >
                                     {artists?.map((artist, index) => (
                                         <React.Fragment key={`bar-${artist.id}`}>
@@ -171,6 +173,7 @@ export const MobilePlayerbar = () => {
                                                 component={artist.id ? Link : undefined}
                                                 fw={500}
                                                 isLink={artist.id !== ''}
+                                                onClick={stopPropagation}
                                                 overflow="hidden"
                                                 size="xs"
                                                 to={
@@ -195,12 +198,12 @@ export const MobilePlayerbar = () => {
                                         styles.secondary,
                                         PlaybackSelectors.songAlbum,
                                     )}
-                                    onClick={stopPropagation}
                                 >
                                     <Text
                                         component={Link}
                                         fw={500}
                                         isLink
+                                        onClick={stopPropagation}
                                         overflow="hidden"
                                         size="xs"
                                         to={
