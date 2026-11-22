@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
     createContext,
     Fragment,
+    type MouseEvent,
+    type PointerEvent,
     type ReactNode,
     useContext,
     useEffect,
@@ -268,6 +270,7 @@ function SubmenuTarget(props: SubmenuTargetProps) {
         SubmenuContext,
     ) as SubmenuContext;
     const openTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const pointerTypeRef = useRef<null | string>(null);
 
     useEffect(() => {
         return () => {
@@ -276,6 +279,27 @@ function SubmenuTarget(props: SubmenuTargetProps) {
             }
         };
     }, []);
+
+    const handlePointerDown = (event: PointerEvent<HTMLElement>) => {
+        pointerTypeRef.current = event.pointerType;
+    };
+
+    // Touch has no hover, so Radix's SubTrigger click lands on the wrapped
+    // top-level item instead of opening the controlled submenu.
+    const handleClickCapture = (event: MouseEvent<HTMLElement>) => {
+        if (disabled || pointerTypeRef.current !== 'touch') return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (openTimeoutRef.current) {
+            clearTimeout(openTimeoutRef.current);
+            openTimeoutRef.current = null;
+        }
+
+        cancelCloseTimeout();
+        setOpen(true);
+    };
 
     const handleMouseEnter = () => {
         if (disabled) return;
@@ -308,8 +332,10 @@ function SubmenuTarget(props: SubmenuTargetProps) {
         <RadixContextMenu.SubTrigger
             className={clsx({ [styles.disabled]: disabled })}
             disabled={disabled}
+            onClickCapture={handleClickCapture}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onPointerDown={handlePointerDown}
         >
             {children}
         </RadixContextMenu.SubTrigger>
