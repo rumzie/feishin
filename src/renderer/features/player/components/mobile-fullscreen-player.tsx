@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'motion/react';
-import { Variants } from 'motion/react';
+import { PanInfo, Variants } from 'motion/react';
 import {
     CSSProperties,
     memo,
@@ -468,6 +468,15 @@ export const MobileFullscreenPlayer = () => {
         setFullScreenPlayerStore({ expanded: false });
     }, [setFullScreenPlayerStore]);
 
+    const handleSwipeDown = useCallback(
+        (_event: PointerEvent, info: PanInfo) => {
+            if (info.offset.y > 100) {
+                handleToggleFullScreenPlayer();
+            }
+        },
+        [handleToggleFullScreenPlayer],
+    );
+
     const handleToggleContextMenu = useCallback(
         (e: MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
             e.preventDefault();
@@ -540,6 +549,7 @@ export const MobileFullscreenPlayer = () => {
                 })}
                 onMouseEnter={() => setIsPageHovered(true)}
                 onMouseLeave={() => setIsPageHovered(false)}
+                onPanEnd={handleSwipeDown}
                 transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
                 <MobileFullscreenPlayerHeader />
