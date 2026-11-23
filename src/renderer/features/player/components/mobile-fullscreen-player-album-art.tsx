@@ -130,12 +130,25 @@ export const MobileFullscreenPlayerAlbumArt = () => {
                 albumArtRes ||
                 Math.ceil((mainImageRef.current as HTMLDivElement).offsetHeight / 100) * 100;
 
-            setMainImageDimensions({ idealSize });
+            setMainImageDimensions((prev) => (prev.idealSize === idealSize ? prev : { idealSize }));
         }
     }, [albumArtRes]);
 
     useLayoutEffect(() => {
+        const element = mainImageRef.current;
+        if (!element) {
+            return;
+        }
+
         updateImageSize();
+
+        const observer = new ResizeObserver(() => {
+            updateImageSize();
+        });
+
+        observer.observe(element);
+
+        return () => observer.disconnect();
     }, [updateImageSize]);
 
     // Track previous song to detect changes
