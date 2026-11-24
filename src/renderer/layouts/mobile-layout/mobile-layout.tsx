@@ -266,6 +266,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                                 className={styles.homeButton}
                                 onClick={() => navigate(AppRoute.HOME)}
                                 size="lg"
+                                style={{ background: 'transparent' }}
                                 tooltip={{ label: t('page.sidebar.home') }}
                                 variant="subtle"
                             >
