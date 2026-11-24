@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { AnimatePresence } from 'motion/react';
 import { Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 
 import styles from './mobile-layout.module.css';
 
@@ -13,6 +13,7 @@ import { MobileFullscreenPlayer } from '/@/renderer/features/player/components/m
 import { MobileSidebar } from '/@/renderer/features/sidebar/components/mobile-sidebar';
 import { PlayerBar } from '/@/renderer/layouts/default-layout/player-bar';
 import { WindowBar } from '/@/renderer/layouts/window-bar';
+import { AppRoute } from '/@/renderer/router/routes';
 import {
     useCommandPalette,
     useFullScreenPlayerOverlayState,
@@ -43,6 +44,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const closingQueueViaBackRef = useRef(false);
     const skipNextPopStateRef = useRef(false);
     const { open: openCommandPalette, opened: commandPaletteOpened } = useCommandPalette();
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const {
         expanded: isFullScreenPlayerExpanded,
@@ -241,6 +243,14 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                             onClick={openCommandPalette}
                             size="lg"
                             tooltip={{ label: t('common.search') }}
+                            variant="subtle"
+                        />
+                        <ActionIcon
+                            className={styles.homeButton}
+                            icon="home"
+                            onClick={() => navigate(AppRoute.HOME)}
+                            size="lg"
+                            tooltip={{ label: t('page.sidebar.home') }}
                             variant="subtle"
                         />
                     </>

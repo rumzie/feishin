@@ -23,6 +23,7 @@
 }
 
 .drawer-button,
+.home-button,
 .search-button {
     position: absolute;
     left: 0.75rem;
@@ -33,15 +34,20 @@
 }
 
 .drawer-button {
-    bottom: calc(90px + 0.75rem + 48px);
+    bottom: calc(90px + 0.75rem + 96px);
 }
 
 .search-button {
+    bottom: calc(90px + 0.75rem + 48px);
+}
+
+.home-button {
     bottom: calc(90px + 0.75rem);
 }
 
 @media (height < 192px) {
     .drawer-button,
+    .home-button,
     .search-button {
         display: none;
     }
