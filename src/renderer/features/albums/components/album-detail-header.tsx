@@ -261,6 +261,12 @@ export const AlbumDetailHeader = forwardRef<HTMLDivElement>((_props, ref) => {
                 title={detailQuery?.data?.name || ''}
             >
                 <Stack gap="md" w="100%">
+                    <Group className={styles.metadataGroup}>
+                        <JoinedArtists
+                            artistName={detailQuery?.data?.albumArtistName || ''}
+                            artists={detailQuery?.data?.albumArtists || []}
+                        />
+                    </Group>
                     <Group className={styles.metadataGroup} gap="xs">
                         {metadataItems.map((item, index) => (
                             <Fragment key={item.id}>
@@ -273,12 +279,6 @@ export const AlbumDetailHeader = forwardRef<HTMLDivElement>((_props, ref) => {
                                 <Text fw={400}>{item.value}</Text>
                             </Fragment>
                         ))}
-                    </Group>
-                    <Group className={styles.metadataGroup}>
-                        <JoinedArtists
-                            artistName={detailQuery?.data?.albumArtistName || ''}
-                            artists={detailQuery?.data?.albumArtists || []}
-                        />
                     </Group>
                     <LibraryHeaderMenu
                         favorite={detailQuery?.data?.userFavorite}
