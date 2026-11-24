@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { AnimatePresence, HTMLMotionProps, motion, Variants } from 'motion/react';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import styles from './mobile-fullscreen-player.module.css';
 
@@ -9,12 +9,7 @@ import {
     useIsRadioActive,
     useRadioPlayer,
 } from '/@/renderer/features/radio/hooks/use-radio-player';
-import {
-    useFullScreenPlayerStore,
-    useImageRes,
-    usePlayerData,
-    usePlayerSong,
-} from '/@/renderer/store';
+import { useFullScreenPlayerStore, usePlayerData, usePlayerSong } from '/@/renderer/store';
 import { Center } from '/@/shared/components/center/center';
 import { Icon } from '/@/shared/components/icon/icon';
 import { PlaybackSelectors } from '/@/shared/constants/playback-selectors';
@@ -87,27 +82,22 @@ const ImageWithPlaceholder = ({
 };
 
 export const MobileFullscreenPlayerAlbumArt = () => {
-    const mainImageRef = useRef<HTMLImageElement | null>(null);
-    const [mainImageDimensions, setMainImageDimensions] = useState({ idealSize: 1000 });
-
-    const { fullScreenPlayer: albumArtRes } = useImageRes();
     const { useImageAspectRatio } = useFullScreenPlayerStore();
     const isRadioActive = useIsRadioActive();
     const { currentStationArt: currentRadioStationArt } = useRadioPlayer();
     const currentSong = usePlayerSong();
     const { nextSong } = usePlayerData();
 
+    // Use the fullscreen resolution; the lyrics layout only scales the rendered image with CSS.
     const currentImageUrl = useItemImageUrl({
         id: currentSong?.imageId || undefined,
         itemType: LibraryItem.SONG,
-        size: mainImageDimensions.idealSize,
         type: 'fullScreenPlayer',
     });
 
     const nextImageUrl = useItemImageUrl({
         id: nextSong?.imageId || undefined,
         itemType: LibraryItem.SONG,
-        size: mainImageDimensions.idealSize,
         type: 'fullScreenPlayer',
     });
 
@@ -123,20 +113,6 @@ export const MobileFullscreenPlayerAlbumArt = () => {
         current: 0,
         topImage: currentImageUrl,
     });
-
-    const updateImageSize = useCallback(() => {
-        if (mainImageRef.current) {
-            const idealSize =
-                albumArtRes ||
-                Math.ceil((mainImageRef.current as HTMLDivElement).offsetHeight / 100) * 100;
-
-            setMainImageDimensions({ idealSize });
-        }
-    }, [albumArtRes]);
-
-    useLayoutEffect(() => {
-        updateImageSize();
-    }, [updateImageSize]);
 
     // Track previous song to detect changes
     const previousSongRef = useRef<string | undefined>(currentSong?._uniqueId);
@@ -165,7 +141,7 @@ export const MobileFullscreenPlayerAlbumArt = () => {
     }, [currentSong?._uniqueId, currentImageUrl, nextSong?._uniqueId, nextImageUrl, setImageState]);
 
     return (
-        <div className={styles.imageContainer} ref={mainImageRef}>
+        <div className={styles.imageContainer}>
             <div
                 className={clsx(styles.image, {
                     [styles.imageNativeAspectRatio]: useImageAspectRatio,
