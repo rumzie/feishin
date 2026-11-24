@@ -1,6 +1,14 @@
 import { closeAllModals } from '@mantine/modals';
 import { AnimatePresence } from 'motion/react';
-import { CSSProperties, memo, ReactNode, useCallback, useRef, useState } from 'react';
+import {
+    CSSProperties,
+    memo,
+    ReactNode,
+    useCallback,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from 'react';
 
 import styles from './library-header-bar.module.css';
 
@@ -41,7 +49,9 @@ interface HeaderPlayButtonProps {
 
 interface TitleProps {
     children: ReactNode;
+    className?: string;
     order?: number;
+    style?: CSSProperties;
 }
 
 const HeaderPlayButton = ({
@@ -101,9 +111,39 @@ const HeaderPlayButton = ({
     );
 };
 
-const Title = ({ children, order = 1 }: TitleProps) => {
+const Title = ({ children, className, order = 1, style }: TitleProps) => {
+    const ref = useRef<HTMLHeadingElement>(null);
+
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        const fit = () => {
+            el.style.fontSize = '';
+            const max = parseFloat(getComputedStyle(el).fontSize);
+            let size = max;
+            while (size > 14 && el.scrollWidth > el.clientWidth) {
+                size -= 1;
+                el.style.fontSize = `${size}px`;
+            }
+        };
+
+        fit();
+        const ro = new ResizeObserver(fit);
+        ro.observe(el);
+        if (el.parentElement) ro.observe(el.parentElement);
+        return () => ro.disconnect();
+    }, [children]);
+
     return (
-        <TextTitle fw={700} order={order as any} overflow="hidden">
+        <TextTitle
+            className={className}
+            fw={700}
+            order={order as any}
+            overflow="hidden"
+            ref={ref}
+            style={{ flex: '0 1 auto', minWidth: 0, ...style }}
+        >
             {children}
         </TextTitle>
     );

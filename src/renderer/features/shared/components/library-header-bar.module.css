@@ -1,9 +1,11 @@
 .header-container {
     display: flex;
+    flex: 1 1 0;
     flex-wrap: nowrap;
     gap: 1rem;
     align-items: center;
-    width: 100%;
+    width: auto;
+    min-width: 0;
     max-width: var(--theme-content-max-width);
     height: 100%;
     padding: 0 var(--theme-spacing-sm);
