@@ -2,6 +2,7 @@ import { useModals } from '@mantine/modals';
 import clsx from 'clsx';
 import { AnimatePresence } from 'motion/react';
 import { Suspense, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router';
 
 import styles from './mobile-layout.module.css';
@@ -41,7 +42,8 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const queueOpenRef = useRef(false);
     const closingQueueViaBackRef = useRef(false);
     const skipNextPopStateRef = useRef(false);
-    const { opened: commandPaletteOpened } = useCommandPalette();
+    const { open: openCommandPalette, opened: commandPaletteOpened } = useCommandPalette();
+    const { t } = useTranslation();
     const {
         expanded: isFullScreenPlayerExpanded,
         visualizerExpanded: isFullScreenVisualizerExpanded,
@@ -224,14 +226,24 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
             >
                 {!shell && <WindowBar />}
                 {!shell && (
-                    <ActionIcon
-                        className={styles.drawerButton}
-                        icon="menu"
-                        onClick={openSidebar}
-                        size="lg"
-                        tooltip={{ label: 'Menu' }}
-                        variant="subtle"
-                    />
+                    <>
+                        <ActionIcon
+                            className={styles.drawerButton}
+                            icon="menu"
+                            onClick={openSidebar}
+                            size="lg"
+                            tooltip={{ label: 'Menu' }}
+                            variant="subtle"
+                        />
+                        <ActionIcon
+                            className={styles.searchButton}
+                            icon="search"
+                            onClick={openCommandPalette}
+                            size="lg"
+                            tooltip={{ label: t('common.search') }}
+                            variant="subtle"
+                        />
+                    </>
                 )}
                 <main className={styles.mainContent}>
                     <Suspense fallback={<Spinner container />}>

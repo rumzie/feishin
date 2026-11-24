@@ -22,9 +22,9 @@
     grid-template-rows: 30px calc(100dvh - 120px) 90px;
 }
 
-.drawer-button {
+.drawer-button,
+.search-button {
     position: absolute;
-    bottom: calc(90px + 0.75rem);
     left: 0.75rem;
     z-index: 100;
     background: color-mix(in srgb, var(--theme-colors-background) 90%, transparent);
@@ -32,8 +32,17 @@
     backdrop-filter: blur(10px);
 }
 
+.drawer-button {
+    bottom: calc(90px + 0.75rem + 48px);
+}
+
+.search-button {
+    bottom: calc(90px + 0.75rem);
+}
+
 @media (height < 192px) {
-    .drawer-button {
+    .drawer-button,
+    .search-button {
         display: none;
     }
 }
