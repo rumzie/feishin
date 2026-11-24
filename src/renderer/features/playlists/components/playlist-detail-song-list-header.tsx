@@ -111,7 +111,7 @@ export const PlaylistDetailSongListHeader = ({
         placeholderData: location.state?.item,
     });
 
-    const playlistDuration = detailQuery?.data?.duration;
+
     const foldersEnabled = useSidebarPlaylistFolders();
     const folderSeparator = useSidebarPlaylistFolderSeparator();
     const playlistDisplayName = useMemo(() => {
@@ -170,16 +170,8 @@ export const PlaylistDetailSongListHeader = ({
                             songs={listData as Song[]}
                         />
                         <LibraryHeaderBar.Title>{playlistDisplayName}</LibraryHeaderBar.Title>
-                        {isSmartPlaylist && (
-                            <LibraryHeaderBar.Badge>
-                                {t('entity.smartPlaylist')}
-                            </LibraryHeaderBar.Badge>
-                        )}
-                        {!!playlistDuration && (
-                            <LibraryHeaderBar.Badge>
-                                {formatDurationString(playlistDuration)}
-                            </LibraryHeaderBar.Badge>
-                        )}
+
+
                         <LibraryHeaderBar.Badge
                             isLoading={itemCount === null || itemCount === undefined}
                         >

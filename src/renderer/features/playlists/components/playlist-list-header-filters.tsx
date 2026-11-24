@@ -26,8 +26,8 @@ export const PlaylistListHeaderFilters = () => {
     };
 
     return (
-        <Flex justify="space-between">
-            <Group gap="sm" w="100%">
+        <Flex justify="space-between" wrap="wrap">
+            <Group gap="sm">
                 <ListSortByDropdown
                     defaultSortByValue={PlaylistListSort.NAME}
                     itemType={LibraryItem.PLAYLIST}
@@ -40,7 +40,7 @@ export const PlaylistListHeaderFilters = () => {
                 />
                 <ListRefreshButton listKey={ItemListKey.PLAYLIST} />
             </Group>
-            <Group gap="sm" wrap="nowrap">
+            <Group gap="sm" ml="auto" wrap="nowrap">
                 <Button onClick={handleCreatePlaylistModal} variant="subtle">
                     {t('action.createPlaylist')}
                 </Button>

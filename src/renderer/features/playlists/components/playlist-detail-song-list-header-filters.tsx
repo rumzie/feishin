@@ -185,8 +185,8 @@ export const PlaylistDetailSongListHeaderFilters = ({
     }, [listData]);
 
     return (
-        <Flex justify="space-between" ref={containerRef}>
-            <Group gap="sm" w="100%">
+        <Flex justify="space-between" ref={containerRef} wrap="wrap">
+            <Group gap="sm">
                 <Button
                     disabled={isEditMode}
                     leftSection={<Icon icon="arrowLeftRight" />}
@@ -213,7 +213,7 @@ export const PlaylistDetailSongListHeaderFilters = ({
                 <ListRefreshButton disabled={isEditMode} listKey={listKey} />
                 <MoreButton onClick={handleMore} />
             </Group>
-            <Group gap="sm" wrap="nowrap">
+            <Group gap="sm" ml="auto" wrap="nowrap">
                 {isViewEditMode &&
                     (isSmartPlaylist ? (
                         editActions
