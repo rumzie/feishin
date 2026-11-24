@@ -20,6 +20,7 @@ import { usePlayButtonClick } from '/@/renderer/features/shared/hooks/use-play-b
 import { useIsMutatingCreateFavorite } from '/@/renderer/features/shared/mutations/create-favorite-mutation';
 import { useIsMutatingDeleteFavorite } from '/@/renderer/features/shared/mutations/delete-favorite-mutation';
 import { useIsMutatingRating } from '/@/renderer/features/shared/mutations/set-rating-mutation';
+import { useIsMobile } from '/@/renderer/hooks/use-is-mobile';
 import { useGeneralSettings } from '/@/renderer/store';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Button } from '/@/shared/components/button/button';
@@ -359,6 +360,7 @@ export const LibraryHeaderMenu = ({
     rating,
 }: LibraryHeaderMenuProps) => {
     const { t } = useTranslation();
+    const isMobile = useIsMobile();
     const isMutatingRating = useIsMutatingRating();
     const isMutatingCreateFavorite = useIsMutatingCreateFavorite();
     const isMutatingDeleteFavorite = useIsMutatingDeleteFavorite();
@@ -392,6 +394,22 @@ export const LibraryHeaderMenu = ({
         },
     });
 
+    const albumRadioButton = onAlbumRadio ? (
+        <ActionIcon
+            disabled={isPlayerFetching}
+            onClick={onAlbumRadio}
+            size="lg"
+            tooltip={{ label: t('player.albumRadio') }}
+            variant="transparent"
+        >
+            {isPlayerFetching ? (
+                <Spinner color="white" size="lg" />
+            ) : (
+                <Icon icon="radio" size="lg" />
+            )}
+        </ActionIcon>
+    ) : null;
+
     return (
         <div className={styles.libraryHeaderMenu}>
             <Group className={styles.primaryActions}>
@@ -402,21 +420,7 @@ export const LibraryHeaderMenu = ({
                 {onPlay && (
                     <PlayLastTextButton {...handlePlayLast.handlers} {...handlePlayLast.props} />
                 )}
-                {onAlbumRadio && (
-                    <ActionIcon
-                        disabled={isPlayerFetching}
-                        onClick={onAlbumRadio}
-                        size="lg"
-                        tooltip={{ label: t('player.albumRadio') }}
-                        variant="transparent"
-                    >
-                        {isPlayerFetching ? (
-                            <Spinner color="white" size="lg" />
-                        ) : (
-                            <Icon icon="radio" size="lg" />
-                        )}
-                    </ActionIcon>
-                )}
+                {!isMobile && albumRadioButton}
                 {onArtistRadio && (
                     <Button
                         disabled={isPlayerFetching}
@@ -444,6 +448,7 @@ export const LibraryHeaderMenu = ({
                         value={rating || 0}
                     />
                 )}
+                {isMobile && albumRadioButton}
                 {onFavorite && (
                     <ActionIcon
                         disabled={isMutatingFavorite}
