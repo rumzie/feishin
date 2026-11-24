@@ -560,6 +560,8 @@ export const GeneralSettingsSchema = z.object({
     pathReplaceWith: z.string(),
     playButtonBehavior: z.nativeEnum(Play),
     playerbarOpenDrawer: z.boolean(),
+    mobileShowHomeButton: z.boolean(),
+    mobileShowSearchButton: z.boolean(),
     playerbarSlider: PlayerbarSliderSchema,
     playerItems: z.array(SortableItemSchema(PlayerItemSchema)),
     playlistTarget: PlaylistTargetSchema,
@@ -1397,6 +1399,8 @@ const initialState: SettingsState = {
         pathReplaceWith: '',
         playButtonBehavior: Play.NOW,
         playerbarOpenDrawer: false,
+        mobileShowHomeButton: true,
+        mobileShowSearchButton: true,
         playerbarSlider: {
             barAlign: BarAlign.CENTER,
             barGap: 1,

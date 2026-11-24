@@ -736,6 +736,48 @@ export const ApplicationSettings = memo(() => {
         },
         {
             control: (
+                <Switch
+                    aria-label={t('setting.mobileShowSearchButton')}
+                    defaultChecked={settings.mobileShowSearchButton}
+                    onChange={(e) =>
+                        setSettings({
+                            general: {
+                                ...settings,
+                                mobileShowSearchButton: e.currentTarget.checked,
+                            },
+                        })
+                    }
+                />
+            ),
+            description: t('setting.mobileShowSearchButton', {
+                context: 'description',
+            }),
+            isHidden: false,
+            title: t('setting.mobileShowSearchButton'),
+        },
+        {
+            control: (
+                <Switch
+                    aria-label={t('setting.mobileShowHomeButton')}
+                    defaultChecked={settings.mobileShowHomeButton}
+                    onChange={(e) =>
+                        setSettings({
+                            general: {
+                                ...settings,
+                                mobileShowHomeButton: e.currentTarget.checked,
+                            },
+                        })
+                    }
+                />
+            ),
+            description: t('setting.mobileShowHomeButton', {
+                context: 'description',
+            }),
+            isHidden: false,
+            title: t('setting.mobileShowHomeButton'),
+        },
+        {
+            control: (
                 <NumberInput
                     max={120}
                     min={0}

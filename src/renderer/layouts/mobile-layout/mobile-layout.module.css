@@ -33,14 +33,6 @@
     backdrop-filter: blur(10px);
 }
 
-.drawer-button {
-    bottom: calc(90px + 0.75rem + 96px);
-}
-
-.search-button {
-    bottom: calc(90px + 0.75rem + 48px);
-}
-
 .home-button {
     bottom: calc(90px + 0.75rem);
 }

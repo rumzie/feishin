@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { AnimatePresence } from 'motion/react';
 import { Suspense, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RiHome6Line } from 'react-icons/ri';
 import { Outlet, useNavigate } from 'react-router';
 
 import styles from './mobile-layout.module.css';
@@ -18,6 +19,7 @@ import {
     useCommandPalette,
     useFullScreenPlayerOverlayState,
     useFullScreenPlayerStore,
+    useGeneralSettings,
     useSetFullScreenPlayerStore,
     useWindowBarStyle,
 } from '/@/renderer/store';
@@ -46,6 +48,7 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
     const { open: openCommandPalette, opened: commandPaletteOpened } = useCommandPalette();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { mobileShowHomeButton, mobileShowSearchButton } = useGeneralSettings();
     const {
         expanded: isFullScreenPlayerExpanded,
         visualizerExpanded: isFullScreenVisualizerExpanded,
@@ -234,25 +237,41 @@ export const MobileLayout = ({ shell }: MobileLayoutProps) => {
                             icon="menu"
                             onClick={openSidebar}
                             size="lg"
+                            style={{
+                                bottom: `calc(90px + 0.75rem + ${
+                                    (mobileShowSearchButton ? 48 : 0) +
+                                    (mobileShowHomeButton ? 48 : 0)
+                                }px)`,
+                            }}
                             tooltip={{ label: 'Menu' }}
                             variant="subtle"
                         />
-                        <ActionIcon
-                            className={styles.searchButton}
-                            icon="search"
-                            onClick={openCommandPalette}
-                            size="lg"
-                            tooltip={{ label: t('common.search') }}
-                            variant="subtle"
-                        />
-                        <ActionIcon
-                            className={styles.homeButton}
-                            icon="home"
-                            onClick={() => navigate(AppRoute.HOME)}
-                            size="lg"
-                            tooltip={{ label: t('page.sidebar.home') }}
-                            variant="subtle"
-                        />
+                        {mobileShowSearchButton && (
+                            <ActionIcon
+                                className={styles.searchButton}
+                                icon="search"
+                                onClick={openCommandPalette}
+                                size="lg"
+                                style={{
+                                    bottom: `calc(90px + 0.75rem + ${
+                                        mobileShowHomeButton ? 48 : 0
+                                    }px)`,
+                                }}
+                                tooltip={{ label: t('common.search') }}
+                                variant="subtle"
+                            />
+                        )}
+                        {mobileShowHomeButton && (
+                            <ActionIcon
+                                className={styles.homeButton}
+                                onClick={() => navigate(AppRoute.HOME)}
+                                size="lg"
+                                tooltip={{ label: t('page.sidebar.home') }}
+                                variant="subtle"
+                            >
+                                <RiHome6Line size="1.5rem" />
+                            </ActionIcon>
+                        )}
                     </>
                 )}
                 <main className={styles.mainContent}>
