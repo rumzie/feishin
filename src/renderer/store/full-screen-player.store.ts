@@ -15,6 +15,11 @@ export interface FullScreenPlayerSlice extends FullScreenPlayerState {
 
 export type FullScreenPlayerTitleDisplayType = 'multiLine' | 'scroll';
 
+const defaultActiveTab =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+        ? 'lyrics'
+        : 'split';
+
 interface FullScreenPlayerState {
     activeTab: 'lyrics' | 'queue' | 'related' | string;
     coverArtSize: number;
@@ -43,7 +48,7 @@ export const useFullScreenPlayerStore = createWithEqualityFn<FullScreenPlayerSli
                         set({ ...get(), ...data });
                     },
                 },
-                activeTab: 'split',
+                activeTab: defaultActiveTab,
                 coverArtSize: 100,
                 dynamicBackground: true,
                 dynamicImageBlur: 6,
