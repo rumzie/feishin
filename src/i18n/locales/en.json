@@ -485,6 +485,7 @@
     "page": {
         "albumArtistDetail": {
             "about": "About {{artist}}",
+            "allReleases": "All releases",
             "appearsOn": "Appears on",
             "favoriteSongs": "Favorite songs",
             "groupingTypeAll": "All release types",
@@ -1171,6 +1172,8 @@
         "enableGridMultiSelect_description": "When enabled, allows selecting multiple items in grid views. When disabled, clicking grid item images will navigate to the item page",
         "showVisualizerInSidebar_description": "A panel will be added to the player sidebar that displays the visualizer",
         "showVisualizerInSidebar": "Show visualizer in player sidebar",
+        "combineArtistReleaseTypes": "Combine artist release types",
+        "combineArtistReleaseTypes_description": "Show all releases in a single list on the artist page, ignoring release types",
         "combinedLyricsAndVisualizer_description": "Combine lyrics and visualizer into the same panel",
         "combinedLyricsAndVisualizer": "Combine lyrics and visualizer in player sidebar",
         "compressor_descriptionMpv": "Dynamic range compressor via FFmpeg acompressor (MPV)",

@@ -20,7 +20,11 @@ import { useSetFavorite } from '/@/renderer/features/shared/hooks/use-set-favori
 import { useSetRating } from '/@/renderer/features/shared/hooks/use-set-rating';
 import { AppRoute } from '/@/renderer/router/routes';
 import { useAppStore, useCurrentServer, useShowFavorites, useShowRatings } from '/@/renderer/store';
-import { useArtistReleaseTypeItems, usePlayButtonBehavior } from '/@/renderer/store/settings.store';
+import {
+    useArtistReleaseTypeItems,
+    usePlayButtonBehavior,
+    useSettingsStore,
+} from '/@/renderer/store/settings.store';
 import { formatDurationString } from '/@/renderer/utils';
 import { hasFeature, SEPARATOR_STRING, sortAlbumList } from '/@/shared/api/utils';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
@@ -150,7 +154,12 @@ export const AlbumArtistDetailHeader = forwardRef<HTMLDivElement, AlbumArtistDet
         const albumArtistDetailSort = useAppStore((state) => state.albumArtistDetailSort);
         const sortBy = albumArtistDetailSort.sortBy;
         const sortOrder = albumArtistDetailSort.sortOrder;
-        const groupingType = albumArtistDetailSort.groupingType;
+        const combineArtistReleaseTypes = useSettingsStore(
+            (state) => state.general.combineArtistReleaseTypes,
+        );
+        const groupingType = combineArtistReleaseTypes
+            ? 'none'
+            : albumArtistDetailSort.groupingType;
         const artistReleaseTypeItems = useArtistReleaseTypeItems();
 
         const handlePlay = useCallback(

@@ -2,14 +2,14 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ArtistReleaseTypeItem, useAppStore } from '/@/renderer/store';
-import { useArtistReleaseTypeItems } from '/@/renderer/store/settings.store';
+import { useArtistReleaseTypeItems, useSettingsStore } from '/@/renderer/store/settings.store';
 import { titleCase } from '/@/renderer/utils';
 import { SEPARATOR_STRING } from '/@/shared/api/utils';
 import { Album } from '/@/shared/types/domain-types';
 
 const collator = new Intl.Collator();
 
-export type GroupingType = 'all' | 'primary';
+export type GroupingType = 'all' | 'none' | 'primary';
 
 const PRIMARY_RELEASE_TYPES = ['album', 'broadcast', 'ep', 'other', 'single'];
 
@@ -161,7 +161,11 @@ export const getArtistAlbumsGrouped = (
     artistReleaseTypeItems: { disabled: boolean; id: string }[],
     t: (key: string, options?: any) => string,
 ) => {
-    const albumsByReleaseType = groupAlbumsByReleaseType(albums, routeId, groupingType);
+    const albumsByReleaseType = groupAlbumsByReleaseType(
+        albums,
+        routeId,
+        groupingType === 'none' ? 'all' : groupingType,
+    );
 
     const enabledReleaseTypeEnums = new Set(
         artistReleaseTypeItems.filter((item) => !item.disabled).map((item) => item.id),
@@ -312,6 +316,24 @@ export const getArtistAlbumsGrouped = (
             return collator.compare(a.releaseType, b.releaseType);
         });
 
+    if (groupingType === 'none') {
+        const enabledAlbums = new Set(releaseTypeEntries.flatMap((entry) => entry.albums));
+        const combinedAlbums = albums.filter((album) => enabledAlbums.has(album));
+
+        return {
+            flatSortedAlbums: combinedAlbums,
+            releaseTypeEntries: combinedAlbums.length
+                ? [
+                      {
+                          albums: combinedAlbums,
+                          displayName: t('page.albumArtistDetail.allReleases'),
+                          releaseType: 'all',
+                      },
+                  ]
+                : [],
+        };
+    }
+
     const flatSortedAlbums = releaseTypeEntries.flatMap((entry) => entry.albums);
 
     return { flatSortedAlbums, releaseTypeEntries };
@@ -321,7 +343,10 @@ export const useArtistAlbumsGrouped = (albums: Album[], routeId: string) => {
     const { t } = useTranslation();
     const artistReleaseTypeItems = useArtistReleaseTypeItems();
     const albumArtistDetailSort = useAppStore((state) => state.albumArtistDetailSort);
-    const groupingType = albumArtistDetailSort.groupingType;
+    const combineArtistReleaseTypes = useSettingsStore(
+        (state) => state.general.combineArtistReleaseTypes,
+    );
+    const groupingType = combineArtistReleaseTypes ? 'none' : albumArtistDetailSort.groupingType;
 
     return useMemo(() => {
         return getArtistAlbumsGrouped(albums, routeId, groupingType, artistReleaseTypeItems, t);

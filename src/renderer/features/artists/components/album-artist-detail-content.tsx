@@ -1672,6 +1672,11 @@ function GroupingTypeSelector() {
     const setAlbumArtistDetailGroupingType = useAppStore(
         (state) => state.actions.setAlbumArtistDetailGroupingType,
     );
+    const combineArtistReleaseTypes = useSettingsStore(
+        (state) => state.general.combineArtistReleaseTypes,
+    );
+
+    if (combineArtistReleaseTypes) return null;
 
     return (
         <DropdownMenu>

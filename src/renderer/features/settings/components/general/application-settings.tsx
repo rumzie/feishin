@@ -548,6 +548,27 @@ export const ApplicationSettings = memo(() => {
         {
             control: (
                 <Switch
+                    aria-label={t('setting.combineArtistReleaseTypes')}
+                    defaultChecked={settings.combineArtistReleaseTypes}
+                    onChange={(e) =>
+                        setSettings({
+                            general: {
+                                ...settings,
+                                combineArtistReleaseTypes: e.currentTarget.checked,
+                            },
+                        })
+                    }
+                />
+            ),
+            description: t('setting.combineArtistReleaseTypes', {
+                context: 'description',
+            }),
+            isHidden: false,
+            title: t('setting.combineArtistReleaseTypes'),
+        },
+        {
+            control: (
+                <Switch
                     aria-label="Toggle using native aspect ratio"
                     defaultChecked={settings.nativeAspectRatio}
                     onChange={(e) =>
