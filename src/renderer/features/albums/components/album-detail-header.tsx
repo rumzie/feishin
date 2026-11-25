@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { forwardRef, Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import styles from './album-detail-header.module.css';
 
@@ -21,7 +21,6 @@ import { AppRoute } from '/@/renderer/router/routes';
 import { useCurrentServer, useShowFavorites, useShowRatings } from '/@/renderer/store';
 import { useArtistRadioCount, usePlayButtonBehavior } from '/@/renderer/store/settings.store';
 import { formatDurationString, formatPartialIsoDateUTC, formatSizeString } from '/@/renderer/utils';
-import { normalizeReleaseTypes } from '/@/renderer/utils/normalize-release-types';
 import { Group } from '/@/shared/components/group/group';
 import { Separator } from '/@/shared/components/separator/separator';
 import { Stack } from '/@/shared/components/stack/stack';
@@ -207,50 +206,11 @@ export const AlbumDetailHeader = forwardRef<HTMLDivElement>((_props, ref) => {
         return items.filter((item) => !!item.value);
     }, [detailQuery?.data, releaseDate, releaseYear, t]);
 
-    const headerItem = useMemo(() => {
-        const album = detailQuery?.data;
-
-        if (!album) return null;
-
-        const releaseTypes = album.releaseType
-            ? normalizeReleaseTypes([album.releaseType], t)
-            : null;
-
-        const releaseTypeText = releaseTypes?.length ? releaseTypes[0] : null;
-
-        if (releaseTypeText) {
-            return (
-                <Group gap="sm">
-                    <Text
-                        component={Link}
-                        fw={600}
-                        isLink
-                        size="md"
-                        to={AppRoute.LIBRARY_ALBUMS}
-                        tt="uppercase"
-                    >
-                        {releaseTypeText}
-                    </Text>
-                    {album.version && (
-                        <>
-                            <Text fw={600} isMuted>
-                                <Separator />
-                            </Text>
-                            <Text>{album.version}</Text>
-                        </>
-                    )}
-                </Group>
-            );
-        }
-
-        return null;
-    }, [detailQuery?.data, t]);
-
     return (
         <Stack ref={ref}>
             <LibraryHeader
                 item={{
-                    children: headerItem,
+                    children: null,
                     dominantColor: detailQuery?.data?.dominantColor,
                     explicitStatus: detailQuery?.data?.explicitStatus ?? null,
                     imageId: detailQuery?.data?.imageId,

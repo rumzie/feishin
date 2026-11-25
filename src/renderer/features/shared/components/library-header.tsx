@@ -231,9 +231,7 @@ export const LibraryHeader = forwardRef(
                 )}
                 {title && (
                     <div className={styles.metadataSection}>
-                        {item.children ? (
-                            <div className={styles.itemType}>{item.children}</div>
-                        ) : (
+                        {item.children === undefined ? (
                             <Text
                                 className={styles.itemType}
                                 component={Link}
@@ -245,7 +243,9 @@ export const LibraryHeader = forwardRef(
                             >
                                 {itemTypeString()}
                             </Text>
-                        )}
+                        ) : item.children ? (
+                            <div className={styles.itemType}>{item.children}</div>
+                        ) : null}
 
                         <h1
                             className={styles.title}
