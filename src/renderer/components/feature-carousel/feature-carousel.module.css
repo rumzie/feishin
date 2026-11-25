@@ -79,6 +79,7 @@
     flex-direction: row;
     gap: var(--theme-spacing-md);
     align-items: center;
+    justify-content: center;
     min-height: 240px;
     padding: var(--theme-spacing-xl);
 }
@@ -146,9 +147,11 @@
 }
 
 .single-carousel-container .carousel-item .content .metadata-section {
-    flex: 1;
+    flex: 0 1 auto;
     align-items: flex-start;
     justify-content: center;
+    width: auto;
+    min-width: 0;
     height: auto;
     min-height: auto;
     max-height: none;
