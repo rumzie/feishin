@@ -317,20 +317,28 @@ export const getArtistAlbumsGrouped = (
         });
 
     if (groupingType === 'none') {
-        const enabledAlbums = new Set(releaseTypeEntries.flatMap((entry) => entry.albums));
+        const appearsOnEntries = releaseTypeEntries.filter(
+            (entry) => entry.releaseType === 'appears-on',
+        );
+        const enabledAlbums = new Set(
+            releaseTypeEntries
+                .filter((entry) => entry.releaseType !== 'appears-on')
+                .flatMap((entry) => entry.albums),
+        );
         const combinedAlbums = albums.filter((album) => enabledAlbums.has(album));
+        const combinedEntries = combinedAlbums.length
+            ? [
+                  {
+                      albums: combinedAlbums,
+                      displayName: t('page.albumArtistDetail.allReleases'),
+                      releaseType: 'all',
+                  },
+              ]
+            : [];
 
         return {
-            flatSortedAlbums: combinedAlbums,
-            releaseTypeEntries: combinedAlbums.length
-                ? [
-                      {
-                          albums: combinedAlbums,
-                          displayName: t('page.albumArtistDetail.allReleases'),
-                          releaseType: 'all',
-                      },
-                  ]
-                : [],
+            flatSortedAlbums: [...combinedAlbums, ...appearsOnEntries.flatMap((e) => e.albums)],
+            releaseTypeEntries: [...combinedEntries, ...appearsOnEntries],
         };
     }
 
