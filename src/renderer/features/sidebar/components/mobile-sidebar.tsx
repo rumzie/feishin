@@ -92,7 +92,7 @@ export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
                         label: styles.accordionLabel,
                         root: styles.accordionRoot,
                     }}
-                    defaultValue={['library', 'playlists']}
+                    defaultValue={['library', 'playlists', 'shared-playlists']}
                     multiple
                 >
                     <Accordion.Item value="library">
