@@ -10,6 +10,7 @@ import { useSettingsStoreActions } from '/@/renderer/store/settings.store';
 import { Button } from '/@/shared/components/button/button';
 import { Flex } from '/@/shared/components/flex/flex';
 import { Group } from '/@/shared/components/group/group';
+import { Icon } from '/@/shared/components/icon/icon';
 import { ConfirmModal } from '/@/shared/components/modal/modal';
 import { Text } from '/@/shared/components/text/text';
 
@@ -45,14 +46,22 @@ export const SettingsHeader = ({ showUpdateAvailable }: SettingsHeaderProps) => 
                     <LibraryHeaderBar.Title>
                         {t('common.setting', { count: 2 })}
                     </LibraryHeaderBar.Title>
-                    <Group pr="2rem">
+                    <Group ml="auto" pr="2rem" wrap="nowrap">
                         {showUpdateAvailable && <UpdateAvailableButton />}
                         <SearchInput
                             defaultValue={search}
                             onChange={(event) => setSearch(event.target.value.toLocaleLowerCase())}
                         />
-                        <Button onClick={openResetConfirmModal} variant="default">
+                        <Button onClick={openResetConfirmModal} variant="default" visibleFrom="xs">
                             {t('common.resetToDefault')}
+                        </Button>
+                        <Button
+                            aria-label={t('common.resetToDefault')}
+                            hiddenFrom="xs"
+                            onClick={openResetConfirmModal}
+                            variant="default"
+                        >
+                            <Icon icon="refresh" />
                         </Button>
                     </Group>
                 </Flex>
