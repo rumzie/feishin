@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 import * as RadixContextMenu from '@radix-ui/react-context-menu';
 import clsx from 'clsx';
@@ -61,6 +61,7 @@ interface LabelProps extends React.ComponentPropsWithoutRef<'div'> {
 
 interface SubmenuContext {
     cancelCloseTimeout: () => void;
+    contentRef: RefObject<HTMLDivElement | null>;
     disabled?: boolean;
     isCloseDisabled?: boolean;
     open: boolean;
@@ -178,6 +179,7 @@ function Submenu(props: SubmenuProps) {
     const { children, disabled, isCloseDisabled, open: isManuallyOpen } = props;
     const [open, setOpen] = useState(isManuallyOpen ?? false);
     const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const contentRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         return () => {
@@ -201,13 +203,14 @@ function Submenu(props: SubmenuProps) {
     const context = useMemo(
         () => ({
             cancelCloseTimeout,
+            contentRef,
             disabled,
             isCloseDisabled,
             open,
             setCloseTimeout,
             setOpen,
         }),
-        [disabled, isCloseDisabled, open],
+        [contentRef, disabled, isCloseDisabled, open],
     );
 
     return (
@@ -219,9 +222,8 @@ function Submenu(props: SubmenuProps) {
 
 function SubmenuContent(props: SubmenuContentProps) {
     const { children, stickyContent } = props;
-    const { cancelCloseTimeout, isCloseDisabled, open, setCloseTimeout, setOpen } = useContext(
-        SubmenuContext,
-    ) as SubmenuContext;
+    const { cancelCloseTimeout, contentRef, isCloseDisabled, open, setCloseTimeout, setOpen } =
+        useContext(SubmenuContext) as SubmenuContext;
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     const handleMouseEnter = () => {
@@ -262,6 +264,7 @@ function SubmenuContent(props: SubmenuContentProps) {
                 className={clsx(styles.content, styles.stackedContent)}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                ref={contentRef}
             >
                 {content}
             </div>
@@ -274,6 +277,7 @@ function SubmenuContent(props: SubmenuContentProps) {
                 className={styles.content}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                ref={contentRef}
             >
                 {content}
             </RadixContextMenu.SubContent>
@@ -283,7 +287,7 @@ function SubmenuContent(props: SubmenuContentProps) {
 
 function SubmenuTarget(props: SubmenuTargetProps) {
     const { children } = props;
-    const { cancelCloseTimeout, disabled, setCloseTimeout, setOpen } = useContext(
+    const { cancelCloseTimeout, contentRef, disabled, setCloseTimeout, setOpen } = useContext(
         SubmenuContext,
     ) as SubmenuContext;
     const openTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -333,10 +337,17 @@ function SubmenuTarget(props: SubmenuTargetProps) {
         }, 150);
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = (event: MouseEvent<HTMLElement>) => {
         if (openTimeoutRef.current) {
             clearTimeout(openTimeoutRef.current);
             openTimeoutRef.current = null;
+        }
+
+        if (
+            event.relatedTarget instanceof Node &&
+            contentRef.current?.contains(event.relatedTarget)
+        ) {
+            return;
         }
 
         const timeout = setTimeout(() => {
