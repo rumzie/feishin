@@ -257,7 +257,15 @@ function SubmenuContent(props: SubmenuContentProps) {
     // Radix hardcodes submenus to the side. On mobile, render inline so each
     // level stacks below the one that opened it.
     if (isMobile) {
-        return <div className={clsx(styles.content, styles.stackedContent)}>{content}</div>;
+        return (
+            <div
+                className={clsx(styles.content, styles.stackedContent)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
+                {content}
+            </div>
+        );
     }
 
     return (
