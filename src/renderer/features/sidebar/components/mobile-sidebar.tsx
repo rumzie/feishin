@@ -102,24 +102,20 @@ export const MobileSidebar = ({ onNavigate }: MobileSidebarProps) => {
                             </Text>
                         </Accordion.Control>
                         <Accordion.Panel>
-                            {sidebarItemsWithRoute.map((item) => {
-                                const keepMenuOpen = item.id === 'Search' || item.id === 'Settings';
-
-                                return (
-                                    <SidebarItem
-                                        key={`sidebar-${item.route}`}
-                                        onClick={() => {
-                                            if (!keepMenuOpen) onNavigate();
-                                        }}
-                                        to={item.route}
-                                    >
-                                        <Group gap="sm">
-                                            <SidebarIcon route={item.route} />
-                                            {item.label}
-                                        </Group>
-                                    </SidebarItem>
-                                );
-                            })}
+                            {sidebarItemsWithRoute.map((item) => (
+                                <SidebarItem
+                                    key={`sidebar-${item.route}`}
+                                    onClick={() => {
+                                        if (item.id !== 'Search') onNavigate();
+                                    }}
+                                    to={item.route}
+                                >
+                                    <Group gap="sm">
+                                        <SidebarIcon route={item.route} />
+                                        {item.label}
+                                    </Group>
+                                </SidebarItem>
+                            ))}
                         </Accordion.Panel>
                     </Accordion.Item>
                     {sidebarPlaylistList && (
